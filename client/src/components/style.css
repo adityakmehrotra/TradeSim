@@ -1,0 +1,15 @@
+/* styles.css */
+.news-article-card {
+    width: 100%;
+    margin-bottom: 20px;
+    display: flex;
+    flexDirection: row;
+    overflow: hidden;
+    border: none;
+    transition: background-color 0.3s; /* Smooth transition for background color */
+  }
+  
+  .news-article-card:hover {
+    background-color: #f8f9fa; /* Light gray background on hover */
+  }
+  
