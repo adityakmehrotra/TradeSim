@@ -23,7 +23,7 @@ export default function SecurityPage(props) {
         getQuoteEndpoint();
         getKeyStatisticsEndpoint();
         fetchCurrentPrice();
-    }, [searchQuery]);
+    }, [searchQuery, fetchCurrentPrice, getCompanyData, getKeyStatisticsEndpoint, getQuoteEndpoint]);    
 
     const getCompanyData = () => {
         fetch(`http://localhost:8000/paper_trader/polygon/companyData?ticker=${ticker}`)
