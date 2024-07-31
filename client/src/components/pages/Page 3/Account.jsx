@@ -1,10 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Card, Button, Form, Alert } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserContext } from '../../../UserContext';
 
 export default function Account() {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const [isLogin, setIsLogin] = useState(location.state?.isLogin ?? true);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -23,7 +25,7 @@ export default function Account() {
     if (!isLogin && formData.username !== "") {
       checkUsernameExists(formData.username);
     }
-  }, [formData.username]);
+  }, [formData.username, isLogin]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -223,7 +225,7 @@ export default function Account() {
                 placeholder="Enter username"
                 required
               />
-              {formData.username && (
+              {formData.username && !isLogin && (
                 <Form.Text className={usernameExists ? "text-danger" : "text-success"}>
                   {usernameExists ? "Username already exists. Please pick a different username." : "Username is available."}
                 </Form.Text>

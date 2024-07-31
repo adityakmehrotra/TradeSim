@@ -4,7 +4,7 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 import '../App.css';
-import Portfolio from './pages/Page 1/Portfolio';
+import Portfolio from './pages/Page 1/PortfolioList';
 import Notifications from './pages/Page 2/Notifications';
 import Account from './pages/Page 3/Account';
 import SecurityPage from './SecurityPage.jsx';
