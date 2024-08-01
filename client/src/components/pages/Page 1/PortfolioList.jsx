@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Card, Button, Container, Row, Col, Form } from "react-bootstrap";
+import { Card, Button, Container, Row, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../UserContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -114,16 +114,14 @@ export default function PortfolioList() {
       </Row>
       <Row>
         {portfolios.map(portfolio => (
-          <Col key={portfolio.portfolioID} md={4} className="mb-4">
-            <Card onClick={() => handlePortfolioClick(portfolio.portfolioID)}>
-              <Card.Body>
-                <Card.Title>{portfolio.name}</Card.Title>
-                <Card.Text>
-                  Cash: ${portfolio.cash.toFixed(2)}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
+          <Card key={portfolio.portfolioID} onClick={() => handlePortfolioClick(portfolio.portfolioID)} className="mb-4" style={{ width: '100%' }}>
+            <Card.Body>
+              <Card.Title>{portfolio.name}</Card.Title>
+              <Card.Text>
+                Cash: ${portfolio.cash.toFixed(2)}
+              </Card.Text>
+            </Card.Body>
+          </Card>
         ))}
       </Row>
       <Row className="mt-4">
