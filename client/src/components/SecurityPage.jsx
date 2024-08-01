@@ -15,6 +15,7 @@ export default function SecurityPage(props) {
     const [keyStats, setKeyStats] = useState(null);
     const [companyData, setCompanyData] = useState(null);
     const [currentPrice, setCurrentPrice] = useState(null);
+    const [selectedRange, setSelectedRange] = useState('1D');
     const { searchQuery } = useParams();
     const ticker = searchQuery.toUpperCase();
 
@@ -23,7 +24,8 @@ export default function SecurityPage(props) {
         getQuoteEndpoint();
         getKeyStatisticsEndpoint();
         fetchCurrentPrice();
-    }, [searchQuery]);    
+        fetchStartingPrice();
+    }, [searchQuery, selectedRange]);    
 
     const getCompanyData = () => {
         fetch(`http://localhost:8000/paper_trader/polygon/companyData?ticker=${ticker}`)
@@ -88,6 +90,79 @@ export default function SecurityPage(props) {
         .catch(error => console.error('Error fetching current price:', error));
     };
 
+    const fetchStartingPrice = () => {
+        const [multiplier, timespan, from, to] = getIntervalParams(selectedRange);
+        fetch(`http://localhost:8000/paper_trader/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    setStartingPrice(data.results[0].c); // Set the starting price from the first data point
+                }
+            })
+            .catch(error => console.error("Error fetching starting price:", error));
+    };
+
+    const getIntervalParams = (range) => {
+        let multiplier, timespan, fromDate, toDate;
+        toDate = new Date();
+        fromDate = new Date();
+
+        switch (range) {
+            case '1D':
+                fromDate.setDate(toDate.getDate() - 1);
+                timespan = 'minute';
+                multiplier = 1;
+                break;
+            case '1W':
+                fromDate.setDate(toDate.getDate() - 7);
+                timespan = 'hour';
+                multiplier = 1;
+                break;
+            case '1M':
+                fromDate.setMonth(toDate.getMonth() - 1);
+                timespan = 'hour';
+                multiplier = 1;
+                break;
+            case '3M':
+                fromDate.setMonth(toDate.getMonth() - 3);
+                timespan = 'day';
+                multiplier = 1;
+                break;
+            case 'YTD':
+                fromDate = new Date(new Date().getFullYear(), 0, 1);
+                timespan = 'day';
+                multiplier = 1;
+                break;
+            case '1Y':
+                fromDate.setFullYear(toDate.getFullYear() - 1);
+                timespan = 'day';
+                multiplier = 1;
+                break;
+            case '5Y':
+                fromDate.setFullYear(toDate.getFullYear() - 5);
+                timespan = 'week';
+                multiplier = 1;
+                break;
+            default:
+                fromDate.setDate(toDate.getDate() - 1);
+                timespan = 'minute';
+                multiplier = 1;
+                break;
+        }
+
+        const from = fromDate.toISOString().split('T')[0];
+        const to = toDate.toISOString().split('T')[0];
+
+        return [multiplier, timespan, from, to];
+    };
+
+    const calculatePriceChange = () => {
+        if (currentPrice !== null && startingPrice !== null) {
+            return (currentPrice - startingPrice).toFixed(2);
+        }
+        return null;
+    };
+    
     const showMoreArticles = () => {
         setVisibleCount(prevCount => prevCount + 5);
     };
@@ -101,10 +176,15 @@ export default function SecurityPage(props) {
                             <Col>
                                 <h1>{companyData.name} ({companyData.ticker})</h1>
                                 {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
+                                {currentPrice !== null && startingPrice !== null && (
+                                    <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
+                                        {currentPrice - startingPrice >= 0 ? "+" : ""}{calculatePriceChange()}
+                                    </h3>
+                                )}
                             </Col>
                         </Row>
                     )}
-                    <StockChart ticker={ticker} />
+                    <StockChart ticker={ticker} selectedRange={selectedRange} setSelectedRange={setSelectedRange} />
                     <AboutCompany company={companyData} />
                     <Row className="mb-4">
                         <Col><h2 style={{ borderBottom: '2px solid #000' }}>Key Statistics</h2></Col>
