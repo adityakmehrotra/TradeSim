@@ -9,7 +9,7 @@ import StockChart from './StockChart';
 import { UserContext } from '../UserContext';
 
 export default function SecurityPage(props) {
-    const { user } = useContext(UserContext);
+    const { user, id } = useContext(UserContext);
     const [visibleCount, setVisibleCount] = useState(3);
     const [newsArticles, setNewsArticles] = useState([]);
     const [keyStats, setKeyStats] = useState(null);
@@ -19,6 +19,7 @@ export default function SecurityPage(props) {
     const [selectedRange, setSelectedRange] = useState('1D');
     const { searchQuery } = useParams();
     const ticker = searchQuery.toUpperCase();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getCompanyData();
