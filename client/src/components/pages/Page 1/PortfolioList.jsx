@@ -31,28 +31,12 @@ export default function PortfolioList() {
   const fetchPortfolios = (ids) => {
     ids.forEach(portfolioID => {
       Promise.all([
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`)
-          .then(res => res.text())
-          .then(text => {
-            try {
-              return JSON.parse(text);
-            } catch (error) {
-              return text; // Return plain text if not JSON
-            }
-          }),
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`)
-          .then(res => res.text())
-          .then(text => {
-            try {
-              return JSON.parse(text);
-            } catch (error) {
-              return text; // Return plain text if not JSON
-            }
-          })
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`).then(res => res.json()),
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`).then(res => res.json())
       ])
       .then(([name, cash]) => {
-        if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
-          setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name, cash: parseFloat(cash) }]);
+        if (typeof name === 'string' && typeof cash === 'number') {
+          setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name, cash }]);
         } else {
           console.error('Error: Invalid data format received for portfolio details');
         }
@@ -66,48 +50,48 @@ export default function PortfolioList() {
   };
 
   const handleCreatePortfolio = () => {
-  // Fetch the next portfolio ID from the server
-  fetch("http://localhost:8000/get/nextportfolioID")
-    .then(response => response.json())
-    .then(data => {
-      const newPortfolioID = data; // Assuming the endpoint directly returns an integer ID
-      const newPortfolio = {
-        portfolioID: newPortfolioID,
-        accountID: id,
-        portfolioName: newPortfolioName,
-        cashAmount: parseFloat(newPortfolioCash)
-      };
+    // Fetch the next portfolio ID from the server
+    fetch("http://localhost:8000/get/nextportfolioID")
+      .then(response => response.json())
+      .then(data => {
+        const newPortfolioID = data; // Assuming the endpoint directly returns an integer ID
+        const newPortfolio = {
+          portfolioID: newPortfolioID,
+          accountID: id,
+          portfolioName: newPortfolioName,
+          cashAmount: parseFloat(newPortfolioCash)
+        };
 
-      // Create the new portfolio with the fetched ID
-      fetch("http://localhost:8000/paper_trader/portfolio/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(newPortfolio)
-      })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Error creating portfolio');
-        }
-      })
-      .then(() => {
-        fetch(`http://localhost:8000/paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
-          method: "POST"
+        // Create the new portfolio with the fetched ID
+        fetch("http://localhost:8000/paper_trader/portfolio/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newPortfolio)
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Error creating portfolio');
+          }
         })
         .then(() => {
-          setPortfolios([...portfolios, { portfolioID: newPortfolioID, name: newPortfolioName, cash: parseFloat(newPortfolioCash) }]);
-          setNewPortfolioName("");
-          setNewPortfolioCash("");
+          fetch(`http://localhost:8000/paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
+            method: "POST"
+          })
+          .then(() => {
+            setPortfolios([...portfolios, { portfolioID: newPortfolioID, name: newPortfolioName, cash: parseFloat(newPortfolioCash) }]);
+            setNewPortfolioName("");
+            setNewPortfolioCash("");
+          })
+          .catch(error => console.error('Error adding portfolio to account:', error));
         })
-        .catch(error => console.error('Error adding portfolio to account:', error));
+        .catch(error => console.error('Error during portfolio creation:', error));
       })
-      .catch(error => console.error('Error during portfolio creation:', error));
-    })
-    .catch(error => console.error('Error fetching next portfolio ID:', error));
-};
+      .catch(error => console.error('Error fetching next portfolio ID:', error));
+  };
 
   if (!user) {
     return (
