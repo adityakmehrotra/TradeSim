@@ -12,6 +12,7 @@ function TradingPage({ ticker, currentPrice }) {
     const [portfolios, setPortfolios] = useState([]);
     const [selectedPortfolioID, setSelectedPortfolioID] = useState('');
     const [buyingPower, setBuyingPower] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const { user, id } = useContext(UserContext);
     const navigate = useNavigate();
 
@@ -128,6 +129,19 @@ function TradingPage({ ticker, currentPrice }) {
         return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
     };
 
+    const handleReviewOrderClick = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    const handleConfirmOrder = () => {
+        // Add logic to confirm the order
+        setShowModal(false);
+    };
+
     if (!user) {
         return (
             <Col md={3} style={{
@@ -151,108 +165,129 @@ function TradingPage({ ticker, currentPrice }) {
     }
 
     return (
-        <Col md={3} style={{
-            position: 'fixed',
-            top: '80px',
-            right: '10%',
-            width: '25%',
-            backgroundColor: 'white',
-            padding: '20px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-            maxHeight: 'calc(100vh - 80px)',
-            overflowY: 'auto'
-        }}>
-            <div>
-                <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #000', padding: '0 20px' }}>
-                    <span 
-                        style={{
-                            padding: '15px 20px',
-                            borderBottom: activeTab === 'Buy' ? '2px solid #000' : 'none',
-                            cursor: 'pointer',
-                            flex: '1',
-                            textAlign: 'center',
-                            fontSize: '16px',
-                            fontWeight: 'bold'
-                        }}
-                        onClick={() => handleTabClick('Buy')}
-                    >
-                        Buy {ticker}
-                    </span>
-                    <span
-                        style={{
-                            padding: '15px 20px',
-                            borderBottom: activeTab === 'Sell' ? '2px solid #000' : 'none',
-                            cursor: 'pointer',
-                            flex: '1',
-                            textAlign: 'center',
-                            fontSize: '16px',
-                            fontWeight: 'bold'
-                        }}
-                        onClick={() => handleTabClick('Sell')}
-                    >
-                        Sell {ticker}
-                    </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
-                    <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>Order Type</p>
-                    <select value={orderType} onChange={handleOrderTypeChange} style={{ width: '40%', height: '40px' }}>
-                        <option>{activeTab} Order</option>
-                        <option>Limit Order</option>
-                    </select>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
-                    <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>Buy In</p>
-                    <select value={buyInOption} onChange={handleBuyInOptionChange} style={{ width: '40%', height: '40px' }}>
-                        <option>Dollars</option>
-                        <option>Shares</option>
-                    </select>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
-                    <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>{buyInOption === 'Dollars' ? 'Amount' : 'Shares'}</p>
-                    <input 
-                        type="text" 
-                        placeholder={buyInOption === 'Dollars' ? '$0.00' : '0'} 
-                        style={{ width: '60%', height: '40px' }} 
-                        value={inputValue}
-                        onChange={handleInputChange}
-                        onFocus={() => buyInOption === 'Dollars' && !inputValue && setInputValue('')}
-                    />
-                </div>
-                {buyInOption === 'Shares' && currentPrice !== null && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
-                        <p style={{ marginBottom: '0', fontSize: '16px' }}>Market Price:</p>
-                        <p style={{ marginBottom: '0', fontSize: '16px' }}>${currentPrice.toFixed(2)}</p>
+        <>
+            <Col md={3} style={{
+                position: 'fixed',
+                top: '80px',
+                right: '10%',
+                width: '25%',
+                backgroundColor: 'white',
+                padding: '20px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                maxHeight: 'calc(100vh - 80px)',
+                overflowY: 'auto'
+            }}>
+                <div>
+                    <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #000', padding: '0 20px' }}>
+                        <span 
+                            style={{
+                                padding: '15px 20px',
+                                borderBottom: activeTab === 'Buy' ? '2px solid #000' : 'none',
+                                cursor: 'pointer',
+                                flex: '1',
+                                textAlign: 'center',
+                                fontSize: '16px',
+                                fontWeight: 'bold'
+                            }}
+                            onClick={() => handleTabClick('Buy')}
+                        >
+                            Buy {ticker}
+                        </span>
+                        <span
+                            style={{
+                                padding: '15px 20px',
+                                borderBottom: activeTab === 'Sell' ? '2px solid #000' : 'none',
+                                cursor: 'pointer',
+                                flex: '1',
+                                textAlign: 'center',
+                                fontSize: '16px',
+                                fontWeight: 'bold'
+                            }}
+                            onClick={() => handleTabClick('Sell')}
+                        >
+                            Sell {ticker}
+                        </span>
                     </div>
-                )}
-                <div style={{ padding: '0 20px', borderTop: '1px solid #000', marginTop: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '20px' }}>
-                        <p style={{ marginBottom: '0', fontSize: '16px', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? 'Est. Cost:' : 'Est. Quantity:'}</p>
-                        <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? `$${formatQuantityWithCommas(quantity)}` : formatQuantityWithCommas(quantity)}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
+                        <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>Order Type</p>
+                        <select value={orderType} onChange={handleOrderTypeChange} style={{ width: '40%', height: '40px' }}>
+                            <option>{activeTab} Order</option>
+                            <option>Limit Order</option>
+                        </select>
                     </div>
-                    <button 
-                        style={{ backgroundColor: activeTab === 'Buy' ? 'green' : 'red', color: 'white', padding: '15px 20px', border: 'none', width: '100%', fontSize: '16px', borderRadius: '30px' }}
-                        disabled={!inputValue || inputValue === '$0.00' || inputValue === '0'}
-                    >
-                        Review Order
-                    </button>
-                    <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
-                        {portfolios.length > 0 ? (
-                            <>
-                                <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
-                                <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
-                                    {portfolios.map(portfolio => (
-                                        <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
-                                    ))}
-                                </select>
-                            </>
-                        ) : (
-                            <Button variant="primary" onClick={() => navigate("/create-portfolio")}>Create a new portfolio</Button>
-                        )}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
+                        <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>Buy In</p>
+                        <select value={buyInOption} onChange={handleBuyInOptionChange} style={{ width: '40%', height: '40px' }}>
+                            <option>Dollars</option>
+                            <option>Shares</option>
+                        </select>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
+                        <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>{buyInOption === 'Dollars' ? 'Amount' : 'Shares'}</p>
+                        <input 
+                            type="text" 
+                            placeholder={buyInOption === 'Dollars' ? '$0.00' : '0'} 
+                            style={{ width: '60%', height: '40px' }} 
+                            value={inputValue}
+                            onChange={handleInputChange}
+                            onFocus={() => buyInOption === 'Dollars' && !inputValue && setInputValue('')}
+                        />
+                    </div>
+                    {buyInOption === 'Shares' && currentPrice !== null && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
+                            <p style={{ marginBottom: '0', fontSize: '16px' }}>Market Price:</p>
+                            <p style={{ marginBottom: '0', fontSize: '16px' }}>${currentPrice.toFixed(2)}</p>
+                        </div>
+                    )}
+                    <div style={{ padding: '0 20px', borderTop: '1px solid #000', marginTop: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '20px' }}>
+                            <p style={{ marginBottom: '0', fontSize: '16px', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? 'Est. Cost:' : 'Est. Quantity:'}</p>
+                            <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? `$${formatQuantityWithCommas(quantity)}` : formatQuantityWithCommas(quantity)}</p>
+                        </div>
+                        <button 
+                            style={{ backgroundColor: activeTab === 'Buy' ? 'green' : 'red', color: 'white', padding: '15px 20px', border: 'none', width: '100%', fontSize: '16px', borderRadius: '30px' }}
+                            disabled={!inputValue || inputValue === '$0.00' || inputValue === '0'}
+                            onClick={handleReviewOrderClick}
+                        >
+                            Review Order
+                        </button>
+                        <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
+                            {portfolios.length > 0 ? (
+                                <>
+                                    <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
+                                    <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
+                                        {portfolios.map(portfolio => (
+                                            <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
+                                        ))}
+                                    </select>
+                                </>
+                            ) : (
+                                <Button variant="primary" onClick={() => navigate("/create-portfolio")}>Create a new portfolio</Button>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </Col>
+            </Col>
+
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Order Summary</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice.toFixed(2)}. You will receive approximately {formatQuantityWithCommas(quantity)} shares.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Edit
+                    </Button>
+                    <Button variant="primary" onClick={handleConfirmOrder}>
+                        Confirm
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
+
 }
 
 export default TradingPage;
