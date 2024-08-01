@@ -160,7 +160,7 @@ export default function SecurityPage(props) {
 
     const calculatePriceChange = () => {
         if (currentPrice !== null && startingPrice !== null) {
-            return (currentPrice - startingPrice).toFixed(2);
+            return Math.abs((currentPrice - startingPrice).toFixed(2));
         }
         return null;
     };
@@ -180,7 +180,7 @@ export default function SecurityPage(props) {
                                 {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
                                 {currentPrice !== null && startingPrice !== null && (
                                     <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
-                                        {currentPrice - startingPrice >= 0 ? "+ " : " "}{"$" + calculatePriceChange()}
+                                        {currentPrice - startingPrice >= 0 ? "+ $" : "- $"}{calculatePriceChange()}
                                     </h3>
                                 )}
                             </Col>
