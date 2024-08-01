@@ -236,7 +236,7 @@ function TradingPage({ ticker, currentPrice }) {
                     {buyInOption === 'Shares' && currentPrice !== null && (
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
                             <p style={{ marginBottom: '0', fontSize: '16px' }}>Market Price:</p>
-                            <p style={{ marginBottom: '0', fontSize: '16px' }}>${currentPrice.toFixed(2)}</p>
+                            <p style={{ marginBottom: '0', fontSize: '16px' }}>${currentPrice?.toFixed(2)}</p>
                         </div>
                     )}
                     <div style={{ padding: '0 20px', borderTop: '1px solid #000', marginTop: '20px' }}>
@@ -274,7 +274,7 @@ function TradingPage({ ticker, currentPrice }) {
                     <Modal.Title>Order Summary</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice.toFixed(2)}. You will receive approximately {formatQuantityWithCommas(quantity)} shares.
+                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice?.toFixed(2)}. You will receive approximately {formatQuantityWithCommas(quantity)} shares.
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModal}>
@@ -287,7 +287,6 @@ function TradingPage({ ticker, currentPrice }) {
             </Modal>
         </>
     );
-
 }
 
 export default TradingPage;
