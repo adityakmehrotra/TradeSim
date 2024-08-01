@@ -5,9 +5,8 @@ import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
 Chart.register(...registerables);
 
-const StockChart = ({ ticker }) => {
+const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
     const [chartData, setChartData] = useState({});
-    const [selectedRange, setSelectedRange] = useState('1D');
     const [color, setColor] = useState('green');
     const [dates, setDates] = useState([]);
 
@@ -181,7 +180,7 @@ const StockChart = ({ ticker }) => {
                     <p>No data available for the selected range.</p>
                 )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'left', position: 'absolute', bottom: '-20px', left: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'left', padding: '0 10px', position: 'absolute', bottom: '-20px', left: '10px' }}>
                 {ranges.map(range => (
                     <button
                         key={range}
@@ -201,7 +200,6 @@ const StockChart = ({ ticker }) => {
                     </button>
                 ))}
             </div>
-            <div style={{ height: '2px', backgroundColor: 'lightgrey', position: 'absolute', bottom: '0', left: '10px', right: '10px' }}></div>
         </div>
     );
 };
