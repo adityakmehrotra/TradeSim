@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Card, Button, Container, Row, Form } from "react-bootstrap";
+import { Card, Button, Container, Row, Col, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../UserContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
