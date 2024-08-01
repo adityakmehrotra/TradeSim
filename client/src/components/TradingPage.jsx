@@ -41,11 +41,18 @@ function TradingPage({ ticker, currentPrice }) {
     }, [id]);
 
     const fetchPortfolios = (ids) => {
+        const portfoliosData = [];
         ids.forEach(portfolioID => {
             fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`)
                 .then(res => res.text())
                 .then(name => {
-                    setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name }]);
+                    portfoliosData.push({ portfolioID, name });
+                    if (portfoliosData.length === ids.length) {
+                        setPortfolios(portfoliosData);
+                        const firstPortfolioID = portfoliosData[0]?.portfolioID;
+                        setSelectedPortfolioID(firstPortfolioID);
+                        fetchBuyingPower(firstPortfolioID);
+                    }
                 })
                 .catch(error => console.error('Error fetching portfolio data:', error));
         });
@@ -224,7 +231,7 @@ function TradingPage({ ticker, currentPrice }) {
                         Review Order
                     </button>
                     <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
-                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower.toFixed(2)} buying power available</p>
+                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>$ {buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
                         <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
                             {portfolios.map(portfolio => (
                                 <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
