@@ -23,7 +23,7 @@ export default function PortfolioDetails() {
       <Row className="mb-4">
         <Col>
           <h2>{portfolio.portfolioName}</h2>
-          <p>Cash: ${portfolio.cashAmount.toFixed(2)}</p>
+          <p>Initial Investment: ${portfolio.cashAmount.toFixed(2)}</p>
         </Col>
       </Row>
       {/* Add more details about the portfolio here */}
