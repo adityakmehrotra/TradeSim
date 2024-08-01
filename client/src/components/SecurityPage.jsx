@@ -93,7 +93,7 @@ export default function SecurityPage(props) {
 
     const fetchStartingPrice = () => {
         const [multiplier, timespan, from, to] = getIntervalParams(selectedRange);
-        fetch(`http://localhost:8000/paper_trader/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`)
+        fetch(`http://localhost:8000/paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`)
             .then(response => response.json())
             .then(data => {
                 if (data.results && data.results.length > 0) {
