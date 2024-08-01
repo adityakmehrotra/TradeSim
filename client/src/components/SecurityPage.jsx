@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import NewsArticle from './NewsArticle';
 import KeyStatistics from './KeyStatistics';
 import AboutCompany from './AboutCompany';
