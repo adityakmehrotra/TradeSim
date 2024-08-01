@@ -1,22 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Col, Button, Container } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
-
-function TradingPage({ ticker, currentPrice }) {
-    const [activeTab, setActiveTab] = useState('Buy');
-    const [orderType, setOrderType] = useState('Buy Order');
-    const [buyInOption, setBuyInOption] = useState('Dollars');
-    const [quantity, setQuantity] = useState(0);
-    const [inputValue, setInputValue] = useState('');
-    const [portfolios, setPortfolios] = useState([]);
-    const [selectedPortfolioID, setSelectedPortfolioID] = useState('');
-    const [buyingPower, setBuyingPower] = useState(null);
-    const { user, id } = useContext(UserContext);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (buyInOption === 'Shares') {import React, { useState, useEffect, useContext } from 'react';
 import { Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
