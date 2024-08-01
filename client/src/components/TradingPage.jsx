@@ -49,9 +49,14 @@ function TradingPage({ ticker, currentPrice }) {
                     portfoliosData.push({ portfolioID, name });
                     if (portfoliosData.length === ids.length) {
                         setPortfolios(portfoliosData);
-                        const firstPortfolioID = portfoliosData[0]?.portfolioID;
-                        setSelectedPortfolioID(firstPortfolioID);
-                        fetchBuyingPower(firstPortfolioID);
+                        if (portfoliosData.length > 0) {
+                            const firstPortfolioID = portfoliosData[0]?.portfolioID;
+                            setSelectedPortfolioID(firstPortfolioID);
+                            fetchBuyingPower(firstPortfolioID);
+                        } else {
+                            setSelectedPortfolioID('');
+                            setBuyingPower(null);
+                        }
                     }
                 })
                 .catch(error => console.error('Error fetching portfolio data:', error));
@@ -231,12 +236,18 @@ function TradingPage({ ticker, currentPrice }) {
                         Review Order
                     </button>
                     <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
-                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>$ {buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
-                        <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
-                            {portfolios.map(portfolio => (
-                                <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
-                            ))}
-                        </select>
+                        {portfolios.length > 0 ? (
+                            <>
+                                <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
+                                <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
+                                    {portfolios.map(portfolio => (
+                                        <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
+                                    ))}
+                                </select>
+                            </>
+                        ) : (
+                            <Button variant="primary" onClick={() => navigate("/create-portfolio")}>Create a new portfolio</Button>
+                        )}
                     </div>
                 </div>
             </div>
