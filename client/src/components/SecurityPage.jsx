@@ -164,6 +164,13 @@ export default function SecurityPage(props) {
         }
         return null;
     };
+
+    const calculatePercentChange = () => {
+        if (currentPrice !== null && startingPrice !== null) {
+            return Math.abs((currentPrice - startingPrice) / startingPrice * 100).toFixed(2);
+        }
+        return null;
+    };
     
     const showMoreArticles = () => {
         setVisibleCount(prevCount => prevCount + 5);
@@ -180,7 +187,7 @@ export default function SecurityPage(props) {
                                 {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
                                 {currentPrice !== null && startingPrice !== null && (
                                     <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
-                                        {currentPrice - startingPrice >= 0 ? "+ $" : "- $"}{calculatePriceChange()}
+                                        {currentPrice - startingPrice >= 0 ? "+ $" : "- $"}{calculatePriceChange()}{currentPrice - startingPrice >= 0 ? " (+" : " (-"}{calculatePercentChange() + "%)"}
                                     </h3>
                                 )}
                             </Col>
