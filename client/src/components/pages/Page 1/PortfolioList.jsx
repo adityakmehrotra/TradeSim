@@ -31,12 +31,12 @@ export default function PortfolioList() {
   const fetchPortfolios = (ids) => {
     ids.forEach(portfolioID => {
       Promise.all([
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`).then(res => res.json()),
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`).then(res => res.json())
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`).then(res => res.text()),
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`).then(res => res.text())
       ])
       .then(([name, cash]) => {
-        if (typeof name === 'string' && typeof cash === 'number') {
-          setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name, cash }]);
+        if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
+          setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name, cash: parseFloat(cash) }]);
         } else {
           console.error('Error: Invalid data format received for portfolio details');
         }
