@@ -10,6 +10,8 @@ function TradingPage({ ticker, currentPrice }) {
     const [quantity, setQuantity] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [portfolios, setPortfolios] = useState([]);
+    const [selectedPortfolioID, setSelectedPortfolioID] = useState('');
+    const [buyingPower, setBuyingPower] = useState(null);
     const { user, id } = useContext(UserContext);
     const navigate = useNavigate();
 
@@ -49,11 +51,11 @@ function TradingPage({ ticker, currentPrice }) {
         });
     };
 
-    const formatWithCommas = (value, maxDigitsAfterDecimal) => {
-        if (!value) return '';
-        const [integer, decimal] = value.split('.');
-        const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return decimal ? `${formattedInteger}.${decimal.slice(0, maxDigitsAfterDecimal)}` : formattedInteger;
+    const fetchBuyingPower = (portfolioID) => {
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`)
+            .then(res => res.json())
+            .then(cash => setBuyingPower(cash))
+            .catch(error => console.error('Error fetching buying power:', error));
     };
 
     const handleInputChange = (e) => {
@@ -95,6 +97,12 @@ function TradingPage({ ticker, currentPrice }) {
         setBuyInOption(e.target.value);
         setInputValue('');
         setQuantity(0);
+    };
+
+    const handlePortfolioChange = (e) => {
+        const selectedID = e.target.value;
+        setSelectedPortfolioID(selectedID);
+        fetchBuyingPower(selectedID);
     };
 
     const formatQuantityWithCommas = (value) => {
@@ -209,8 +217,8 @@ function TradingPage({ ticker, currentPrice }) {
                         Review Order
                     </button>
                     <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
-                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>{activeTab === 'Buy' ? 'Buying' : 'Selling'} available</p>
-                        <select style={{ width: '100%' }}>
+                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>{activeTab === 'Buy' ? `$${buyingPower} buying power available` : 'Selling available'}</p>
+                        <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
                             {portfolios.map(portfolio => (
                                 <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
                             ))}
