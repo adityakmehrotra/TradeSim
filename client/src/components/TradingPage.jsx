@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Col, Button, Modal } from 'react-bootstrap';
+import { Col, Button, Modal, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 
@@ -13,6 +13,7 @@ function TradingPage({ ticker, currentPrice }) {
     const [selectedPortfolioID, setSelectedPortfolioID] = useState('');
     const [buyingPower, setBuyingPower] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
     const { user, id } = useContext(UserContext);
     const navigate = useNavigate();
 
@@ -130,7 +131,11 @@ function TradingPage({ ticker, currentPrice }) {
     };
 
     const handleReviewOrderClick = () => {
-        setShowModal(true);
+        if (parseFloat(quantity) > buyingPower) {
+            setShowAlert(true);
+        } else {
+            setShowModal(true);
+        }
     };
 
     const handleCloseModal = () => {
@@ -139,6 +144,8 @@ function TradingPage({ ticker, currentPrice }) {
 
     const handleConfirmOrder = () => {
         // Add logic to confirm the order
+        setInputValue('');
+        setQuantity(0);
         setShowModal(false);
     };
 
