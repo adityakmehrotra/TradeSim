@@ -15,6 +15,7 @@ export default function SecurityPage(props) {
     const [keyStats, setKeyStats] = useState(null);
     const [companyData, setCompanyData] = useState(null);
     const [currentPrice, setCurrentPrice] = useState(null);
+    const [startingPrice, setStartingPrice] = useState(null);
     const [selectedRange, setSelectedRange] = useState('1D');
     const { searchQuery } = useParams();
     const ticker = searchQuery.toUpperCase();
