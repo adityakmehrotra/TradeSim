@@ -51,7 +51,7 @@ export default function PortfolioList() {
 
   const handleCreatePortfolio = () => {
     // Fetch the next portfolio ID from the server
-    fetch("http://localhost:8000/get/nextportfolioID")
+    fetch("http://localhost:8000/paper_trader/portfolio/get/nextportfolioID")
       .then(response => response.json())
       .then(data => {
         const newPortfolioID = data; // Assuming the endpoint directly returns an integer ID
