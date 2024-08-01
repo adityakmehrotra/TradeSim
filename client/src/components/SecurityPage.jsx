@@ -101,11 +101,6 @@ export default function SecurityPage(props) {
                             <Col>
                                 <h1>{companyData.name} ({companyData.ticker})</h1>
                                 {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
-                                {currentPrice !== null && startingPrice !== null && (
-                                    <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
-                                        {currentPrice - startingPrice >= 0 ? "+" : ""}{calculatePriceChange()}
-                                    </h3>
-                                )}
                             </Col>
                         </Row>
                     )}
