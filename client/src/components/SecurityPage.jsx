@@ -160,7 +160,7 @@ export default function SecurityPage(props) {
 
     const calculatePriceChange = () => {
         if (currentPrice !== null && startingPrice !== null) {
-            return Math.abs((currentPrice - startingPrice).toFixed(2));
+            return Math.abs((currentPrice - startingPrice)).toFixed(2);
         }
         return null;
     };
