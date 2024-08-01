@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Col, Button } from 'react-bootstrap';
+import { Col, Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 
