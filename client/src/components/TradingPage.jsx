@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Col } from 'react-bootstrap';
+import React, { useState, useEffect, useContext } from 'react';
+import { Col, Button, Container } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../../UserContext';
 
 function TradingPage({ ticker, currentPrice }) {
     const [activeTab, setActiveTab] = useState('Buy');
-    const [shareOrDollarOption, setShareOrDollarOption] = useState('Buy In');
     const [orderType, setOrderType] = useState('Buy Order');
     const [buyInOption, setBuyInOption] = useState('Dollars');
     const [quantity, setQuantity] = useState(0);
     const [inputValue, setInputValue] = useState('');
+    const [portfolios, setPortfolios] = useState([]);
+    const { user, id } = useContext(UserContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (buyInOption === 'Shares') {
@@ -18,6 +22,32 @@ function TradingPage({ ticker, currentPrice }) {
             setQuantity(dollars ? (dollars / currentPrice).toFixed(6) : 0);
         }
     }, [inputValue, buyInOption, currentPrice]);
+
+    useEffect(() => {
+        if (id) {
+            fetch(`http://localhost:8000/paper_trader/account/get/portfolioList?id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        fetchPortfolios(data);
+                    } else {
+                        console.error('Error: Invalid data format received for portfolio list');
+                    }
+                })
+                .catch(error => console.error('Error fetching portfolio list:', error));
+        }
+    }, [id]);
+
+    const fetchPortfolios = (ids) => {
+        ids.forEach(portfolioID => {
+            fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`)
+                .then(res => res.text())
+                .then(name => {
+                    setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name }]);
+                })
+                .catch(error => console.error('Error fetching portfolio data:', error));
+        });
+    };
 
     const formatWithCommas = (value, maxDigitsAfterDecimal) => {
         if (!value) return '';
@@ -71,6 +101,28 @@ function TradingPage({ ticker, currentPrice }) {
         return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
     };
 
+    if (!user) {
+        return (
+            <Col md={3} style={{
+                position: 'fixed',
+                top: '80px',
+                right: '10%',
+                width: '25%',
+                backgroundColor: 'white',
+                padding: '20px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                maxHeight: 'calc(100vh - 80px)',
+                overflowY: 'auto'
+            }}>
+                <div className="text-center">
+                    <h4>Please sign in to trade</h4>
+                    <Button variant="primary" onClick={() => navigate("/account", { state: { isLogin: true } })} className="me-2">Login</Button>
+                    <Button variant="secondary" onClick={() => navigate("/account", { state: { isLogin: false } })} className="ms-2">Sign Up</Button>
+                </div>
+            </Col>
+        );
+    }
+
     return (
         <Col md={3} style={{
             position: 'fixed',
@@ -122,7 +174,7 @@ function TradingPage({ ticker, currentPrice }) {
                     </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', padding: '0 20px' }}>
-                    <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>{shareOrDollarOption}</p>
+                    <p style={{ marginRight: '10px', marginBottom: '0', fontSize: '16px' }}>Buy In</p>
                     <select value={buyInOption} onChange={handleBuyInOptionChange} style={{ width: '40%', height: '40px' }}>
                         <option>Dollars</option>
                         <option>Shares</option>
@@ -159,8 +211,9 @@ function TradingPage({ ticker, currentPrice }) {
                     <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
                         <p style={{ fontSize: '16px', marginBottom: '10px' }}>{activeTab === 'Buy' ? 'Buying' : 'Selling'} available</p>
                         <select style={{ width: '100%' }}>
-                            <option>Test 1</option>
-                            <option>Test 2</option>
+                            {portfolios.map(portfolio => (
+                                <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
+                            ))}
                         </select>
                     </div>
                 </div>
