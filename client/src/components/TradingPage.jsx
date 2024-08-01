@@ -224,7 +224,7 @@ function TradingPage({ ticker, currentPrice }) {
                         Review Order
                     </button>
                     <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
-                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>$ {buyingPower} buying power available</p>
+                        <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower.toFixed(2)} buying power available</p>
                         <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
                             {portfolios.map(portfolio => (
                                 <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
