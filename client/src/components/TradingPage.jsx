@@ -134,10 +134,41 @@ function TradingPage({ ticker, currentPrice }) {
     };
 
     const handleConfirmOrder = () => {
-        // Add logic to confirm the order
-        setInputValue('');
-        setQuantity(0);
-        setShowModal(false);
+        fetch("http://localhost:8000/paper_trader/transaction/get/nextTransactionID")
+            .then(response => response.json())
+            .then(transactionID => {
+                const orderDetails = {
+                    transactionID,
+                    portfolioID: selectedPortfolioID,
+                    accountID: id,
+                    orderType: activeTab,
+                    securityCode: ticker.toUpperCase(),
+                    shareAmount: parseFloat(quantity),
+                    cashAmount: parseFloat(inputValue.replace(/[,$]/g, ''))
+                };
+
+                fetch("http://localhost:8000/paper_trader/transaction/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(orderDetails)
+                })
+                .then(response => response.json())
+                .then(() => {
+                    fetch(`http://localhost:8000/paper_trader/portfolio/add/transaction?id=${selectedPortfolioID}&transactionID=${transactionID}`, {
+                        method: "POST"
+                    })
+                    .then(() => {
+                        setInputValue('');
+                        setQuantity(0);
+                        setShowModal(false);
+                    })
+                    .catch(error => console.error('Error adding transaction to portfolio:', error));
+                })
+                .catch(error => console.error('Error creating transaction:', error));
+            })
+            .catch(error => console.error('Error fetching next transaction ID:', error));
     };
 
     if (!user) {
@@ -250,7 +281,7 @@ function TradingPage({ ticker, currentPrice }) {
                             Review Order
                         </button>
                         {showAlert && (
-                            <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                            <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible style={{ marginTop: '10px', marginBottom: '10px' }}>
                                 You do not have enough cash to Buy {ticker}.
                             </Alert>
                         )}
