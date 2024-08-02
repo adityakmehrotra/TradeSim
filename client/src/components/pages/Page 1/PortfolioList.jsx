@@ -142,17 +142,26 @@ export default function PortfolioList() {
       </Row>
       <Row>
         {portfolios.slice(0, visiblePortfolios).map(portfolio => (
-          <Card key={portfolio.portfolioID} className="mb-4" style={{ width: '100%' }}>
-            <Card.Body>
-              <Card.Title>{portfolio.name}</Card.Title>
-              <Card.Text>
-                Cash: ${portfolio.cash.toFixed(2)}
-              </Card.Text>
-              <Button variant="danger" style={{ float: 'right' }} onClick={() => handleDeleteClick(portfolio)}>
-                Delete
-              </Button>
-            </Card.Body>
-          </Card>
+          <Col key={portfolio.portfolioID} className="mb-4">
+            <Card style={{ width: '100%' }}>
+              <Card.Body onClick={() => handlePortfolioClick(portfolio.portfolioID)}>
+                <Card.Title>{portfolio.name}</Card.Title>
+                <Card.Text>
+                  Cash: ${portfolio.cash.toFixed(2)}
+                </Card.Text>
+                <Button
+                  variant="danger"
+                  style={{ float: 'right' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(portfolio);
+                  }}
+                >
+                  Delete
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
         ))}
       </Row>
       {visiblePortfolios < portfolios.length && (
@@ -168,7 +177,7 @@ export default function PortfolioList() {
         </Col>
       </Row>
       {showCreateForm && (
-        <Row className="mt-4">
+        <Row className="mt-4 mb-4">
           <Col>
             <h3>Create a New Portfolio</h3>
             <Form>
