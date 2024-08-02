@@ -72,13 +72,6 @@ function TradingPage({ ticker, currentPrice }) {
             .catch(error => console.error('Error fetching buying power:', error));
     };
 
-    const formatWithCommas = (value, maxDigitsAfterDecimal) => {
-        if (!value) return '';
-        const [integer, decimal] = value.split('.');
-        const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return decimal ? `${formattedInteger}.${decimal.slice(0, maxDigitsAfterDecimal)}` : formattedInteger;
-    };
-
     const handleInputChange = (e) => {
         let value = e.target.value.replace(/[^\d.]/g, ''); // Allow only numbers and dots
 
@@ -90,7 +83,6 @@ function TradingPage({ ticker, currentPrice }) {
             value = value.slice(0, buyInOption === 'Dollars' ? 9 : 7);
         }
 
-        value = formatWithCommas(value, buyInOption === 'Dollars' ? 2 : 6);
         if (buyInOption === 'Dollars' && value) {
             value = `$${value}`;
         }
@@ -112,6 +104,7 @@ function TradingPage({ ticker, currentPrice }) {
         setBuyInOption('Dollars');
         setInputValue('');
         setQuantity(0);
+        setShowAlert(false);
     };
 
     const handleBuyInOptionChange = (e) => {
@@ -126,14 +119,12 @@ function TradingPage({ ticker, currentPrice }) {
         fetchBuyingPower(selectedID);
     };
 
-    const formatQuantityWithCommas = (value) => {
-        return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
-    };
-
     const handleReviewOrderClick = () => {
-        if (parseFloat(quantity) > buyingPower) {
+        const amount = parseFloat(inputValue.replace(/[,$]/g, ''));
+        if (amount > buyingPower) {
             setShowAlert(true);
         } else {
+            setShowAlert(false);
             setShowModal(true);
         }
     };
@@ -249,7 +240,7 @@ function TradingPage({ ticker, currentPrice }) {
                     <div style={{ padding: '0 20px', borderTop: '1px solid #000', marginTop: '20px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '20px' }}>
                             <p style={{ marginBottom: '0', fontSize: '16px', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? 'Est. Cost:' : 'Est. Quantity:'}</p>
-                            <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? `$${formatQuantityWithCommas(quantity)}` : formatQuantityWithCommas(quantity)}</p>
+                            <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? `$${quantity}` : quantity}</p>
                         </div>
                         <button 
                             style={{ backgroundColor: activeTab === 'Buy' ? 'green' : 'red', color: 'white', padding: '15px 20px', border: 'none', width: '100%', fontSize: '16px', borderRadius: '30px' }}
@@ -258,6 +249,11 @@ function TradingPage({ ticker, currentPrice }) {
                         >
                             Review Order
                         </button>
+                        {showAlert && (
+                            <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                                You do not have enough cash to Buy {ticker}.
+                            </Alert>
+                        )}
                         <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
                             {portfolios.length > 0 ? (
                                 <>
@@ -281,7 +277,7 @@ function TradingPage({ ticker, currentPrice }) {
                     <Modal.Title>Order Summary</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice?.toFixed(2)}. You will receive approximately {formatQuantityWithCommas(quantity)} shares.
+                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice?.toFixed(2)}. You will receive approximately {quantity} shares.
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModal}>
