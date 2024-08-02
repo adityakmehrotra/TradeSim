@@ -8,7 +8,7 @@ export default function PortfolioDetails() {
   const [portfolio, setPortfolio] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/paper_trader/portfolio/get/portfolio?portfolioID=${portfolioID}`)
+    fetch(`http://localhost:8000/paper_trader/portfolio/get?id=${portfolioID}`)
       .then(response => response.json())
       .then(data => setPortfolio(data))
       .catch(error => console.error('Error fetching portfolio details:', error));
