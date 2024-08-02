@@ -31,8 +31,7 @@ export default function PortfolioDetails() {
 
     Promise.all(
       assetCodes.map(code => 
-        fetch(`http://localhost:8000/paper_trader/security/get/price?ticker=${code}`)
-          .then(response => response.json())
+        fetchCurrentPrice(code)
           .then(price => {
             prices[code] = price;
           })
@@ -41,6 +40,22 @@ export default function PortfolioDetails() {
     ).then(() => {
       setAssetPrices(prices);
     });
+  };
+
+  const fetchCurrentPrice = (ticker) => {
+    return fetch(`http://localhost:8000/paper_trader/polygon/price?ticker=${ticker}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.ticker && data.ticker.day && data.ticker.day.c) {
+          return data.ticker.day.c;
+        } else {
+          throw new Error('Price data not available');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching current price:', error);
+        throw error;
+      });
   };
 
   useEffect(() => {
