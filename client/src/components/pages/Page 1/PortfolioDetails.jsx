@@ -29,7 +29,7 @@ export default function PortfolioDetails() {
 
     Promise.all(
       assetCodes.map(code => 
-        fetch(`http://localhost:8000/paper_trader/security/get/price?code=${code}`)
+        fetch(`http://localhost:8000/paper_trader/security/get/price?ticker=${code}`)
           .then(response => response.json())
           .then(price => {
             prices[code] = price;
