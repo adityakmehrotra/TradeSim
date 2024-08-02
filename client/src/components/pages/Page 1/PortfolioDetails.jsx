@@ -18,7 +18,9 @@ export default function PortfolioDetails() {
       .then(response => response.json())
       .then(data => {
         setPortfolio(data);
-        fetchAssetPrices(data.assets);
+        if (data.assets) {
+          fetchAssetPrices(data.assets);
+        }
       })
       .catch(error => console.error('Error fetching portfolio details:', error));
   }, [portfolioID]);
