@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { Card, Button, Container, Row, Col, Form } from "react-bootstrap";
+import { Card, Button, Container, Row, Col, Form, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../UserContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,6 +9,10 @@ export default function PortfolioList() {
   const [portfolios, setPortfolios] = useState([]);
   const [newPortfolioName, setNewPortfolioName] = useState("");
   const [newPortfolioCash, setNewPortfolioCash] = useState("");
+  const [visiblePortfolios, setVisiblePortfolios] = useState(3);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [portfolioToDelete, setPortfolioToDelete] = useState(null);
   const { user, id } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -50,11 +54,10 @@ export default function PortfolioList() {
   };
 
   const handleCreatePortfolio = () => {
-    // Fetch the next portfolio ID from the server
     fetch("http://localhost:8000/paper_trader/portfolio/get/nextportfolioID")
       .then(response => response.json())
       .then(data => {
-        const newPortfolioID = data; // Assuming the endpoint directly returns an integer ID
+        const newPortfolioID = data;
         const newPortfolio = {
           portfolioID: newPortfolioID,
           accountID: id,
@@ -62,7 +65,6 @@ export default function PortfolioList() {
           cashAmount: parseFloat(newPortfolioCash)
         };
 
-        // Create the new portfolio with the fetched ID
         fetch("http://localhost:8000/paper_trader/portfolio/create", {
           method: "POST",
           headers: {
@@ -85,12 +87,38 @@ export default function PortfolioList() {
             setPortfolios([...portfolios, { portfolioID: newPortfolioID, name: newPortfolioName, cash: parseFloat(newPortfolioCash) }]);
             setNewPortfolioName("");
             setNewPortfolioCash("");
+            setShowCreateForm(false);
           })
           .catch(error => console.error('Error adding portfolio to account:', error));
         })
         .catch(error => console.error('Error during portfolio creation:', error));
       })
       .catch(error => console.error('Error fetching next portfolio ID:', error));
+  };
+
+  const handleShowMore = () => {
+    setVisiblePortfolios(prevVisiblePortfolios => prevVisiblePortfolios + 3);
+  };
+
+  const handleDeleteClick = (portfolio) => {
+    setPortfolioToDelete(portfolio);
+    setShowModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    fetch(`http://localhost:8000/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
+      method: "DELETE"
+    })
+    .then(response => {
+      if (response.ok) {
+        setPortfolios(portfolios.filter(p => p.portfolioID !== portfolioToDelete.portfolioID));
+        setShowModal(false);
+        setPortfolioToDelete(null);
+      } else {
+        throw new Error('Error deleting portfolio');
+      }
+    })
+    .catch(error => console.error('Error during portfolio deletion:', error));
   };
 
   if (!user) {
@@ -113,43 +141,76 @@ export default function PortfolioList() {
         </Col>
       </Row>
       <Row>
-        {portfolios.map(portfolio => (
-          <Card key={portfolio.portfolioID} onClick={() => handlePortfolioClick(portfolio.portfolioID)} className="mb-4" style={{ width: '100%' }}>
+        {portfolios.slice(0, visiblePortfolios).map(portfolio => (
+          <Card key={portfolio.portfolioID} className="mb-4" style={{ width: '100%' }}>
             <Card.Body>
               <Card.Title>{portfolio.name}</Card.Title>
               <Card.Text>
                 Cash: ${portfolio.cash.toFixed(2)}
               </Card.Text>
+              <Button variant="danger" style={{ float: 'right' }} onClick={() => handleDeleteClick(portfolio)}>
+                Delete
+              </Button>
             </Card.Body>
           </Card>
         ))}
       </Row>
+      {visiblePortfolios < portfolios.length && (
+        <Row className="mb-4">
+          <Col>
+            <Button onClick={handleShowMore}>Show More</Button>
+          </Col>
+        </Row>
+      )}
       <Row className="mt-4">
         <Col>
-          <h3>Create a New Portfolio</h3>
-          <Form>
-            <Form.Group>
-              <Form.Label>Portfolio Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newPortfolioName}
-                onChange={(e) => setNewPortfolioName(e.target.value)}
-                placeholder="Enter portfolio name"
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Cash Amount</Form.Label>
-              <Form.Control
-                type="number"
-                value={newPortfolioCash}
-                onChange={(e) => setNewPortfolioCash(e.target.value)}
-                placeholder="Enter initial cash amount"
-              />
-            </Form.Group>
-            <Button onClick={handleCreatePortfolio} className="mt-2">Create Portfolio</Button>
-          </Form>
+          <Button onClick={() => setShowCreateForm(true)}>Add Portfolio</Button>
         </Col>
       </Row>
+      {showCreateForm && (
+        <Row className="mt-4">
+          <Col>
+            <h3>Create a New Portfolio</h3>
+            <Form>
+              <Form.Group>
+                <Form.Label>Portfolio Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newPortfolioName}
+                  onChange={(e) => setNewPortfolioName(e.target.value)}
+                  placeholder="Enter portfolio name"
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Cash Amount</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={newPortfolioCash}
+                  onChange={(e) => setNewPortfolioCash(e.target.value)}
+                  placeholder="Enter initial cash amount"
+                />
+              </Form.Group>
+              <Button onClick={handleCreatePortfolio} className="mt-2">Create Portfolio</Button>
+            </Form>
+          </Col>
+        </Row>
+      )}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete {portfolioToDelete?.name}?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>
+            Confirm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }
