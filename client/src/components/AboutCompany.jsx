@@ -5,10 +5,13 @@ function AboutCompany({ company }) {
   if (!company) return null;
 
   const formatNumber = (num) => {
-    return num.toLocaleString();
+    return num !== undefined && num !== null ? num.toLocaleString() : 'N/A';
   };
 
   const formatMarketCap = (marketCap) => {
+    if (marketCap === undefined || marketCap === null) {
+      return 'N/A';
+    }
     if (marketCap >= 1e12) {
       return `${(marketCap / 1e12).toFixed(2)} Trillion`;
     } else if (marketCap >= 1e9) {
@@ -29,13 +32,13 @@ function AboutCompany({ company }) {
       </Row>
       <Card style={{ border: 'none' }}>
         <Card.Body>
-          <p><strong>Description:</strong> {company.description}</p>
+          <p><strong>Description:</strong> {company.description || 'N/A'}</p>
           <Row className="text-center">
             <Col>
               <strong>Employees</strong> <div>{formatNumber(company.total_employees)}</div>
             </Col>
             <Col>
-              <strong>Location</strong> <div>{company.address.city}, {company.address.state}</div>
+              <strong>Location</strong> <div>{company.address ? `${company.address.city}, ${company.address.state}` : 'N/A'}</div>
             </Col>
             <Col>
               <strong>Market Cap</strong> <div>{formatMarketCap(company.market_cap)}</div>
