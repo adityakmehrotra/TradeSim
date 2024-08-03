@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Col, Button, Modal, Alert } from 'react-bootstrap';
+import { Col, Button, Modal, Alert, Dropdown, DropdownButton } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 
@@ -44,25 +44,36 @@ function TradingPage({ ticker, currentPrice }) {
 
     const fetchPortfolios = (ids) => {
         const portfoliosData = [];
-        ids.forEach(portfolioID => {
-            fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`)
-                .then(res => res.text())
-                .then(name => {
-                    portfoliosData.push({ portfolioID, name });
-                    if (portfoliosData.length === ids.length) {
-                        setPortfolios(portfoliosData);
-                        if (portfoliosData.length > 0) {
-                            const firstPortfolioID = portfoliosData[0]?.portfolioID;
-                            setSelectedPortfolioID(firstPortfolioID);
-                            fetchBuyingPower(firstPortfolioID);
-                        } else {
-                            setSelectedPortfolioID('');
-                            setBuyingPower(null);
-                        }
+        const fetchPortfolioData = async () => {
+            for (const portfolioID of ids) {
+                try {
+                    const nameResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`);
+                    const name = await nameResponse.text();
+
+                    const cashResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`);
+                    const cash = await cashResponse.text();
+
+                    if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
+                        portfoliosData.push({ portfolioID, name, cash: parseFloat(cash) });
                     }
-                })
-                .catch(error => console.error('Error fetching portfolio data:', error));
-        });
+                } catch (error) {
+                    console.error(`Error fetching portfolio data for ID ${portfolioID}:`, error);
+                }
+            }
+
+            setPortfolios(portfoliosData);
+
+            if (portfoliosData.length > 0) {
+                const firstPortfolioID = portfoliosData[0]?.portfolioID;
+                setSelectedPortfolioID(firstPortfolioID);
+                fetchBuyingPower(firstPortfolioID);
+            } else {
+                setSelectedPortfolioID('');
+                setBuyingPower(null);
+            }
+        };
+
+        fetchPortfolioData();
     };
 
     const fetchBuyingPower = (portfolioID) => {
@@ -113,10 +124,9 @@ function TradingPage({ ticker, currentPrice }) {
         setQuantity(0);
     };
 
-    const handlePortfolioChange = (e) => {
-        const selectedID = e.target.value;
-        setSelectedPortfolioID(selectedID);
-        fetchBuyingPower(selectedID);
+    const handlePortfolioChange = (id) => {
+        setSelectedPortfolioID(id);
+        fetchBuyingPower(id);
     };
 
     const handleReviewOrderClick = () => {
@@ -289,11 +299,16 @@ function TradingPage({ ticker, currentPrice }) {
                             {portfolios.length > 0 ? (
                                 <>
                                     <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
-                                    <select style={{ width: '100%' }} onChange={handlePortfolioChange} value={selectedPortfolioID}>
+                                    <DropdownButton id="dropdown-basic-button" title="Select Portfolio" drop="down">
                                         {portfolios.map(portfolio => (
-                                            <option key={portfolio.portfolioID} value={portfolio.portfolioID}>{portfolio.name}</option>
+                                            <Dropdown.Item 
+                                                key={portfolio.portfolioID} 
+                                                onClick={() => handlePortfolioChange(portfolio.portfolioID)}
+                                            >
+                                                {portfolio.name}
+                                            </Dropdown.Item>
                                         ))}
-                                    </select>
+                                    </DropdownButton>
                                 </>
                             ) : (
                                 <Button variant="primary" onClick={() => navigate("/create-portfolio")}>Create a new portfolio</Button>
