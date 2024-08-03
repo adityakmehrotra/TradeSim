@@ -75,23 +75,46 @@ export default function PortfolioDetails() {
   };
 
   const fetchAssetPrices = (assets, cashAmount) => {
-    const assetPromises = Object.keys(assets).map(asset => 
-      fetch(`http://localhost:8000/paper_trader/polygon/price?ticker=${asset}`)
-        .then(response => response.json())
-        .then(priceData => ({
+    const assetPromises = Object.keys(assets).map(asset => {
+      if (asset === "Cash") {
+        return Promise.resolve({
           name: asset,
           sharesOwned: assets[asset].sharesOwned,
-          currentPrice: priceData?.ticker?.day?.c || 0
-        }))
-    );
+          currentPrice: 1
+        });
+      } else {
+        return fetch(`http://localhost:8000/paper_trader/polygon/price?ticker=${asset}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Error fetching price for ${asset}`);
+            }
+            return response.json();
+          })
+          .then(priceData => ({
+            name: asset,
+            sharesOwned: assets[asset].sharesOwned,
+            currentPrice: priceData?.ticker?.day?.c || 0
+          }));
+      }
+    });
 
     Promise.all(assetPromises)
       .then(assetData => {
         setAssetData(assetData);
-        const chartValues = assetData.map(a => a.sharesOwned * a.currentPrice);
-        chartValues.push(cashAmount);
+        const chartValues = assetData.map(a => a.name === "Cash" ? a.sharesOwned : a.sharesOwned * a.currentPrice);
+        const labels = assetData.map(a => a.name);
+
+        // Check if 'Cash' already exists in the labels
+        const cashIndex = labels.indexOf('Cash');
+        if (cashIndex !== -1) {
+          chartValues[cashIndex] += cashAmount;
+        } else {
+          chartValues.push(cashAmount);
+          labels.push('Cash');
+        }
+
         setChartData({
-          labels: [...assetData.map(a => a.name), 'Cash'],
+          labels,
           datasets: [{
             data: chartValues,
             backgroundColor: [
@@ -117,6 +140,8 @@ export default function PortfolioDetails() {
 
     Promise.all(transactionPromises)
       .then(transactionData => {
+        // Sort transactions by transactionID in descending order
+        transactionData.sort((a, b) => b.transactionID - a.transactionID);
         setTransactions(transactionData);
       })
       .catch(error => console.error('Error fetching transactions:', error));
@@ -153,7 +178,7 @@ export default function PortfolioDetails() {
       <Row className="mb-4">
         <Col>
           <h2>{portfolio.portfolioName}</h2>
-          <p>Initial Investment: ${portfolio.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
+          <p>Cash Available: ${portfolio.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
         </Col>
       </Row>
       <Row>

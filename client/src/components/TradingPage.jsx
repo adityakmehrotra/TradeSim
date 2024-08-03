@@ -11,16 +11,19 @@ function TradingPage({ ticker, currentPrice }) {
     const [inputValue, setInputValue] = useState('');
     const [portfolios, setPortfolios] = useState([]);
     const [selectedPortfolioID, setSelectedPortfolioID] = useState('');
+    const [selectedPortfolioName, setSelectedPortfolioName] = useState('Choose a Portfolio');
     const [buyingPower, setBuyingPower] = useState(null);
+    const [sharesOwned, setSharesOwned] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const { user, id } = useContext(UserContext);
+    const [ cost, setCost ] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (buyInOption === 'Shares') {
             const shares = parseFloat(inputValue.replace(/,/g, ''));
-            setQuantity(shares ? (shares * currentPrice).toFixed(2) : 0);
+            setQuantity(shares);
         } else if (buyInOption === 'Dollars') {
             const dollars = parseFloat(inputValue.replace(/,/g, '').replace('$', ''));
             setQuantity(dollars ? (dollars / currentPrice).toFixed(6) : 0);
@@ -62,15 +65,6 @@ function TradingPage({ ticker, currentPrice }) {
             }
 
             setPortfolios(portfoliosData);
-
-            if (portfoliosData.length > 0) {
-                const firstPortfolioID = portfoliosData[0]?.portfolioID;
-                setSelectedPortfolioID(firstPortfolioID);
-                fetchBuyingPower(firstPortfolioID);
-            } else {
-                setSelectedPortfolioID('');
-                setBuyingPower(null);
-            }
         };
 
         fetchPortfolioData();
@@ -81,6 +75,13 @@ function TradingPage({ ticker, currentPrice }) {
             .then(res => res.json())
             .then(cash => setBuyingPower(cash))
             .catch(error => console.error('Error fetching buying power:', error));
+    };
+
+    const fetchSharesOwned = (portfolioID, code) => {
+        fetch(`http://localhost:8000/paper_trader/portfolio/get/assetsMap/shares?id=${portfolioID}&code=${code}`)
+            .then(res => res.json())
+            .then(shares => setSharesOwned(shares))
+            .catch(error => console.error('Error fetching shares owned:', error));
     };
 
     const handleInputChange = (e) => {
@@ -107,6 +108,7 @@ function TradingPage({ ticker, currentPrice }) {
             return;
         }
         setOrderType(selectedOrderType);
+        setShowAlert(false);
     };
 
     const handleTabClick = (tab) => {
@@ -116,25 +118,46 @@ function TradingPage({ ticker, currentPrice }) {
         setInputValue('');
         setQuantity(0);
         setShowAlert(false);
+
+        if (tab === 'Sell' && selectedPortfolioID) {
+            fetchSharesOwned(selectedPortfolioID, ticker);
+        }
     };
 
     const handleBuyInOptionChange = (e) => {
         setBuyInOption(e.target.value);
         setInputValue('');
         setQuantity(0);
+        setShowAlert(false);
     };
 
-    const handlePortfolioChange = (id) => {
-        setSelectedPortfolioID(id);
-        fetchBuyingPower(id);
+    const handlePortfolioChange = (portfolioID, name) => {
+        setSelectedPortfolioID(portfolioID);
+        setSelectedPortfolioName(name);
+        fetchBuyingPower(portfolioID);
+
+        if (activeTab === 'Sell') {
+            fetchSharesOwned(portfolioID, ticker);
+        }
+        setShowAlert(false);
     };
 
     const handleReviewOrderClick = () => {
+        if (!selectedPortfolioID) {
+            setShowAlert(true);
+            return;
+        }
+
         const amount = parseFloat(inputValue.replace(/[,$]/g, ''));
-        if (amount > buyingPower) {
+        if (activeTab === 'Buy' && amount > buyingPower) {
+            setShowAlert(true);
+        } else if (activeTab === 'Sell' && buyInOption === 'Shares' && amount > sharesOwned) {
+            setShowAlert(true);
+        } else if (activeTab === 'Sell' && buyInOption === 'Dollars' && parseFloat(quantity) > sharesOwned) {
             setShowAlert(true);
         } else {
             setShowAlert(false);
+            setCost(quantity * currentPrice);
             setShowModal(true);
         }
     };
@@ -153,8 +176,8 @@ function TradingPage({ ticker, currentPrice }) {
                     accountID: id,
                     orderType: activeTab,
                     securityCode: ticker.toUpperCase(),
-                    shareAmount: parseFloat(quantity),
-                    cashAmount: parseFloat(inputValue.replace(/[,$]/g, ''))
+                    shareAmount: buyInOption === 'Shares' ? parseFloat(inputValue.replace(/[,$]/g, '')) : parseFloat(quantity),
+                    cashAmount: buyInOption === 'Dollars' ? parseFloat(inputValue.replace(/[,$]/g, '')) : parseFloat((quantity * currentPrice).toFixed(2))
                 };
 
                 fetch("http://localhost:8000/paper_trader/transaction/create", {
@@ -173,12 +196,18 @@ function TradingPage({ ticker, currentPrice }) {
                         setInputValue('');
                         setQuantity(0);
                         setShowModal(false);
+                        fetchBuyingPower(selectedPortfolioID);
+                        fetchSharesOwned(selectedPortfolioID, ticker);
                     })
                     .catch(error => console.error('Error adding transaction to portfolio:', error));
                 })
                 .catch(error => console.error('Error creating transaction:', error));
             })
             .catch(error => console.error('Error fetching next transaction ID:', error));
+    };
+
+    const formatNumberWithCommas = (number, decimals = 2) => {
+        return number.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     };
 
     if (!user) {
@@ -281,7 +310,7 @@ function TradingPage({ ticker, currentPrice }) {
                     <div style={{ padding: '0 20px', borderTop: '1px solid #000', marginTop: '20px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingTop: '20px' }}>
                             <p style={{ marginBottom: '0', fontSize: '16px', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? 'Est. Cost:' : 'Est. Quantity:'}</p>
-                            <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption !== 'Dollars' ? `$${quantity}` : quantity}</p>
+                            <p style={{ marginBottom: '0', fontSize: '16px', textAlign: 'right', fontWeight: 'bold' }}>{buyInOption === 'Dollars' ? formatNumberWithCommas(parseFloat(quantity) || 0, 6) : `$${formatNumberWithCommas(quantity ? (quantity * currentPrice) : 0, 2)}` }</p>
                         </div>
                         <button 
                             style={{ backgroundColor: activeTab === 'Buy' ? 'green' : 'red', color: 'white', padding: '15px 20px', border: 'none', width: '100%', fontSize: '16px', borderRadius: '30px' }}
@@ -292,18 +321,27 @@ function TradingPage({ ticker, currentPrice }) {
                         </button>
                         {showAlert && (
                             <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible style={{ marginTop: '10px', marginBottom: '10px' }}>
-                                You do not have enough cash to Buy {ticker}.
+                                {selectedPortfolioID ? 
+                                    (activeTab === 'Buy' ? `You do not have enough cash to buy ${ticker}.` : `You do not have enough shares to sell ${ticker}.`)
+                                    : 'Please choose a portfolio first.'
+                                }
                             </Alert>
                         )}
                         <div style={{ borderTop: '1px solid #000', marginTop: '20px', paddingTop: '10px', textAlign: 'center' }}>
                             {portfolios.length > 0 ? (
                                 <>
-                                    <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? buyingPower.toFixed(2) : '0.00'} buying power available</p>
-                                    <DropdownButton id="dropdown-basic-button" title="Select Portfolio" drop="down">
+                                    {selectedPortfolioID && (
+                                        activeTab === 'Buy' ? (
+                                            <p style={{ fontSize: '16px', marginBottom: '10px' }}>${buyingPower ? formatNumberWithCommas(buyingPower, 2) : '0.00'} buying power available</p>
+                                        ) : (
+                                            <p style={{ fontSize: '16px', marginBottom: '10px' }}>{sharesOwned ? formatNumberWithCommas(sharesOwned, 6) : '0'} shares available</p>
+                                        )
+                                    )}
+                                    <DropdownButton id="dropdown-basic-button" title={selectedPortfolioName} drop="down">
                                         {portfolios.map(portfolio => (
                                             <Dropdown.Item 
                                                 key={portfolio.portfolioID} 
-                                                onClick={() => handlePortfolioChange(portfolio.portfolioID)}
+                                                onClick={() => handlePortfolioChange(portfolio.portfolioID, portfolio.name)}
                                             >
                                                 {portfolio.name}
                                             </Dropdown.Item>
@@ -323,7 +361,11 @@ function TradingPage({ ticker, currentPrice }) {
                     <Modal.Title>Order Summary</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    You are placing a paper market order to {activeTab === 'Buy' ? 'buy' : 'sell'} {ticker} based on the market price ${currentPrice?.toFixed(2)}. You will receive approximately {quantity} shares.
+                    {activeTab === 'Buy' ? (
+                        `You are placing a paper market order to buy ${formatNumberWithCommas(parseFloat(quantity), 6)} shares of ${ticker} based on the market price $${currentPrice?.toFixed(2)}. You will spend approximately $${(buyInOption === 'Dollars') ? formatNumberWithCommas(parseFloat(inputValue.replace(/[,$]/g, '')), 2) : formatNumberWithCommas(parseFloat(cost), 2)}.`
+                    ) : (
+                        `You are placing a paper market order to sell approximately ${formatNumberWithCommas(parseFloat(quantity), 6)} shares of ${ticker} based on the market price $${currentPrice?.toFixed(2)}. You will receive approximately $${formatNumberWithCommas(quantity ? (quantity * currentPrice) : 0, 2)}.`
+                    )}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModal}>

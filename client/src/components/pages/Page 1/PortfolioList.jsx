@@ -93,6 +93,7 @@ export default function PortfolioList() {
           })
           .then(() => {
             setPortfolios([...portfolios, { portfolioID: newPortfolioID, name: newPortfolioName, cash: parseFloat(newPortfolioCash) }]);
+            createInitialTransaction(newPortfolioID, parseFloat(newPortfolioCash));
             setNewPortfolioName("");
             setNewPortfolioCash("");
             setShowCreateForm(false);
@@ -102,6 +103,39 @@ export default function PortfolioList() {
         .catch(error => console.error('Error during portfolio creation:', error));
       })
       .catch(error => console.error('Error fetching next portfolio ID:', error));
+  };
+
+  const createInitialTransaction = (portfolioID, cashAmount) => {
+    fetch("http://localhost:8000/paper_trader/transaction/get/nextTransactionID")
+      .then(response => response.json())
+      .then(transactionID => {
+        const orderDetails = {
+          transactionID,
+          portfolioID,
+          accountID: id,
+          orderType: "Fund",
+          securityCode: "Cash",
+          shareAmount: 1.0,
+          cashAmount: cashAmount
+        };
+
+        fetch("http://localhost:8000/paper_trader/transaction/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(orderDetails)
+        })
+        .then(response => response.json())
+        .then(() => {
+          fetch(`http://localhost:8000/paper_trader/portfolio/add/transaction?id=${portfolioID}&transactionID=${transactionID}`, {
+            method: "POST"
+          })
+          .catch(error => console.error('Error adding transaction to portfolio:', error));
+        })
+        .catch(error => console.error('Error creating transaction:', error));
+      })
+      .catch(error => console.error('Error fetching next transaction ID:', error));
   };
 
   const handleShowMore = () => {
