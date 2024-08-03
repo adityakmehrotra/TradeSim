@@ -33,20 +33,27 @@ export default function PortfolioList() {
   }, [id]);
 
   const fetchPortfolios = (ids) => {
-    ids.forEach(portfolioID => {
-      Promise.all([
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`).then(res => res.text()),
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`).then(res => res.text())
-      ])
-      .then(([name, cash]) => {
-        if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
-          setPortfolios(prevPortfolios => [...prevPortfolios, { portfolioID, name, cash: parseFloat(cash) }]);
-        } else {
-          console.error('Error: Invalid data format received for portfolio details');
+    const portfoliosData = [];
+    const fetchPortfolioData = async () => {
+      for (const portfolioID of ids) {
+        try {
+          const nameResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`);
+          const name = await nameResponse.text();
+
+          const cashResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/initcash?id=${portfolioID}`);
+          const cash = await cashResponse.text();
+
+          if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
+            portfoliosData.push({ portfolioID, name, cash: parseFloat(cash) });
+          }
+        } catch (error) {
+          console.error(`Error fetching portfolio data for ID ${portfolioID}:`, error);
         }
-      })
-      .catch(error => console.error('Error fetching portfolio data:', error));
-    });
+      }
+      setPortfolios(portfoliosData);
+    };
+
+    fetchPortfolioData();
   };
 
   const handlePortfolioClick = (portfolioID) => {
@@ -62,7 +69,8 @@ export default function PortfolioList() {
           portfolioID: newPortfolioID,
           accountID: id,
           portfolioName: newPortfolioName,
-          cashAmount: parseFloat(newPortfolioCash)
+          cashAmount: parseFloat(newPortfolioCash),
+          initialBalance: parseFloat(newPortfolioCash)
         };
 
         fetch("http://localhost:8000/paper_trader/portfolio/create", {
@@ -147,7 +155,7 @@ export default function PortfolioList() {
               <Card.Body onClick={() => handlePortfolioClick(portfolio.portfolioID)}>
                 <Card.Title>{portfolio.name}</Card.Title>
                 <Card.Text>
-                  Cash: ${portfolio.cash.toFixed(2)}
+                  Initial Investment: ${portfolio.cash.toFixed(2)}
                 </Card.Text>
                 <Button
                   variant="danger"

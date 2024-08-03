@@ -18,8 +18,10 @@ export default function PortfolioDetails() {
   const { id: accountID } = useContext(UserContext);
 
   useEffect(() => {
-    fetchAllPortfolios();
-  }, []);
+    if (accountID) {
+      fetchAllPortfolios();
+    }
+  }, [accountID]);
 
   useEffect(() => {
     if (selectedPortfolioID) {
@@ -55,7 +57,15 @@ export default function PortfolioDetails() {
       .then(data => {
         setPortfolio(data);
         if (data.assets) {
-          fetchAssetPrices(data.assets);
+          fetchAssetPrices(data.assets, data.cashAmount);
+        } else {
+          setChartData({
+            labels: ['Cash'],
+            datasets: [{
+              data: [data.cashAmount],
+              backgroundColor: ['#FF6384']
+            }]
+          });
         }
         if (data.transactionList) {
           fetchTransactions(data.transactionList);
@@ -64,7 +74,7 @@ export default function PortfolioDetails() {
       .catch(error => console.error('Error fetching portfolio details:', error));
   };
 
-  const fetchAssetPrices = (assets) => {
+  const fetchAssetPrices = (assets, cashAmount) => {
     const assetPromises = Object.keys(assets).map(asset => 
       fetch(`http://localhost:8000/paper_trader/polygon/price?ticker=${asset}`)
         .then(response => response.json())
@@ -79,9 +89,7 @@ export default function PortfolioDetails() {
       .then(assetData => {
         setAssetData(assetData);
         const chartValues = assetData.map(a => a.sharesOwned * a.currentPrice);
-        if (portfolio && portfolio.cashAmount) {
-          chartValues.push(portfolio.cashAmount);
-        }
+        chartValues.push(cashAmount);
         setChartData({
           labels: [...assetData.map(a => a.name), 'Cash'],
           datasets: [{
@@ -92,7 +100,8 @@ export default function PortfolioDetails() {
               '#FFCE56',
               '#4BC0C0',
               '#9966FF',
-              '#FF9F40'
+              '#FF9F40',
+              '#AA6384'
             ]
           }]
         });
