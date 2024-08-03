@@ -15,18 +15,34 @@ export default function AppLayout() {
     const navigate = useNavigate();
     const searchInputRef = useRef();
 
-    const handleSearch = (ticker) => {
-        navigate(`/search/${encodeURIComponent(ticker)}`);
+    const handleSearch = async (ticker) => {
+        try {
+            await axios.get(`http://localhost:8000/paper_trader/security/suggestion/${ticker}`);
+            navigate(`/search/${encodeURIComponent(ticker)}`);
+        } catch (error) {
+            alert("Failed to fetch data for the selected security. Please pick another security.");
+        }
     };
 
     useEffect(() => {
-
     }, []);
 
     const handleSearchInput = (event) => {
         const value = event.target.value;
         setSearchText(value);
         updateSuggestions(value);
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (suggestions.length > 0) {
+                handleSuggestionClick(suggestions[0]);
+            } else {
+                setSearchText('');
+                alert("Please type the security name or ticker symbol again.");
+            }
+        }
     };
 
     const getTextWidth = (text, font) => {
@@ -72,7 +88,7 @@ export default function AppLayout() {
         setSuggestions([]);
     };
 
-return (
+    return (
         <div>
             <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
                 <Container fluid>
@@ -80,7 +96,7 @@ return (
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto" />
-                        <Form inline className="d-flex mx-auto position-relative" style={{ width: '30%' }}>
+                        <Form className="d-flex mx-auto position-relative" style={{ width: '30%' }} onKeyDown={handleKeyDown}>
                             <FormControl
                                 type="text"
                                 placeholder="Search"
@@ -90,7 +106,14 @@ return (
                                 value={searchText}
                                 onChange={handleSearchInput}
                             />
-                            <Button variant="outline-info" style={{ width: '20%' }} onClick={() => handleSuggestionClick(searchText)}>Search</Button>
+                            <Button variant="outline-info" style={{ width: '20%' }} onClick={() => {
+                                if (suggestions.length > 0) {
+                                    handleSuggestionClick(suggestions[0]);
+                                } else {
+                                    setSearchText('');
+                                    alert("Please type the security name or ticker symbol again.");
+                                }
+                            }}>Search</Button>
                             {suggestions.length > 0 && (
                                 <Dropdown.Menu show style={{ position: 'absolute', top: '38px', left: '0', width: '100%' }}>
                                     {suggestions.map((suggestion, index) => (
@@ -102,9 +125,9 @@ return (
                             )}
                         </Form>
                         <Nav className="ms-auto">
-                            <Nav.Link as={NavLink} to="/portfolio" activeClassName="activeLink">Portfolio</Nav.Link>
-                            <Nav.Link as={NavLink} to="/notifications" activeClassName="activeLink">Notifications</Nav.Link>
-                            <Nav.Link as={NavLink} to="/account" activeClassName="activeLink">Account</Nav.Link>
+                            <Nav.Link as={NavLink} to="/portfolio" className={({ isActive }) => isActive ? "active" : ""}>Portfolio</Nav.Link>
+                            <Nav.Link as={NavLink} to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>Notifications</Nav.Link>
+                            <Nav.Link as={NavLink} to="/account" className={({ isActive }) => isActive ? "active" : ""}>Account</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

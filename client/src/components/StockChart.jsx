@@ -14,7 +14,6 @@ const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
         const fetchData = async (fromDate, toDate, timespan, multiplier) => {
             const from = fromDate ? fromDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
             const to = toDate ? toDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-            console.log(from, to);
     
             try {
                 const response = await fetch(`http://localhost:8000/paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`);
