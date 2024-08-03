@@ -18,19 +18,23 @@ export default function PortfolioList() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:8000/paper_trader/account/get/portfolioList?id=${id}`)
-        .then(response => response.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setPortfolioIDs(data);
-            fetchPortfolios(data);
-          } else {
-            console.error('Error: Invalid data format received for portfolio list');
-          }
-        })
-        .catch(error => console.error('Error fetching portfolio list:', error));
+      fetchPortfolioList();
     }
   }, [id]);
+
+  const fetchPortfolioList = () => {
+    fetch(`http://localhost:8000/paper_trader/account/get/portfolioList?id=${id}`)
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPortfolioIDs(data);
+          fetchPortfolios(data);
+        } else {
+          console.error('Error: Invalid data format received for portfolio list');
+        }
+      })
+      .catch(error => console.error('Error fetching portfolio list:', error));
+  };
 
   const fetchPortfolios = (ids) => {
     const portfoliosData = [];
@@ -153,9 +157,15 @@ export default function PortfolioList() {
     })
     .then(response => {
       if (response.ok) {
-        setPortfolios(portfolios.filter(p => p.portfolioID !== portfolioToDelete.portfolioID));
-        setShowModal(false);
-        setPortfolioToDelete(null);
+        fetch(`http://localhost:8000/paper_trader/account/delete/portfolioList?id=${id}&portfolioID=${portfolioToDelete.portfolioID}`, {
+          method: "POST"
+        })
+        .then(() => {
+          fetchPortfolioList();
+          setShowModal(false);
+          setPortfolioToDelete(null);
+        })
+        .catch(error => console.error('Error deleting portfolio from account:', error));
       } else {
         throw new Error('Error deleting portfolio');
       }
@@ -182,9 +192,9 @@ export default function PortfolioList() {
           <h2>Portfolios</h2>
         </Col>
       </Row>
-      <Row>
-        {portfolios.slice(0, visiblePortfolios).map(portfolio => (
-          <Col key={portfolio.portfolioID} className="mb-4">
+      {portfolios.slice(0, visiblePortfolios).map(portfolio => (
+        <Row key={portfolio.portfolioID} className="mb-4">
+          <Col>
             <Card style={{ width: '100%' }}>
               <Card.Body onClick={() => handlePortfolioClick(portfolio.portfolioID)}>
                 <Card.Title>{portfolio.name}</Card.Title>
@@ -204,8 +214,8 @@ export default function PortfolioList() {
               </Card.Body>
             </Card>
           </Col>
-        ))}
-      </Row>
+        </Row>
+      ))}
       {visiblePortfolios < portfolios.length && (
         <Row className="mb-4">
           <Col>

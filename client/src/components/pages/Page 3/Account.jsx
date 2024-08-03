@@ -1,11 +1,12 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Card, Button, Form, Alert } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { Card, Button, Form, Alert, Modal } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserContext } from '../../../UserContext';
 
 export default function Account() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(location.state?.isLogin ?? true);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -20,6 +21,7 @@ export default function Account() {
   const [showPassword, setShowPassword] = useState(false);
   const [usernameExists, setUsernameExists] = useState(false);
   const { user, id, login, logout } = useContext(UserContext);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (!isLogin && formData.username !== "") {
@@ -61,10 +63,8 @@ export default function Account() {
     })
     .then(response => response.text())
     .then(text => {
-        console.log(text)
       try {
         const data = text;
-        console.log(data);
         if (data === formData.password) {
           fetch(`http://localhost:8000/paper_trader/account/get/accountID?username=${formData.username}`, {
             method: 'GET',
@@ -156,6 +156,26 @@ export default function Account() {
       confirmPassword: ""
     });
     setAccountID(1010110);
+    setError(null);
+  };
+
+  const handleDeleteAccount = () => {
+    fetch(`http://localhost:8000/paper_trader/account/delete?id=${id}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (response.ok) {
+        logout(resetForm);
+        setShowDeleteModal(false);
+        navigate("/account", { state: { isLogin: true } });
+      } else {
+        throw new Error('Error deleting account');
+      }
+    })
+    .catch(error => {
+      console.error('Error during account deletion:', error);
+      setError("An error occurred. Please try again.");
+    });
   };
 
   if (user) {
@@ -164,9 +184,29 @@ export default function Account() {
         <Card style={{ width: '30rem', padding: '2rem' }}>
           <Card.Body>
             <Card.Title>Welcome, {user.username}</Card.Title>
-            <Button variant="primary" onClick={() => logout(resetForm)}>Logout</Button>
+            <div className="mb-3"></div>
+            <div className="d-flex justify-content-between">
+              <Button variant="primary" onClick={() => logout(resetForm)}>Logout</Button>
+              <Button variant="danger" onClick={() => setShowDeleteModal(true)}>Delete Account</Button>
+            </div>
           </Card.Body>
         </Card>
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Account Deletion</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete your account? This action cannot be undone.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDeleteAccount}>
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }

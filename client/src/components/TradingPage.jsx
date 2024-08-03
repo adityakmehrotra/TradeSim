@@ -51,9 +51,15 @@ function TradingPage({ ticker, currentPrice }) {
             for (const portfolioID of ids) {
                 try {
                     const nameResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`);
+                    if (!nameResponse.ok) {
+                        throw new Error(`Error fetching name for portfolio ID ${portfolioID}`);
+                    }
                     const name = await nameResponse.text();
 
                     const cashResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`);
+                    if (!cashResponse.ok) {
+                        throw new Error(`Error fetching cash for portfolio ID ${portfolioID}`);
+                    }
                     const cash = await cashResponse.text();
 
                     if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
@@ -63,7 +69,6 @@ function TradingPage({ ticker, currentPrice }) {
                     console.error(`Error fetching portfolio data for ID ${portfolioID}:`, error);
                 }
             }
-
             setPortfolios(portfoliosData);
         };
 
