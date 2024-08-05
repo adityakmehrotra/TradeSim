@@ -16,7 +16,6 @@ export default function Account() {
     password: "",
     confirmPassword: ""
   });
-  const [accountID, setAccountID] = useState(1010110);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [usernameExists, setUsernameExists] = useState(false);
@@ -74,8 +73,7 @@ export default function Account() {
           })
           .then(response => response.json())
           .then(data => {
-            setAccountID(data);
-            login(formData.username, data);
+            login(formData.username, data); // Set the logged-in id in UserContext
           })
           .catch(error => {
             console.error('Error fetching account ID:', error);
@@ -94,31 +92,35 @@ export default function Account() {
     });
   };
 
-  const signUpAttempt = () => {
-    fetch(`http://localhost:8000/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        accountID,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        emailAddress: formData.email,
-        password: formData.password
-      })
-    })
-    .then(response => {
-      if (response.ok) {
-        login(formData.username, accountID);
-      } else {
-        setError("An error occurred during sign up. Please try again.");
-      }
-    })
-    .catch(error => {
+  const signUpAttempt = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/paper_trader/account/get/nextAccountID`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      const newAccountID = await response.json();
+
+      await fetch(`http://localhost:8000/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          accountID: newAccountID,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          emailAddress: formData.email,
+          password: formData.password
+        })
+      });
+
+      login(formData.username, newAccountID); // Set the logged-in id in UserContext
+    } catch (error) {
       console.error('Error during sign up:', error);
       setError("An error occurred. Please try again.");
-    });
+    }
   };
 
   const checkUsernameExists = (username, callback) => {
@@ -155,7 +157,6 @@ export default function Account() {
       password: "",
       confirmPassword: ""
     });
-    setAccountID(1010110);
     setError(null);
   };
 

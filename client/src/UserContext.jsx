@@ -19,7 +19,9 @@ export const UserProvider = ({ children }) => {
 
   const login = (username, accountID) => {
     setUser({ username });
+    console.log(accountID);
     setId(accountID);
+    console.log(id);
     localStorage.setItem('user', JSON.stringify({ username }));
     localStorage.setItem('id', JSON.stringify(accountID));
   };

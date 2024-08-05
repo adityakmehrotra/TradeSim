@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Card, Container, Row, Col, Table, Button, Dropdown, DropdownButton, Modal } from "react-bootstrap";
+import { Container, Row, Col, Table, Button, Dropdown, DropdownButton, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { Pie } from 'react-chartjs-2';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Chart from 'chart.js/auto';
 import { UserContext } from '../../../UserContext';
+import PortfolioChart from './PortfolioChart';
 
 export default function PortfolioDetails() {
   const { portfolioID } = useParams();
@@ -18,7 +19,6 @@ export default function PortfolioDetails() {
   const { id: accountID } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
-  const [transactionOrder, setTransactionOrder] = useState('asc');
 
   useEffect(() => {
     if (accountID) {
@@ -198,17 +198,35 @@ export default function PortfolioDetails() {
     return number.toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  const toggleTransactionOrder = () => {
-    const newOrder = transactionOrder === 'asc' ? 'desc' : 'asc';
-    const sortedTransactions = [...transactions].sort((a, b) => {
-      if (newOrder === 'asc') {
-        return a.transactionID - b.transactionID;
-      } else {
-        return b.transactionID - a.transactionID;
+  const chartOptions = {
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          boxWidth: 20,
+          padding: 20,
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed !== null) {
+              label += new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+              }).format(context.parsed);
+            }
+            return label;
+          }
+        }
       }
-    });
-    setTransactions(sortedTransactions);
-    setTransactionOrder(newOrder);
+    },
+    responsive: true,
+    maintainAspectRatio: false,
   };
 
   if (!portfolio) {
@@ -236,19 +254,22 @@ export default function PortfolioDetails() {
       </Row>
       <Row className="mb-4">
         <Col>
-          <h2>{portfolio.portfolioName}</h2>
-          <p>Cash Available: ${portfolio.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
+          <h2>{portfolio?.portfolioName}</h2>
+          <p>Cash Available: ${portfolio?.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
         </Col>
       </Row>
       <Row>
         <Col md={4}>
           {chartData.datasets ? (
             <div style={{ width: '300px', height: '300px', marginBottom: '40px' }}>
-              <Pie data={chartData} />
+              <Pie data={chartData} options={chartOptions} />
             </div>
           ) : (
             <p>Loading chart...</p>
           )}
+        </Col>
+        <Col md={8}>
+          <PortfolioChart portfolioID={selectedPortfolioID} />
         </Col>
       </Row>
       <Row>
@@ -267,7 +288,7 @@ export default function PortfolioDetails() {
               {assetData.map((asset, index) => (
                 <tr key={index}>
                   <td>{asset.name}</td>
-                  <td>{asset.name === "Cash" ? '' : formatNumberWithCommas(asset.sharesOwned, 6)}</td>
+                  <td>{asset.name === "Cash" ? '' : formatNumberWithCommas(asset.sharesOwned, 4)}</td>
                   <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
                   <td>${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}</td>
                 </tr>
@@ -282,7 +303,7 @@ export default function PortfolioDetails() {
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th onClick={toggleTransactionOrder} style={{ cursor: 'pointer' }}>#</th>
+                <th>#</th>
                 <th>Order Type</th>
                 <th>Security</th>
                 <th>Shares</th>
@@ -292,11 +313,11 @@ export default function PortfolioDetails() {
             <tbody>
               {transactions.map((transaction, index) => (
                 <tr key={index}>
-                  <td>{index + 1}</td>
+                  <td>{transactions.length - index}</td>
                   <td>{transaction.orderType}</td>
                   <td>{transaction.securityCode}</td>
-                  <td>{transaction.securityCode === "Cash" ? '' : transaction.shareAmount}</td>
-                  <td>${transaction.cashAmount ? transaction.cashAmount.toFixed(2) : 'N/A'}</td>
+                  <td>{transaction.securityCode === "Cash" ? '' : formatNumberWithCommas(transaction.shareAmount, 4)}</td>
+                  <td>${transaction.cashAmount ? formatNumberWithCommas(transaction.cashAmount, 2) : 'N/A'}</td>
                 </tr>
               ))}
             </tbody>

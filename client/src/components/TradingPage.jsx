@@ -17,7 +17,7 @@ function TradingPage({ ticker, currentPrice }) {
     const [showModal, setShowModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const { user, id } = useContext(UserContext);
-    const [ cost, setCost ] = useState(0);
+    const [cost, setCost] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -85,8 +85,13 @@ function TradingPage({ ticker, currentPrice }) {
     const fetchSharesOwned = (portfolioID, code) => {
         fetch(`http://localhost:8000/paper_trader/portfolio/get/assetsMap/shares?id=${portfolioID}&code=${code}`)
             .then(res => res.json())
-            .then(shares => setSharesOwned(shares))
-            .catch(error => console.error('Error fetching shares owned:', error));
+            .then(shares => {
+                setSharesOwned(shares ? shares : 0);
+            })
+            .catch(error => {
+                console.error('Error fetching shares owned:', error);
+                setSharesOwned(0);
+            });
     };
 
     const handleInputChange = (e) => {
@@ -181,8 +186,10 @@ function TradingPage({ ticker, currentPrice }) {
                     accountID: id,
                     orderType: activeTab,
                     securityCode: ticker.toUpperCase(),
+                    gmtTime: new Date().toUTCString(),
                     shareAmount: buyInOption === 'Shares' ? parseFloat(inputValue.replace(/[,$]/g, '')) : parseFloat(quantity),
-                    cashAmount: buyInOption === 'Dollars' ? parseFloat(inputValue.replace(/[,$]/g, '')) : parseFloat((quantity * currentPrice).toFixed(2))
+                    cashAmount: buyInOption === 'Dollars' ? parseFloat(inputValue.replace(/[,$]/g, '')) : parseFloat((quantity * currentPrice).toFixed(2)),
+                    currPrice: currentPrice
                 };
 
                 fetch("http://localhost:8000/paper_trader/transaction/create", {
