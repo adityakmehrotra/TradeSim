@@ -23,7 +23,7 @@ export default function PortfolioList() {
   }, [id]);
 
   const fetchPortfolioList = () => {
-    fetch(`http://localhost:8000/paper_trader/account/get/portfolioList?id=${id}`)
+    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${id}`)
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -41,10 +41,10 @@ export default function PortfolioList() {
     const fetchPortfolioData = async () => {
       for (const portfolioID of ids) {
         try {
-          const nameResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`);
+          const nameResponse = await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/name?id=${portfolioID}`);
           const name = await nameResponse.text();
 
-          const cashResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/initcash?id=${portfolioID}`);
+          const cashResponse = await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/initcash?id=${portfolioID}`);
           const cash = await cashResponse.text();
 
           if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
@@ -65,7 +65,7 @@ export default function PortfolioList() {
   };
 
   const handleCreatePortfolio = () => {
-    fetch("http://localhost:8000/paper_trader/portfolio/get/nextportfolioID")
+    fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/nextportfolioID")
       .then(response => response.json())
       .then(data => {
         const newPortfolioID = data;
@@ -77,7 +77,7 @@ export default function PortfolioList() {
           initialBalance: parseFloat(newPortfolioCash)
         };
 
-        fetch("http://localhost:8000/paper_trader/portfolio/create", {
+        fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -92,7 +92,7 @@ export default function PortfolioList() {
           }
         })
         .then(() => {
-          fetch(`http://localhost:8000/paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
+          fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
             method: "POST"
           })
           .then(() => {
@@ -110,7 +110,7 @@ export default function PortfolioList() {
   };
 
   const createInitialTransaction = (portfolioID, cashAmount) => {
-    fetch("http://localhost:8000/paper_trader/transaction/get/nextTransactionID")
+    fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/transaction/get/nextTransactionID")
       .then(response => response.json())
       .then(transactionID => {
         const orderDetails = {
@@ -123,7 +123,7 @@ export default function PortfolioList() {
           cashAmount: cashAmount
         };
 
-        fetch("http://localhost:8000/paper_trader/transaction/create", {
+        fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/transaction/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -132,7 +132,7 @@ export default function PortfolioList() {
         })
         .then(response => response.json())
         .then(() => {
-          fetch(`http://localhost:8000/paper_trader/portfolio/add/transaction?id=${portfolioID}&transactionID=${transactionID}`, {
+          fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/add/transaction?id=${portfolioID}&transactionID=${transactionID}`, {
             method: "POST"
           })
           .catch(error => console.error('Error adding transaction to portfolio:', error));
@@ -152,12 +152,12 @@ export default function PortfolioList() {
   };
 
   const handleConfirmDelete = () => {
-    fetch(`http://localhost:8000/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
+    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
       method: "DELETE"
     })
     .then(response => {
       if (response.ok) {
-        fetch(`http://localhost:8000/paper_trader/account/delete/portfolioList?id=${id}&portfolioID=${portfolioToDelete.portfolioID}`, {
+        fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/delete/portfolioList?id=${id}&portfolioID=${portfolioToDelete.portfolioID}`, {
           method: "POST"
         })
         .then(() => {

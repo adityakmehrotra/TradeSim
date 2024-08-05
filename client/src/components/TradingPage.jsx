@@ -32,7 +32,7 @@ function TradingPage({ ticker, currentPrice }) {
 
     useEffect(() => {
         if (id) {
-            fetch(`http://localhost:8000/paper_trader/account/get/portfolioList?id=${id}`)
+            fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
                     if (Array.isArray(data)) {
@@ -50,13 +50,13 @@ function TradingPage({ ticker, currentPrice }) {
         const fetchPortfolioData = async () => {
             for (const portfolioID of ids) {
                 try {
-                    const nameResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/name?id=${portfolioID}`);
+                    const nameResponse = await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/name?id=${portfolioID}`);
                     if (!nameResponse.ok) {
                         throw new Error(`Error fetching name for portfolio ID ${portfolioID}`);
                     }
                     const name = await nameResponse.text();
 
-                    const cashResponse = await fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`);
+                    const cashResponse = await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/cash?id=${portfolioID}`);
                     if (!cashResponse.ok) {
                         throw new Error(`Error fetching cash for portfolio ID ${portfolioID}`);
                     }
@@ -76,14 +76,14 @@ function TradingPage({ ticker, currentPrice }) {
     };
 
     const fetchBuyingPower = (portfolioID) => {
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/cash?id=${portfolioID}`)
+        fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/cash?id=${portfolioID}`)
             .then(res => res.json())
             .then(cash => setBuyingPower(cash))
             .catch(error => console.error('Error fetching buying power:', error));
     };
 
     const fetchSharesOwned = (portfolioID, code) => {
-        fetch(`http://localhost:8000/paper_trader/portfolio/get/assetsMap/shares?id=${portfolioID}&code=${code}`)
+        fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/assetsMap/shares?id=${portfolioID}&code=${code}`)
             .then(res => res.json())
             .then(shares => {
                 setSharesOwned(shares ? shares : 0);
@@ -177,7 +177,7 @@ function TradingPage({ ticker, currentPrice }) {
     };
 
     const handleConfirmOrder = () => {
-        fetch("http://localhost:8000/paper_trader/transaction/get/nextTransactionID")
+        fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/transaction/get/nextTransactionID")
             .then(response => response.json())
             .then(transactionID => {
                 const orderDetails = {
@@ -192,7 +192,7 @@ function TradingPage({ ticker, currentPrice }) {
                     currPrice: currentPrice
                 };
 
-                fetch("http://localhost:8000/paper_trader/transaction/create", {
+                fetch("http://tradesim-api.adityakmehrotra.com/paper_trader/transaction/create", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -201,7 +201,7 @@ function TradingPage({ ticker, currentPrice }) {
                 })
                 .then(response => response.json())
                 .then(() => {
-                    fetch(`http://localhost:8000/paper_trader/portfolio/add/transaction?id=${selectedPortfolioID}&transactionID=${transactionID}`, {
+                    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/add/transaction?id=${selectedPortfolioID}&transactionID=${transactionID}`, {
                         method: "POST"
                     })
                     .then(() => {
