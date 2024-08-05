@@ -54,7 +54,7 @@ export default function Account() {
   };
 
   const loginAttempt = () => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/password?username=${formData.username}`, {
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/password?username=${formData.username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ export default function Account() {
       try {
         const data = text;
         if (data === formData.password) {
-          fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/accountID?username=${formData.username}`, {
+          fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/accountID?username=${formData.username}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -94,7 +94,7 @@ export default function Account() {
 
   const signUpAttempt = async () => {
     try {
-      const response = await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/nextAccountID`, {
+      const response = await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/nextAccountID`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -102,7 +102,7 @@ export default function Account() {
       });
       const newAccountID = await response.json();
 
-      await fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
+      await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -124,7 +124,7 @@ export default function Account() {
   };
 
   const checkUsernameExists = (username, callback) => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/check/username?username=${username}`, {
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/check/username?username=${username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ export default function Account() {
   };
 
   const handleDeleteAccount = () => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/delete?id=${id}`, {
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/delete?id=${id}`, {
       method: 'DELETE'
     })
     .then(response => {

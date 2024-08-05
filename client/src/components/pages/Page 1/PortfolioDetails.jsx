@@ -33,12 +33,12 @@ export default function PortfolioDetails() {
   }, [selectedPortfolioID]);
 
   const fetchAllPortfolios = () => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${accountID}`)
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${accountID}`)
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)) {
           const portfolioPromises = data.map(id =>
-            fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/name?id=${id}`)
+            fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get/name?id=${id}`)
               .then(response => {
                 if (response.ok) {
                   return response.text().then(name => ({ id, name }));
@@ -61,7 +61,7 @@ export default function PortfolioDetails() {
   };
 
   const fetchPortfolioDetails = (id) => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get?id=${id}`)
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/get?id=${id}`)
       .then(response => response.json())
       .then(data => {
         setPortfolio(data);
@@ -93,7 +93,7 @@ export default function PortfolioDetails() {
           currentPrice: 1
         });
       } else {
-        return fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/polygon/price?ticker=${asset}`)
+        return fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/polygon/price?ticker=${asset}`)
           .then(response => {
             if (!response.ok) {
               throw new Error(`Error fetching price for ${asset}`);
@@ -145,7 +145,7 @@ export default function PortfolioDetails() {
 
   const fetchTransactions = (transactionIDs) => {
     const transactionPromises = transactionIDs.map(id =>
-      fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/transaction/get?id=${id}`)
+      fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/transaction/get?id=${id}`)
         .then(response => response.json())
     );
 
@@ -169,12 +169,12 @@ export default function PortfolioDetails() {
   };
 
   const handleConfirmDelete = () => {
-    fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
+    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
       method: "DELETE"
     })
     .then(response => {
       if (response.ok) {
-        return fetch(`http://tradesim-api.adityakmehrotra.com/paper_trader/account/delete/portfolioList?id=${accountID}&portfolioID=${portfolioToDelete.portfolioID}`, {
+        return fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/delete/portfolioList?id=${accountID}&portfolioID=${portfolioToDelete.portfolioID}`, {
           method: "DELETE"
         });
       } else {
