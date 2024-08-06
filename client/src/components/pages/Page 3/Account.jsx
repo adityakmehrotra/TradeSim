@@ -73,7 +73,7 @@ export default function Account() {
           })
           .then(response => response.json())
           .then(data => {
-            login(formData.username, data); // Set the logged-in id in UserContext
+            login(formData.username, data);
           })
           .catch(error => {
             console.error('Error fetching account ID:', error);
@@ -116,7 +116,7 @@ export default function Account() {
         })
       });
 
-      login(formData.username, newAccountID); // Set the logged-in id in UserContext
+      login(formData.username, newAccountID);
     } catch (error) {
       console.error('Error during sign up:', error);
       setError("An error occurred. Please try again.");
