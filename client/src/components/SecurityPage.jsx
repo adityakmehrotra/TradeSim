@@ -98,7 +98,7 @@ export default function SecurityPage(props) {
             .then(response => response.json())
             .then(data => {
                 if (data.results && data.results.length > 0) {
-                    setStartingPrice(data.results[0].c); // Set the starting price from the first data point
+                    setStartingPrice(data.results[0].c);
                 }
             })
             .catch(error => console.error("Error fetching starting price:", error));
