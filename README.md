@@ -21,11 +21,11 @@
     A web application that lets users simulate stock market investments with paper (virtual) money, track their portfolio performance, and enhance their trading skills without any financial risk. Users have access to comprehensive market data for each company, including charts, news, and detailed financial information. 
     <br />
     <br />
-    <a href="https://github.com/adityakmehrotra/LeafAI">View Demo</a>
+    <a href="https://github.com/adityakmehrotra/TradeSim">View Demo</a>
     ·
-    <a href="https://github.com/adityakmehrotra/LeafAI/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/adityakmehrotra/TradeSim/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/adityakmehrotra/LeafAI/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/adityakmehrotra/TradeSim/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -39,18 +39,11 @@
         <li><a href="#features">Features</a></li>
         <li><a href="#deployment">Deployment</a></li>
         <li>
-          <a href="#graphs">Graphs</a>
-          <ul>
-            <li><a href="#accuracy-graph">Accuracy Graph</a></li>
-            <li><a href="#loss-graph">Loss Graph</a></li>
-          </ul>
-        </li>
-        <li>
           <a href="#built-with">Built With</a>
           <ul>
             <li><a href="#frontend">Frontend</a></li>
             <li><a href="#backend">Backend</a></li>
-            <li><a href="#machine-learning">Machine Learning</a></li>
+            <li><a href="#data-visualization">Data Visualization</a></li>
             <li><a href="#deployment-and-devops">Deployment and DevOps</a></li>
           </ul>
         </li>
@@ -65,7 +58,7 @@
           <ul>
             <li><a href="#clone-the-repository">Clone the Repository</a></li>
             <li><a href="#install-backend-dependencies">Install Backend Dependencies</a></li>
-            <li><a href="#install-backend-dependencies">Install Frontend Dependencies</a></li>
+            <li><a href="#clean-and-install-backend-dependencies">Clean and Install Frontend Dependencies</a></li>
           </ul>
         </li>
         <li>
@@ -92,11 +85,11 @@
 
 [![React][React.js]][React-url]
 [![Spring Boot][Spring.io]][Spring-url]
-[![AWS][AWS.com]][AWS-url]
 [![MongoDB][MongoDB.com]][MongoDB-url]
+[![AWS][AWS.com]][AWS-url]
 
 ## Overview
-TradeSim is an advanced web application that allows users to simulate stock market trading with paper (virtual) currency. This full-stack application features a React frontend paired with a Spring Boot backend, ensuring a seamless and responsive user experience. The application leverages a MongoDB cluster to efficiently manage and store user data and transaction history. Hosted on an AWS EC2 instance, TradeSim offers a robust platform for practicing market trading risk-free, making it an ideal tool for both novice traders and seasoned investors to hone their skills. Visit the application [here](https://leafai.adityakmehrotra.com).
+TradeSim is an advanced web application that allows users to simulate stock market trading with paper (virtual) currency. This full-stack application features a React frontend paired with a Spring Boot backend, ensuring a seamless and responsive user experience. The application leverages a MongoDB cluster to efficiently manage and store user data and transaction history. Hosted on an AWS EC2 instance, TradeSim offers a robust platform for practicing market trading risk-free, making it an ideal tool for both novice traders and seasoned investors to hone their skills. Visit the application [here](https://tradesim.adityakmehrotra.com).
 
 ## Features
 - **Virtual Trading**: Users can simulate buying and selling stocks with virtual currency, practicing market strategies risk-free.
@@ -114,7 +107,6 @@ TradeSim is deployed using various AWS services, including:
 - **AWS Elastic Beanstalk (EC2 Instance):** For deploying the Spring backend.
 - **AWS Amplify:** For continuous deployment and hosting of the React frontend.
 - **AWS Route 53 and Certificate Manager:** For domain name management.
-- **AWS S3:** For storing static assets and user-uploaded images.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -136,7 +128,7 @@ TradeSim is deployed using various AWS services, including:
 ## Data Visualization
 [![Chart.js][Chartjs.org]][Chartjs-url]
 
-### Deployment and DevOps
+## Deployment and DevOps
 [![AWS][AWS.com]][AWS-url]
 [![NPM][NPMjs.com]][NPM-url]
 
@@ -159,11 +151,11 @@ git clone https://github.com/adityakmehrotra/TradeSim.git
 cd TradeSim
 ```
 
-### Install Backend Dependencies
+### Clean and Install Backend Dependencies
 ```sh
 # Navigate to the backend server directory
 cd backend
-mvn install
+mvn clean install
 ```
 
 ### Install Frontend Dependencies
@@ -282,9 +274,3 @@ Special thanks to AWS for hosting services.
 [license-url]: https://github.com/adityakmehrotra/TradeSim/blob/main/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/aditya-mehrotra-
-
-
-![TradeSim (1)](https://github.com/user-attachments/assets/df557e90-6467-475a-b03f-7bc0f38a8022)
-
-
-
