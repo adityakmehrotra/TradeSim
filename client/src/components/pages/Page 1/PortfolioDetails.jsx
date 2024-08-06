@@ -115,7 +115,6 @@ export default function PortfolioDetails() {
         const chartValues = assetData.map(a => a.name === "Cash" ? cashAmount : a.sharesOwned * a.currentPrice);
         const labels = assetData.map(a => a.name);
 
-        // Check if 'Cash' already exists in the labels
         const cashIndex = labels.indexOf('Cash');
         if (cashIndex !== -1) {
           chartValues[cashIndex] = cashAmount;
@@ -151,7 +150,6 @@ export default function PortfolioDetails() {
 
     Promise.all(transactionPromises)
       .then(transactionData => {
-        // Sort transactions by transactionID in ascending order
         transactionData.sort((a, b) => a.transactionID - b.transactionID);
         setTransactions(transactionData);
       })
