@@ -2,12 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Container, Nav, Navbar, Form, FormControl, Button, Dropdown } from "react-bootstrap";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import axios from 'axios';
-
 import '../App.css';
-import Portfolio from './pages/Page 1/PortfolioList';
-import Notifications from './pages/Page 2/Notifications';
-import Account from './pages/Page 3/Account';
-import SecurityPage from './SecurityPage.jsx';
 
 export default function AppLayout() {
     const [searchText, setSearchText] = useState("");
