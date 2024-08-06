@@ -95,12 +95,12 @@ function TradingPage({ ticker, currentPrice }) {
     };
 
     const handleInputChange = (e) => {
-        let value = e.target.value.replace(/[^\d.]/g, ''); // Allow only numbers and dots
+        let value = e.target.value.replace(/[^\d.]/g, '');
 
         if (value.includes('.')) {
             const parts = value.split('.');
             value = parts[0].slice(0, 7) + '.' + parts[1].slice(0, buyInOption === 'Dollars' ? 2 : 6);
-            value = parts.length > 2 ? parts.slice(0, 2).join('.') : value; // Allow only one decimal
+            value = parts.length > 2 ? parts.slice(0, 2).join('.') : value;
         } else {
             value = value.slice(0, buyInOption === 'Dollars' ? 9 : 7);
         }
