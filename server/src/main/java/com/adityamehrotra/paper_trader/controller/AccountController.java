@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping("/paper_trader/account")
 public class AccountController {
-  // cojntroller -> repository
-  // controller -> service -> repositoriy
   private final AccountRepository accountRepository;
   private final AccountService accountService;
   private final SpecAccountRepository specAccountRepository;
