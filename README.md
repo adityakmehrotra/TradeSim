@@ -229,7 +229,7 @@ Project Repo: https://github.com/adityakmehrotra/TradeSim
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 # Acknowledgments
-Thanks to all the Beta testers who helped find bugs in LeafAI.
+Thanks to all the Beta testers who helped find bugs in TradeSim.
 
 Special thanks to AWS for hosting services.
 
