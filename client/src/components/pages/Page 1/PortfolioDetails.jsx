@@ -266,9 +266,15 @@ export default function PortfolioDetails() {
             <p>Loading chart...</p>
           )}
         </Col>
-        <Col md={8}>
-          <PortfolioChart portfolioID={selectedPortfolioID} />
-        </Col>
+        {
+          /**
+           * 
+          /**
+            <Col md={8}>
+              <PortfolioChart portfolioID={selectedPortfolioID} />
+            </Col>
+          */
+        }
       </Row>
       <Row>
         <Col>
@@ -286,7 +292,7 @@ export default function PortfolioDetails() {
               {assetData.map((asset, index) => (
                 <tr key={index}>
                   <td>{asset.name}</td>
-                  <td>{asset.name === "Cash" ? '' : formatNumberWithCommas(asset.sharesOwned, 4)}</td>
+                  <td>{asset.name === "Cash" ? '' : asset.sharesOwned.toFixed(4)}</td>
                   <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
                   <td>${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}</td>
                 </tr>
@@ -309,12 +315,12 @@ export default function PortfolioDetails() {
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction, index) => (
+              {transactions.slice().reverse().map((transaction, index) => (
                 <tr key={index}>
                   <td>{transactions.length - index}</td>
                   <td>{transaction.orderType}</td>
                   <td>{transaction.securityCode}</td>
-                  <td>{transaction.securityCode === "Cash" ? '' : formatNumberWithCommas(transaction.shareAmount, 4)}</td>
+                  <td>{transaction.securityCode === "Cash" ? '' : transaction.shareAmount.toFixed(4)}</td>
                   <td>${transaction.cashAmount ? formatNumberWithCommas(transaction.cashAmount, 2) : 'N/A'}</td>
                 </tr>
               ))}
@@ -322,7 +328,7 @@ export default function PortfolioDetails() {
           </Table>
         </Col>
       </Row>
-
+  
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
@@ -340,5 +346,5 @@ export default function PortfolioDetails() {
         </Modal.Footer>
       </Modal>
     </Container>
-  );
+  );  
 }
