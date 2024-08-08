@@ -123,6 +123,11 @@ export default function PortfolioList() {
           cashAmount: cashAmount
         };
 
+        fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/portfolio/add/holding?id=${portfolioID}&code=Cash`, {
+          method: "POST"
+        })
+        .catch(error => console.error('Error adding cash to portfolio:', error));
+
         fetch("https://tradesim-api.adityakmehrotra.com/paper_trader/transaction/create", {
           method: "POST",
           headers: {
