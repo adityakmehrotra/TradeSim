@@ -9,8 +9,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping("/paper_trader/account")
 public class AccountController {
+  @Value("${TradeSimAPIKey}")
+  private String localTradeSimAPIKey;
+
   private final AccountRepository accountRepository;
   private final AccountService accountService;
   private final SpecAccountRepository specAccountRepository;
@@ -85,7 +92,7 @@ public class AccountController {
     return "This username and/or password is incorrect";
   }
 
-  public String getPasswordOld(@RequestParam Integer id) {
+  public String getPasswordById(@RequestParam Integer id) {
     return accountRepository.findById(id).get().getPassword();
   }
 
@@ -140,7 +147,7 @@ public class AccountController {
                     getFirstName(id),
                     getLastName(id),
                     getEmailAddress(id),
-                    getPasswordOld(id),
+                    getPasswordById(id),
                     portfolios);
     return accountRepository.save(account);
   }
@@ -179,15 +186,20 @@ public class AccountController {
                     getFirstName(id),
                     getLastName(id),
                     getEmailAddress(id),
-                    getPasswordOld(id),
+                    getPasswordById(id),
                     portfolios);
     return accountRepository.save(account);
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
   @GetMapping("/all")
-  public List<Account> getAllAuthors() {
-    return accountRepository.findAll();
+  public List<Account> getAllAuthors(@Parameter(description = "API Key required to access any TradeSim API endpoints", required = false) @RequestParam String tradeSimAPIKey) {
+    System.out.println("Hi");
+    if (tradeSimAPIKey.equals(localTradeSimAPIKey)) {
+      return accountRepository.findAll();
+    } else {
+      throw new NoSuchElementException("Oops, invalid API Key!");
+    }
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
