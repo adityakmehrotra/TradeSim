@@ -38,15 +38,15 @@
         <li><a href="#overview">Overview</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#deployment">Deployment</a></li>
-        <li>
-          <a href="#built-with">Built With</a>
-          <ul>
-            <li><a href="#frontend">Frontend</a></li>
-            <li><a href="#backend">Backend</a></li>
-            <li><a href="#data-visualization">Data Visualization</a></li>
-            <li><a href="#deployment-and-devops">Deployment and DevOps</a></li>
-          </ul>
-        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#built-with">Built With</a>
+      <ul>
+        <li><a href="#frontend">Frontend</a></li>
+        <li><a href="#backend">Backend</a></li>
+        <li><a href="#data-visualization">Data Visualization</a></li>
+        <li><a href="#deployment-and-devops">Deployment and DevOps</a></li>
       </ul>
     </li>
     <li>
