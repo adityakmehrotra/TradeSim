@@ -19,11 +19,13 @@ export default function PortfolioDetails() {
   const { id: accountID } = useContext(UserContext);
   const [showModal, setShowModal] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
+  const [totalMarketValue, setTotalMarketValue] = useState(0);
 
   useEffect(() => {
     if (accountID) {
       fetchAllPortfolios();
     }
+  
   }, [accountID]);
 
   useEffect(() => {
@@ -31,6 +33,21 @@ export default function PortfolioDetails() {
       fetchPortfolioDetails(selectedPortfolioID);
     }
   }, [selectedPortfolioID]);
+
+  useEffect(() => {
+    const calcTotalVal = () => {
+      const totalVal = assetData.reduce((total, asset) => {
+        const marketValue = asset.name === "Cash" 
+          ? portfolio.cashAmount 
+          : asset.sharesOwned * asset.currentPrice;
+        return total + marketValue;
+      }, 0);
+
+      setTotalMarketValue(totalVal);
+    };
+
+    calcTotalVal();
+  }, [assetData, portfolio, totalMarketValue]);
 
   const fetchAllPortfolios = () => {
     fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${accountID}`)
@@ -196,6 +213,8 @@ export default function PortfolioDetails() {
     return number.toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  
+
   const chartOptions = {
     plugins: {
       legend: {
@@ -253,14 +272,15 @@ export default function PortfolioDetails() {
       <Row className="mb-4">
         <Col>
           <h2>{portfolio?.portfolioName}</h2>
-          <p>Cash Available: ${portfolio?.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
+          <p>Current Value: ${totalMarketValue.toFixed(2)}</p>
         </Col>
       </Row>
       <Row>
         <Col md={4}>
           {chartData.datasets ? (
-            <div style={{ width: '300px', height: '300px', marginBottom: '40px' }}>
+            <div style={{ width: '300px', height: '300px', marginBottom: '60px' }}>
               <Pie data={chartData} options={chartOptions} />
+              <p>Buying Power: ${portfolio?.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
             </div>
           ) : (
             <p>Loading chart...</p>

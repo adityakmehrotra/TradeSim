@@ -21,7 +21,7 @@ export default function PortfolioList({ setActiveTab }) {
       fetchPortfolioList();
     }
 
-    setActiveTab("Portfolio");
+    setActiveTab("Portfolio | TradeSim");
   }, [id, setActiveTab]);
 
   const fetchPortfolioList = () => {

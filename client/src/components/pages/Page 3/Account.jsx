@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserContext } from '../../../UserContext';
 
-export default function Account() {
+export default function Account({ setActiveTab }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(location.state?.isLogin ?? true);
@@ -26,7 +26,9 @@ export default function Account() {
     if (!isLogin && formData.username !== "") {
       checkUsernameExists(formData.username);
     }
-  }, [formData.username, isLogin]);
+
+    setActiveTab("Account | TradeSim")
+  }, [formData.username, isLogin, setActiveTab]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 
 function Home({ setActiveTab }) {
   useEffect(() => {
-    setActiveTab('Home');
+    setActiveTab('Investing | TradeSim');
   }, [setActiveTab]);
 
   return (
