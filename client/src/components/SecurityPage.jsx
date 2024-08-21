@@ -8,7 +8,7 @@ import TradingPage from './TradingPage';
 import StockChart from './StockChart';
 import { UserContext } from '../UserContext';
 
-export default function SecurityPage(props) {
+export default function SecurityPage({ setActiveTab }) {
     const { user, id } = useContext(UserContext);
     const [visibleCount, setVisibleCount] = useState(3);
     const [newsArticles, setNewsArticles] = useState([]);
@@ -28,6 +28,12 @@ export default function SecurityPage(props) {
         fetchCurrentPrice();
         fetchStartingPrice();
     }, [searchQuery, selectedRange]);    
+
+    useEffect(() => {
+        if (currentPrice !== null) {
+            setActiveTab(`${ticker} - $${currentPrice.toFixed(2)} | TradeSim`);
+        }
+    }, [currentPrice, ticker, setActiveTab]);
 
     const getCompanyData = () => {
         fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/polygon/companyData?ticker=${ticker}`)
@@ -88,6 +94,7 @@ export default function SecurityPage(props) {
                 setCurrentPrice(data.ticker.day.c);
                 console.log('Current Price:', data.ticker.day.c);
             }
+
         })
         .catch(error => console.error('Error fetching current price:', error));
     };

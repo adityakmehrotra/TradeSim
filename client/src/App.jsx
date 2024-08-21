@@ -1,14 +1,18 @@
-// src/App.jsx
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Navigator from './components/Navigator';
 import { UserProvider } from './UserContext';
 
 function App() {
+  const [activeTab, setActiveTab] = useState("TradeSim");
+
+  useEffect(() => {
+    document.title = activeTab;
+  }, [activeTab]);
+
   return (
     <UserProvider>
-      <Navigator />
+      <Navigator setActiveTab={setActiveTab} />
     </UserProvider>
   );
 }

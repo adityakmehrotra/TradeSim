@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../UserContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function PortfolioList() {
+export default function PortfolioList({ setActiveTab }) {
   const [portfolioIDs, setPortfolioIDs] = useState([]);
   const [portfolios, setPortfolios] = useState([]);
   const [newPortfolioName, setNewPortfolioName] = useState("");
@@ -20,7 +20,9 @@ export default function PortfolioList() {
     if (id) {
       fetchPortfolioList();
     }
-  }, [id]);
+
+    setActiveTab("Portfolio");
+  }, [id, setActiveTab]);
 
   const fetchPortfolioList = () => {
     fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${id}`)
