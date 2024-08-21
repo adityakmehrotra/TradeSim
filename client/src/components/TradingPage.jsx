@@ -255,7 +255,8 @@ function TradingPage({ ticker, currentPrice }) {
                 padding: '20px',
                 boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
                 maxHeight: 'calc(100vh - 80px)',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                maxWidth: "350px"
             }}>
                 <div>
                     <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #000', padding: '0 20px' }}>
@@ -307,7 +308,7 @@ function TradingPage({ ticker, currentPrice }) {
                         <input 
                             type="text" 
                             placeholder={buyInOption === 'Dollars' ? '$0.00' : '0'} 
-                            style={{ width: '60%', height: '40px' }} 
+                            style={{ width: '40%', height: '40px' }} 
                             value={inputValue}
                             onChange={handleInputChange}
                             onFocus={() => buyInOption === 'Dollars' && !inputValue && setInputValue('')}

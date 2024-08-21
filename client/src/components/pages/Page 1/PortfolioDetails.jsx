@@ -20,6 +20,7 @@ export default function PortfolioDetails() {
   const [showModal, setShowModal] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
   const [totalMarketValue, setTotalMarketValue] = useState(0);
+  const [currPortfolio, setCurrPortfolio] = useState("Select Portfolio");
 
   useEffect(() => {
     if (accountID) {
@@ -47,6 +48,8 @@ export default function PortfolioDetails() {
     };
 
     calcTotalVal();
+    console.log("Total Market Value:", totalMarketValue);
+
   }, [assetData, portfolio, totalMarketValue]);
 
   const fetchAllPortfolios = () => {
@@ -173,9 +176,10 @@ export default function PortfolioDetails() {
       .catch(error => console.error('Error fetching transactions:', error));
   };
 
-  const handlePortfolioChange = (id) => {
-    setSelectedPortfolioID(id);
-    navigate(`/portfolio/${id}`);
+  const handlePortfolioChange = (portfolio) => {
+    setSelectedPortfolioID(portfolio.id);
+    setCurrPortfolio(portfolio.name);
+    navigate(`/portfolio/${portfolio.id}`);
   };
 
   const handleDeleteClick = (portfolio) => {
@@ -254,14 +258,14 @@ export default function PortfolioDetails() {
     <Container>
       <Row className="mb-4">
         <Col>
-          <Button variant="secondary" onClick={() => navigate(-1)}>Back</Button>
+          <Button variant="secondary" onClick={() => navigate("/portfolio")}>Back</Button>
         </Col>
         <Col className="text-end">
-          <DropdownButton id="dropdown-basic-button" title="Select Portfolio">
+          <DropdownButton id="dropdown-basic-button" title={currPortfolio === "Select Portfolio" ? portfolio?.portfolioName : currPortfolio}>
             {allPortfolios.map(portfolio => (
               <Dropdown.Item 
                 key={portfolio.id} 
-                onClick={() => handlePortfolioChange(portfolio.id)}
+                onClick={() => handlePortfolioChange(portfolio)}
               >
                 {portfolio.name}
               </Dropdown.Item>

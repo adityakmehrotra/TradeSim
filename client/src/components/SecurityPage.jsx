@@ -185,41 +185,44 @@ export default function SecurityPage({ setActiveTab }) {
 
     return (
         <Container fluid style={{ paddingLeft: '5%', paddingRight: '15%', paddingTop: '20px', paddingBottom: '20px' }}>
-            <Row>
-                <Col md={9} style={{ paddingRight: '1%' }}>
-                    {companyData && (
-                        <Row className="align-items-center mb-4">
-                            <Col>
-                                <h1>{companyData.name} ({companyData.ticker})</h1>
-                                {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
-                                {currentPrice !== null && startingPrice !== null && (
-                                    <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
-                                        {currentPrice - startingPrice >= 0 ? "+ $" : "- $"}{calculatePriceChange()}{currentPrice - startingPrice >= 0 ? " (+" : " (-"}{calculatePercentChange() + "%)"}
-                                    </h3>
-                                )}
-                            </Col>
-                        </Row>
+          <Row>
+            <Col md={9} style={{ paddingRight: '1%' }}>
+              {companyData && (
+                <Row className="align-items-center mb-4">
+                  <Col>
+                    <h1>{companyData.name} ({companyData.ticker})</h1>
+                    {currentPrice !== null && <h2>${currentPrice.toFixed(2)}</h2>}
+                    {currentPrice !== null && startingPrice !== null && (
+                      <h3 style={{ color: currentPrice - startingPrice >= 0 ? "green" : "red" }}>
+                        {currentPrice - startingPrice >= 0 ? "+ $" : "- $"}{calculatePriceChange()}{currentPrice - startingPrice >= 0 ? " (+" : " (-"}{calculatePercentChange() + "%)"}
+                      </h3>
                     )}
-                    <StockChart ticker={ticker} selectedRange={selectedRange} setSelectedRange={setSelectedRange} />
-                    <AboutCompany company={companyData} />
-                    <Row className="mb-4">
-                        <Col><h2 style={{ borderBottom: '2px solid #000' }}>Key Statistics</h2></Col>
-                    </Row>
-                    <Row className="mb-4">
-                        <KeyStatistics stats={keyStats} ticker={ticker} />
-                    </Row>
-                    <Row className="mb-4">
-                        <Col><h2 style={{ borderBottom: '2px solid #000' }}>News</h2></Col>
-                    </Row>
-                    {newsArticles && newsArticles.length > 0 && newsArticles.slice(0, visibleCount).map(article => (
-                        <NewsArticle key={article.id} article={article} />
-                    ))}
-                    {visibleCount < newsArticles.length && (
-                        <Button onClick={showMoreArticles} style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>Show More</Button>
-                    )}
-                </Col>
-                <TradingPage ticker={ticker} currentPrice={currentPrice} />
-            </Row>
+                  </Col>
+                </Row>
+              )}
+              <StockChart ticker={ticker} selectedRange={selectedRange} setSelectedRange={setSelectedRange} />
+              <AboutCompany company={companyData} />
+              <Row className="mb-4">
+                <Col><h2 style={{ borderBottom: '2px solid #000' }}>Key Statistics</h2></Col>
+              </Row>
+              <Row className="mb-4">
+                <KeyStatistics stats={keyStats} ticker={ticker} />
+              </Row>
+              <Row className="mb-4">
+                <Col><h2 style={{ borderBottom: '2px solid #000' }}>News</h2></Col>
+              </Row>
+              {newsArticles && newsArticles.length > 0 && newsArticles.slice(0, visibleCount).map(article => (
+                <NewsArticle key={article.id} article={article} />
+              ))}
+              {visibleCount < newsArticles.length && (
+                <Button onClick={showMoreArticles} style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>Show More</Button>
+              )}
+            </Col>
+            <Col md={3} style={{ maxWidth: '300px', width: '100%' }}>
+              <TradingPage ticker={ticker} currentPrice={currentPrice} style={{ maxWidth: '100%' }} />
+            </Col>
+          </Row>
         </Container>
-    );
+      );
+      
 }
