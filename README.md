@@ -11,7 +11,7 @@
 
 <br />
 <div align="center">
-  <a href="https://tradesim.adityakmehrotra">
+  <a href="https://tradesim.adityakmehrotra.com">
     <img src="client/public/tradesim_icon.png" alt="TradeSim Logo" width="80" height="80">
   </a>
   
