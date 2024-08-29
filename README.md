@@ -80,7 +80,10 @@
 
 # About The Project
 
-![TradeSim (1)](https://github.com/user-attachments/assets/9fe749fa-77dc-4cdd-9ff6-5aff45faa185)
+<a href="https://tradesim.adityakmehrotra.com">
+  <img src="![TradeSim (1)](https://github.com/user-attachments/assets/9fe749fa-77dc-4cdd-9ff6-5aff45faa185)" alt="TradeSim Image">
+</a>
+
 
 [![React][React.js]][React-url]
 [![Spring Boot][Spring.io]][Spring-url]
