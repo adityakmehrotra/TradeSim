@@ -178,7 +178,9 @@ public class AccountController {
   }
 
   @Tag(name = "Delete Account", description = "DELETE methods of Account APIs")
-  @Operation(summary = "Delete Account", description = "Delete an Account.")
+  @Operation(
+          summary = "Delete Account",
+          description = "Delete an Account.")
   @DeleteMapping("/delete")
   public void deleteById(
           @Parameter(description = "ID of Account to delete", required = true) @RequestParam
@@ -204,18 +206,32 @@ public class AccountController {
     return accountService.deletePortfolio(id, portfolioID);
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get all of the Accounts",
+      description =
+          "Get the List of all Accounts. The response is the list of Accounts.")
   @GetMapping("/all")
-  public List<Account> getAllAuthors() {
+  public List<Account> getAllAccounts() {
     return accountRepository.findAll();
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get all of the Specific Accounts",
+      description =
+          "Get the List of all Specific Accounts. The response is the list of Specific Accounts.")
   @GetMapping("/all/spec")
-  public List<SpecAccount> getAllAuthorsTemp() {
+  public List<SpecAccount> getAllSpecAccounts() {
     return specAccountRepository.findAll();
   }
 
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get the next new accountID",
+      description =
+          "Get the next new Account ID which should be 1 larger than the largest current Account ID. The response is an integer of the Account ID."
+  )
   @GetMapping("/get/nextAccountID")
   public Integer getNextAccountID() {
     return accountRepository.findAll().stream()
