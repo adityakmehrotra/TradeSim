@@ -77,10 +77,16 @@ public class AccountController {
     return accountService.getAccountIDByUsername(username);
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get First Name of Account by Account ID",
+      description =
+          "Get the First Name of a specific account by the id. The response is a string of the First Name.")
   @GetMapping("/get/firstname")
-  public String getFirstName(@RequestParam Integer id) {
-    return accountRepository.findById(id).get().getFirstName();
+  public String getFirstName(
+      @Parameter(description = "ID of Account First Name to be retrieved", required = true) @RequestParam
+      Integer id) {
+    return accountService.getAccountFirstNameByID(id);
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
