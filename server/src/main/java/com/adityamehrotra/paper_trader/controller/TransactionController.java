@@ -2,6 +2,7 @@ package com.adityamehrotra.paper_trader.controller;
 
 import com.adityamehrotra.paper_trader.model.Transaction;
 import com.adityamehrotra.paper_trader.repository.TransactionRepository;
+import com.adityamehrotra.paper_trader.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/paper_trader/transaction")
 public class TransactionController {
   private final TransactionRepository transactionRepository;
+  private final TransactionService transactionService;
 
-  public TransactionController(TransactionRepository transactionRepository) {
+  public TransactionController(TransactionRepository transactionRepository, TransactionService transactionService) {
     this.transactionRepository = transactionRepository;
+    this.transactionService = transactionService;
   }
 
   @PostMapping("/create")
@@ -40,7 +43,7 @@ public class TransactionController {
   public Transaction getAllInfo(
           @Parameter(description = "ID of Transaction to be retrieved", required = true) @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get();
+    return transactionService.getTransaction(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
@@ -55,7 +58,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getPortfolioID();
+    return transactionService.getPortfolioID(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
