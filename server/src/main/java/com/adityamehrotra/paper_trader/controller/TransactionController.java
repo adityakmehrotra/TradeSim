@@ -154,8 +154,8 @@ public class TransactionController {
   }
 
   @Tag(
-          name = "Modify Transaction",
-          description = "Transaction Modifying methods of Transaction APIs")
+          name = "Delete Transaction",
+          description = "DELETE methods of Transaction APIs")
   @Operation(summary = "Delete Transaction", description = "Delete a Transaction.")
   @DeleteMapping("/delete")
   public void deleteById(
