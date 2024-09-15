@@ -40,7 +40,7 @@ public class AccountController {
     this.specAccountRepository = specAccountRepository;
   }
 
-  @Tag(name = "post Account", description = "POST method of Account APIs")
+  @Tag(name = "Post Account", description = "POST method of Account APIs")
   @PostMapping("/add")
   public Account addAccount(
           @RequestBody Account account, @RequestParam String username, @RequestParam String password) {
@@ -54,8 +54,14 @@ public class AccountController {
   }
 
   @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Specific Account by Account ID",
+      description =
+          "Get the information for a specific account. The response is the Account object that matches the id.")
   @GetMapping("/get")
-  public Account getAllInfo(@RequestParam Integer id) {
+  public Account getAllInfo(
+      @Parameter(description = "ID of Account to be retrieved", required = true) @RequestParam
+      Integer id) {
     return accountRepository.findById(id).get();
   }
 
