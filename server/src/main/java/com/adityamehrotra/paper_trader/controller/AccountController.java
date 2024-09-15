@@ -89,10 +89,16 @@ public class AccountController {
     return accountService.getAccountFirstNameByID(id);
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Last Name of Account by Account ID",
+      description =
+          "Get the Last Name of a specific account by the id. The response is a string of the Last Name.")
   @GetMapping("/get/lastname")
-  public String getLastName(@RequestParam Integer id) {
-    return accountRepository.findById(id).get().getLastName();
+  public String getLastName(
+      @Parameter(description = "ID of Account Last Name to be retrieved", required = true) @RequestParam
+      Integer id) {
+    return accountService.getAccountLastNameByID(id);
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
