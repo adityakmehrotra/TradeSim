@@ -65,8 +65,15 @@ public class AccountController {
     return accountRepository.findById(id).get();
   }
 
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Account ID by Account Username",
+      description =
+          "Get the account ID of a specific account by the username. The response is an integer of the Account ID.")
   @GetMapping("/get/accountID_username")
-  public Integer getAccountIDByUsername(@RequestParam String username) {
+  public Integer getAccountIDByUsername(
+      @Parameter(description = "Username of Account ID to be retrieved", required = true) @RequestParam
+      String username) {
     return accountService.getAccountIDByUsername(username);
   }
 
