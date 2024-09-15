@@ -25,6 +25,17 @@ public class AccountService {
         this.specAccountRepository = specAccountRepository;
     }
 
+    public Account addAccount(Account account, String username, String password) {
+        SpecAccount specAccount = new SpecAccount(username, password, account.getAccountID());
+        specAccountRepository.save(specAccount);
+        return accountRepository.save(account);
+    }
+
+    public Account getAccount(Integer id) {
+        return accountRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+    }
+
     public Integer getAccountIDByUsername(String username) {
         return specAccountRepository.findById(username)
                 .map(SpecAccount::getAccountID)
@@ -57,8 +68,8 @@ public class AccountService {
 
     public String getPasswordByID(Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getPassword)
-                .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
+            .map(Account::getPassword)
+            .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
     }
 
     public Boolean checkUsernameExistsByUsername(String username) {
@@ -79,6 +90,13 @@ public class AccountService {
         portfolios.add(0, portfolioID);
         Account account = new Account(id, getAccountFirstNameByID(id), getAccountLastNameByID(id), getEmailAddressByID(id), getPasswordByID(id), portfolios);
 
+        return accountRepository.save(account);
+    }
+
+    public Account deletePortfolio(Integer id, Integer portfolioID) {
+        List<Integer> portfolios = getPortfolioList(id);
+        portfolios.remove(portfolioID);
+        Account account = new Account(id, getAccountFirstNameByID(id), getAccountLastNameByID(id), getEmailAddressByID(id), getPasswordByID(id), portfolios);
         return accountRepository.save(account);
     }
 }

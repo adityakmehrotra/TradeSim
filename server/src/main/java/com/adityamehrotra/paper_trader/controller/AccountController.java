@@ -8,13 +8,9 @@ import com.adityamehrotra.paper_trader.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,13 +48,7 @@ public class AccountController {
       @RequestParam String username,
       @Parameter(description = "Password of the Account to be created", required = true)
       @RequestParam String password) {
-    setSpecAccount(username, password, account.getAccountID());
-    return accountRepository.save(account);
-  }
-
-  public SpecAccount setSpecAccount(String username, String password, Integer accountID) {
-    SpecAccount specAccount = new SpecAccount(username, password, accountID);
-    return specAccountRepository.save(specAccount);
+    return accountService.addAccount(account, username, password);
   }
 
   @Tag(name = "Get Account", description = "GET methods of Account APIs")
@@ -70,7 +60,7 @@ public class AccountController {
   public Account getAllInfo(
       @Parameter(description = "ID of Account to be retrieved", required = true) @RequestParam
       Integer id) {
-    return accountRepository.findById(id).get();
+    return accountService.getAccount(id);
   }
 
   @Tag(name = "Get Account", description = "GET methods of Account APIs")
@@ -145,14 +135,16 @@ public class AccountController {
     return accountService.getPasswordByID(id);
   }
 
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Check if the Username exists",
+      description =
+          "Check if the username exists. The response is a boolean (True or False) if the username already exists.")
   @GetMapping("/check/username")
-  public boolean checkUsername(@RequestParam String username) {
-    return specAccountRepository.existsById(username);
-  }
-
-  @GetMapping("/get/accountID")
-  public Integer getAccountID(@RequestParam String username) {
-    return specAccountRepository.findById(username).get().getAccountID();
+  public boolean checkUsername(
+      @Parameter(description = "Username to check if exists or not", required = true) @RequestParam
+      String username) {
+    return accountService.checkUsernameExistsByUsername(username);
   }
 
   @Tag(name = "Get Account", description = "GET methods of Account APIs")
@@ -165,7 +157,7 @@ public class AccountController {
           @Parameter(description = "ID of Account's Portfolios to be retrieved", required = true)
           @RequestParam
           Integer id) {
-    return accountRepository.findById(id).get().getPortfolioList();
+    return accountService.getPortfolioList(id);
   }
 
   @Tag(name = "Post Account", description = "POST method of Account APIs")
@@ -182,23 +174,7 @@ public class AccountController {
                   required = true)
           @RequestParam
           Integer portfolioID) {
-    List<Integer> portfolios;
-    List<Integer> portfolioList = accountRepository.findById(id).get().getPortfolioList();
-    if (portfolioList == null) {
-      portfolios = new ArrayList<>();
-    } else {
-      portfolios = portfolioList;
-    }
-    portfolios.add(0, portfolioID);
-    Account account =
-            new Account(
-                    id,
-                    getFirstName(id),
-                    getLastName(id),
-                    getEmailAddress(id),
-                    getPasswordByID(id),
-                    portfolios);
-    return accountRepository.save(account);
+    return accountService.addPortfolio(id, portfolioID);
   }
 
   @Tag(name = "Delete Account", description = "DELETE methods of Account APIs")
@@ -225,25 +201,12 @@ public class AccountController {
                   required = true)
           @RequestParam
           Integer portfolioID) {
-    List<Integer> portfolios = accountRepository.findById(id).get().getPortfolioList();
-    System.out.println(portfolios);
-    portfolios.remove(portfolioID);
-    System.out.println(portfolios);
-    Account account =
-            new Account(
-                    id,
-                    getFirstName(id),
-                    getLastName(id),
-                    getEmailAddress(id),
-                    getPasswordByID(id),
-                    portfolios);
-    return accountRepository.save(account);
+    return accountService.deletePortfolio(id, portfolioID);
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
   @GetMapping("/all")
   public List<Account> getAllAuthors() {
-    System.out.println("HI");
     return accountRepository.findAll();
   }
 
