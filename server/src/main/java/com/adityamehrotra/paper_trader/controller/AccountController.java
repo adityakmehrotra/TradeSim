@@ -41,9 +41,17 @@ public class AccountController {
   }
 
   @Tag(name = "Post Account", description = "POST method of Account APIs")
+  @Operation(
+      summary = "Add Account",
+      description =
+          "Add an Account. The response is an Account object with the parameters given.")
   @PostMapping("/add")
   public Account addAccount(
-          @RequestBody Account account, @RequestParam String username, @RequestParam String password) {
+      @Parameter(description = "Account object to be created", required = true) @RequestBody Account account,
+      @Parameter(description = "Username of the Account to be created", required = true)
+      @RequestParam String username,
+      @Parameter(description = "Password of the Account to be created", required = true)
+      @RequestParam String password) {
     setSpecAccount(username, password, account.getAccountID());
     return accountRepository.save(account);
   }
@@ -147,7 +155,7 @@ public class AccountController {
     return specAccountRepository.findById(username).get().getAccountID();
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
   @Operation(
           summary = "Get the Portfolio List",
           description =
@@ -160,7 +168,7 @@ public class AccountController {
     return accountRepository.findById(id).get().getPortfolioList();
   }
 
-  @Tag(name = "Modify Account Portfolios", description = "POST method of Account APIs")
+  @Tag(name = "Post Account", description = "POST method of Account APIs")
   @Operation(
           summary = "Add Portfolio",
           description =
@@ -202,7 +210,7 @@ public class AccountController {
     accountRepository.deleteById(id);
   }
 
-  @Tag(name = "Modify Account Portfolios", description = "DELETE methods of Account APIs")
+  @Tag(name = "Post Account", description = "POST methods of Account APIs")
   @Operation(
           summary = "Delete Portfolio",
           description =
