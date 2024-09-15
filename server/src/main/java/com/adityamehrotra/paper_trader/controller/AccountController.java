@@ -101,10 +101,16 @@ public class AccountController {
     return accountService.getAccountLastNameByID(id);
   }
 
-  @Tag(name = "get Account", description = "GET methods of Account APIs")
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Email Address of Account by Account ID",
+      description =
+          "Get the Email Address of a specific account by the id. The response is a string of the Email Address.")
   @GetMapping("/get/emailAddress")
-  public String getEmailAddress(@RequestParam Integer id) {
-    return accountRepository.findById(id).get().getEmailAddress();
+  public String getEmailAddress(
+      @Parameter(description = "ID of Account Email Address to be retrieved", required = true) @RequestParam
+      Integer id) {
+    return accountService.getEmailAddressByID(id);
   }
 
   @GetMapping("/get/password")
