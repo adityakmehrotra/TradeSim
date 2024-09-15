@@ -28,8 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @RequestMapping("/paper_trader/account")
 public class AccountController {
-  @Value("${TradeSimAPIKey}")
-  private String localTradeSimAPIKey;
 
   private final AccountRepository accountRepository;
   private final AccountService accountService;
@@ -193,13 +191,9 @@ public class AccountController {
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
   @GetMapping("/all")
-  public List<Account> getAllAuthors(@Parameter(description = "API Key required to access any TradeSim API endpoints", required = false) @RequestParam String tradeSimAPIKey) {
-    System.out.println("Hi");
-    if (tradeSimAPIKey.equals(localTradeSimAPIKey)) {
-      return accountRepository.findAll();
-    } else {
-      throw new NoSuchElementException("Oops, invalid API Key!");
-    }
+  public List<Account> getAllAuthors() {
+    System.out.println("HI");
+    return accountRepository.findAll();
   }
 
   @Tag(name = "get Account", description = "GET methods of Account APIs")
