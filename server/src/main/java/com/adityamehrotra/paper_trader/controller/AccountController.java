@@ -113,16 +113,28 @@ public class AccountController {
     return accountService.getEmailAddressByID(id);
   }
 
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Password of Account by Username of Account",
+      description =
+          "Get the Password of a specific account by the username. The response is a string of the Password.")
   @GetMapping("/get/password")
-  public String getPasswordNew(@RequestParam String username) {
-    if (specAccountRepository.existsById(username)) {
-      return specAccountRepository.findById(username).get().getPassword();
-    }
-    return "This username and/or password is incorrect";
+  public String getPasswordByUsername(
+      @Parameter(description = "Username of Account Password to be retrieved", required = true) @RequestParam
+      String username) {
+    return accountService.getPasswordByUsername(username);
   }
 
-  public String getPasswordById(@RequestParam Integer id) {
-    return accountRepository.findById(id).get().getPassword();
+  @Tag(name = "Get Account", description = "GET methods of Account APIs")
+  @Operation(
+      summary = "Get Password of Account by Account ID",
+      description =
+          "Get the Password of a specific account by the id. The response is a string of the Password.")
+  @GetMapping("/get/password/by/id")
+  public String getPasswordByID(
+      @Parameter(description = "ID of Account Password to be retrieved", required = true) @RequestParam
+      Integer id) {
+    return accountService.getPasswordByID(id);
   }
 
   @GetMapping("/check/username")
@@ -176,7 +188,7 @@ public class AccountController {
                     getFirstName(id),
                     getLastName(id),
                     getEmailAddress(id),
-                    getPasswordById(id),
+                    getPasswordByID(id),
                     portfolios);
     return accountRepository.save(account);
   }
@@ -215,7 +227,7 @@ public class AccountController {
                     getFirstName(id),
                     getLastName(id),
                     getEmailAddress(id),
-                    getPasswordById(id),
+                    getPasswordByID(id),
                     portfolios);
     return accountRepository.save(account);
   }
