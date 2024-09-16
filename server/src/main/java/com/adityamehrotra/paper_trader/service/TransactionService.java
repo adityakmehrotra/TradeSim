@@ -38,4 +38,28 @@ public class TransactionService {
         .map(Transaction::getOrderType)
         .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
   }
+
+  public String getDay(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getGmtTime)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
+
+  public Double getShareAmount(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getShareAmount)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
+
+  public Double getCashAmount(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getCashAmount)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
+
+  public String getSecurity(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getSecurityCode)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
 }

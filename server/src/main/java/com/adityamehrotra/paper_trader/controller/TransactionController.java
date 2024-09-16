@@ -103,7 +103,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getGmtTime();
+    return transactionService.getDay(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
@@ -118,7 +118,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getShareAmount();
+    return transactionService.getShareAmount(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
@@ -133,7 +133,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getCashAmount();
+    return transactionService.getCashAmount(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
@@ -148,9 +148,15 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getSecurityCode();
+    return transactionService.getSecurity(id);
   }
 
+
+  @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
+  @Operation(
+      summary = "Get all of the Transaction",
+      description =
+          "Get the List of all Transactions. The response is the list of Transactions.")
   @GetMapping("/all")
   public List<Transaction> getAllTransactions() {
     return transactionRepository.findAll();
@@ -167,6 +173,12 @@ public class TransactionController {
     transactionRepository.deleteById(id);
   }
 
+  @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")
+  @Operation(
+      summary = "Get the next new transactionID",
+      description =
+          "Get the next new Transaction ID which should be 1 larger than the largest current Transaction ID. The response is an integer of the Transaction ID."
+  )
   @GetMapping("/id")
   public Integer getNextID() {
     return transactionRepository
