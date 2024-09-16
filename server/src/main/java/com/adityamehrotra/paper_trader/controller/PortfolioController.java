@@ -8,6 +8,10 @@ import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.PortfolioRepository;
 import com.adityamehrotra.paper_trader.repository.SecurityRepository;
 import com.adityamehrotra.paper_trader.repository.TransactionRepository;
+import com.adityamehrotra.paper_trader.service.PortfolioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,27 +36,35 @@ public class PortfolioController {
   private final PortfolioRepository portfolioRepository;
   private final SecurityRepository securityRepository;
   private final TransactionRepository transactionRepository;
+  private final PortfolioService portfolioService;
 
   public PortfolioController(
           PortfolioRepository portfolioRepository,
           SecurityRepository securityRepository,
           TransactionRepository transactionRepository,
-          AccountRepository accountRepository) {
+          AccountRepository accountRepository,
+          PortfolioService portfolioService) {
     this.portfolioRepository = portfolioRepository;
     this.securityRepository = securityRepository;
     this.transactionRepository = transactionRepository;
     this.accountRepository = accountRepository;
+    this.portfolioService = portfolioService;
   }
 
+  @Tag(name = "Post Portfolio", description = "POST method of Portfolio APIs")
+  @Operation(
+      summary = "Add Portfolio",
+      description =
+          "Add an Portfolio. The response is a Portfolio object with the parameters given.")
   @PostMapping("/create")
-  public Portfolio create(@RequestBody Portfolio portfolio) {
-    return portfolioRepository.save(portfolio);
+  public Portfolio create(
+      @Parameter(description = "Portfolio object to be created", required = true) @RequestBody
+      Portfolio portfolio) {
+    return portfolioService.addPortfolio(portfolio);
   }
 
   @DeleteMapping("/remove")
   public void delete(@RequestParam Integer id) {
-    System.out.println(portfolioRepository);
-    System.out.println(portfolioRepository.findById(id).get().getAccountID());
     List<Integer> currPortfolioList = new ArrayList<>();
     for (int i = 0;
          i
@@ -72,7 +84,6 @@ public class PortfolioController {
         currPortfolioList.add(curr);
       }
     }
-    System.out.println(currPortfolioList);
     accountRepository
             .findById(portfolioRepository.findById(id).get().getAccountID())
             .get()
@@ -80,6 +91,11 @@ public class PortfolioController {
     portfolioRepository.deleteById(id);
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Specific Portfolio by Portfolio ID",
+      description =
+          "Get the information for a specific portfolio. The response is the Portfolio  object that matches the id.")
   @GetMapping("/get")
   public Portfolio getAllInfo(@RequestParam Integer id) {
     return portfolioRepository.findById(id).get();
