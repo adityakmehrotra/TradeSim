@@ -20,6 +20,8 @@
   <p align="center">
     A web application that lets users simulate stock market investments with paper (virtual) money, track their portfolio performance, and enhance their trading skills without any financial risk. Users have access to comprehensive market data for each company, including charts, news, and detailed financial information. 
     <br />
+    <a href="https://tradesim-api.adityakmehrotra.com/swagger-ui/index.html"><strong>Explore the docs »</strong></a>
+    <br />
     <br />
     <a href="https://github.com/adityakmehrotra/TradeSim">View Demo</a>
     ·
