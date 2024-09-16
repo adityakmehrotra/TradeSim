@@ -88,7 +88,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getOrderType();
+    return transactionService.getOrderType(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")

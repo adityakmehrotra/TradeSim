@@ -32,4 +32,10 @@ public class TransactionService {
         .map(Transaction::getAccountID)
         .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
   }
+
+  public String getOrderType(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getOrderType)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
 }
