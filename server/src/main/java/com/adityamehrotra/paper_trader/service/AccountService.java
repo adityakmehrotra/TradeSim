@@ -51,25 +51,25 @@ public class AccountService {
     public String getAccountLastNameByID(Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getLastName)
-                .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
     }
 
     public String getEmailAddressByID(Integer id) {
         return  accountRepository.findById(id)
                 .map(Account::getEmailAddress)
-                .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
     }
 
     public String getPasswordByUsername(String username) {
         return specAccountRepository.findById(username)
                 .map(SpecAccount::getPassword)
-                .orElseThrow(() -> new NoSuchElementException("Username not found: " + username));
+                .orElseThrow(() -> new NoSuchElementException(USERNAME_NOT_FOUND + username));
     }
 
     public String getPasswordByID(Integer id) {
         return accountRepository.findById(id)
             .map(Account::getPassword)
-            .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
+            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
     }
 
     public Boolean checkUsernameExistsByUsername(String username) {
@@ -79,7 +79,7 @@ public class AccountService {
     public List<Integer> getPortfolioList(Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getPortfolioList)
-                .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
     }
 
     public Account addPortfolio(Integer id, Integer portfolioID) {
