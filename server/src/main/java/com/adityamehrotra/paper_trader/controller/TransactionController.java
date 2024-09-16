@@ -73,7 +73,7 @@ public class TransactionController {
                   required = true)
           @RequestParam
           Integer id) {
-    return transactionRepository.findById(id).get().getAccountID();
+    return transactionService.getAccountID(id);
   }
 
   @Tag(name = "Get Transaction", description = "GET methods of Transaction APIs")

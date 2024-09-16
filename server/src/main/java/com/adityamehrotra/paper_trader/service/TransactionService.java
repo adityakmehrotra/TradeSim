@@ -26,4 +26,10 @@ public class TransactionService {
         .map(Transaction::getPortfolioID)
         .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
   }
+
+  public Integer getAccountID(Integer transactionId) {
+    return transactionRepository.findById(transactionId)
+        .map(Transaction::getAccountID)
+        .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+  }
 }
