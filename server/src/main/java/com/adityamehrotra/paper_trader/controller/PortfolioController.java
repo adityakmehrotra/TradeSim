@@ -95,17 +95,27 @@ public class PortfolioController {
   @Operation(
       summary = "Get Specific Portfolio by Portfolio ID",
       description =
-          "Get the information for a specific portfolio. The response is the Portfolio  object that matches the id.")
+          "Get the information for a specific portfolio. The response is the Portfolio object that matches the id.")
   @GetMapping("/get")
   public Portfolio getAllInfo(@RequestParam Integer id) {
     return portfolioRepository.findById(id).get();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Account ID by Portfolio ID",
+      description =
+          "Get the Account ID for a specific portfolio. The response is an integer of the Account ID.")
   @GetMapping("/get/accountID")
   public Integer getAccountID(@RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAccountID();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Name by Portfolio ID",
+      description =
+          "Get the Name for a specific portfolio. The response is an String of the Name.")
   @GetMapping("/get/name")
   public String getPortfolioName(@RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getPortfolioName();
