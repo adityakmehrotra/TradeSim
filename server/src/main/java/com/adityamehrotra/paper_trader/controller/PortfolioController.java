@@ -212,13 +212,20 @@ public class PortfolioController {
       description =
           "Get the Average Value for each Asset for a specific portfolio. The response is a Map of a String of the Asset Ticker Symbol to a Double of the Average Value.")
   @GetMapping("/get/assets/avgValue")
-  public Map<String, Double> getAssetsAvgValue(@Parameter(description = "Portfolio ID whose holdings needs to be retrieved", required = true)
+  public Map<String, Double> getAssetsAvgValue(@Parameter(description = "Portfolio ID whose map of assets and their average value needs to be retrieved", required = true)
   @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAssetsAvgValue();
   }
 
+  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
+  @Operation(
+      summary = "Add Holding to a Portfolio by Portfolio ID",
+      description =
+          "Add a holding to the holding set for a specific portfolio. The response is a Portfolio object with the holding added to the holding set.")
   @PostMapping("/add/holding")
-  public Portfolio addHolding(@RequestParam Integer id, @RequestParam String code) {
+  public Portfolio addHolding(@Parameter(description = "Portfolio ID which needs a holding added", required = true)
+  @RequestParam Integer id,
+  @Parameter(description = "Asset Symbol of the holding that needs to be added", required = true) @RequestParam String code) {
     if (code.equals("Cash")) {
       Set<SecurityModel> holdings = new HashSet<>();
       SecurityModel cashSecurityModel = new SecurityModel("Cash", null, null, null, null, null, null);
