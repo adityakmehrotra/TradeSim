@@ -153,7 +153,7 @@ public class PortfolioController {
       description =
           "Get the Transactions for a specific portfolio. The response is a List of Integers, each integer is a transactionID.")
   @GetMapping("/get/transactions")
-  public List<Integer> getTransactionList(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  public List<Integer> getTransactionList(@Parameter(description = "Portfolio ID whose transaction list needs to be retrieved", required = true)
   @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getTransactionList();
   }
@@ -171,8 +171,14 @@ public class PortfolioController {
     return assetsList;
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Map of Asset Ticker Symbol and Asset by Portfolio ID",
+      description =
+          "Get the Map of Asset Ticker Symbol and Asset for a specific portfolio. The response is a Map of Asset Ticker Symbol and Asset.")
   @GetMapping("/get/assetsMap")
-  public Map<String, Asset> getAssetsMap(@RequestParam Integer id) {
+  public Map<String, Asset> getAssetsMap(@Parameter(description = "Portfolio ID whose assets map needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAssets();
   }
 
