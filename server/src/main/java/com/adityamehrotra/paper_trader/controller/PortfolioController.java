@@ -136,6 +136,7 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getCashAmount();
   }
 
+
   @GetMapping("/get/initcash")
   public Double getInitCash(@RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getInitialBalance();
