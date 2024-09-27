@@ -164,7 +164,7 @@ public class PortfolioController {
       description =
           "Get the Assets for a specific portfolio. The response is a List of Assets.")
   @GetMapping("/get/assets")
-  public List<Asset> getAssets(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  public List<Asset> getAssets(@Parameter(description = "Portfolio ID whose assets list needs to be retrieved", required = true)
   @RequestParam Integer id) {
     List<Asset> assetsList =
             new ArrayList<>(portfolioRepository.findById(id).get().getAssets().values());
@@ -182,8 +182,16 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getAssets();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Shares for some Asset Ticker Symbol in Assets Map",
+      description =
+          "Get the Shares for some Asset Ticker Symbol. The response is a Double of the number of shares.")
   @GetMapping("/get/assetsMap/shares")
-  public Double getAssetsMap(@RequestParam Integer id, @RequestParam String code) {
+  public Double getAssetsMap(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  @RequestParam Integer id,
+  @Parameter(description = "Asset Ticker Symbol whose Shares need to be retrieved", required = true)
+  @RequestParam String code) {
     return portfolioRepository.findById(id).get().getAssets().get(code).getSharesOwned();
   }
 
