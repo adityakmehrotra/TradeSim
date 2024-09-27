@@ -121,7 +121,8 @@ public class PortfolioController {
       description =
           "Get the Name for a specific portfolio. The response is an String of the Name.")
   @GetMapping("/get/name")
-  public String getPortfolioName(@RequestParam Integer id) {
+  public String getPortfolioName(@Parameter(description = "Portfolio ID whose portfolio name needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getPortfolioName();
   }
 
