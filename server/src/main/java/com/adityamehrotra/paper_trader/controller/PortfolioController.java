@@ -111,7 +111,8 @@ public class PortfolioController {
       description =
           "Get the Account ID for a specific portfolio. The response is an integer of the Account ID.")
   @GetMapping("/get/accountID")
-  public Integer getAccountID(@RequestParam Integer id) {
+  public Integer getAccountID(@Parameter(description = "Portfolio ID whose Account ID needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAccountID();
   }
 
