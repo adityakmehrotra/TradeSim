@@ -62,7 +62,10 @@ public class PortfolioController {
       Portfolio portfolio) {
     return portfolioService.addPortfolio(portfolio);
   }
-
+  @Tag(name = "Delete Portfolio", description = "DELETE methods of Portfolio APIs")
+  @Operation(
+      summary = "Delete Portfolio",
+      description = "Delete a Portfolio.")
   @DeleteMapping("/remove")
   public void delete(@RequestParam Integer id) {
     List<Integer> currPortfolioList = new ArrayList<>();
