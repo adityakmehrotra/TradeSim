@@ -101,7 +101,8 @@ public class PortfolioController {
       description =
           "Get the information for a specific portfolio. The response is the Portfolio object that matches the id.")
   @GetMapping("/get")
-  public Portfolio getAllInfo(@RequestParam Integer id) {
+  public Portfolio getAllInfo(@Parameter(description = "Portfolio ID whose portfolio needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get();
   }
 
