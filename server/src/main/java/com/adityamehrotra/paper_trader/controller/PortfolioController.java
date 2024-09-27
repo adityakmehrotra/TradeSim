@@ -158,8 +158,14 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getTransactionList();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Assets by Portfolio ID",
+      description =
+          "Get the Assets for a specific portfolio. The response is a List of Assets.")
   @GetMapping("/get/assets")
-  public List<Asset> getAssets(@RequestParam Integer id) {
+  public List<Asset> getAssets(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     List<Asset> assetsList =
             new ArrayList<>(portfolioRepository.findById(id).get().getAssets().values());
     return assetsList;
