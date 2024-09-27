@@ -129,16 +129,21 @@ public class PortfolioController {
   @Operation(
       summary = "Get Cash by Portfolio ID",
       description =
-          "Get the Cash for a specific portfolio. The response is a Double of the Cash.")
+          "Get the Cash for a specific portfolio. The response is a Double of the Cash value.")
   @GetMapping("/get/cash")
   public Double getCash(@Parameter(description = "Portfolio ID whose cash needs to be retrieved", required = true)
   @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getCashAmount();
   }
 
-
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Initial Cash by Portfolio ID",
+      description =
+          "Get the Initial Cash for a specific portfolio. The response is a Double of the Initial Cash value.")
   @GetMapping("/get/initcash")
-  public Double getInitCash(@RequestParam Integer id) {
+  public Double getInitCash(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getInitialBalance();
   }
 
