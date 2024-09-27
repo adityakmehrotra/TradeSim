@@ -447,6 +447,12 @@ public class PortfolioController {
     return portfolioRepository.findAll();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get the next new portfolioID",
+      description =
+          "Get the next new Portfolio ID which should be 1 larger than the largest current Portfolio ID. The response is an integer of the Portfolio ID."
+  )
   @GetMapping("/get/nextportfolioID")
   public Integer getNextPortfolioID() {
     return portfolioRepository.findAll().stream()
