@@ -62,6 +62,7 @@ public class PortfolioController {
       Portfolio portfolio) {
     return portfolioService.addPortfolio(portfolio);
   }
+
   @Tag(name = "Delete Portfolio", description = "DELETE methods of Portfolio APIs")
   @Operation(
       summary = "Delete Portfolio",
@@ -124,8 +125,14 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getPortfolioName();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Cash by Portfolio ID",
+      description =
+          "Get the Cash for a specific portfolio. The response is a Double of the Cash.")
   @GetMapping("/get/cash")
-  public Double getCash(@RequestParam Integer id) {
+  public Double getCash(@Parameter(description = "Portfolio ID whose cash needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getCashAmount();
   }
 
