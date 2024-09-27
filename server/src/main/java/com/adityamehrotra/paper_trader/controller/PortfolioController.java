@@ -206,8 +206,14 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getHoldings();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Map of Assets and their Average Value by Portfolio ID",
+      description =
+          "Get the Average Value for each Asset for a specific portfolio. The response is a Map of a String of the Asset Ticker Symbol to a Double of the Average Value.")
   @GetMapping("/get/assets/avgValue")
-  public Map<String, Double> getAssetsAvgValue(@RequestParam Integer id) {
+  public Map<String, Double> getAssetsAvgValue(@Parameter(description = "Portfolio ID whose holdings needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAssetsAvgValue();
   }
 
@@ -312,7 +318,6 @@ public class PortfolioController {
     Map<String, Asset> assets;
     Map<String, Asset> assetsMap = portfolioRepository.findById(id).get().getAssets();
     Map<String, Double> assetsAvgValue = portfolioRepository.findById(id).get().getAssetsAvgValue();
-    System.out.println(assetsAvgValue);
 
     if (assetsMap == null) {
       assets = new HashMap<>();
@@ -324,10 +329,7 @@ public class PortfolioController {
         Double currAmt = assets.get(code).getSharesOwned();
         asset.setSharesOwned(currAmt + asset.getSharesOwned());
         Double tempAmt = assetsAvgValue.get(code) * currAmt;
-        System.out.println("Temp Amt: " + tempAmt);
-        System.out.println("Asset: " + asset);
         Double newAmt = transactionRepository.findById(transactionID).get().getShareAmount() * transactionRepository.findById(transactionID).get().getCurrPrice();
-        System.out.println("New Amt: " + newAmt);
         assetsAvgValue.put(code, (tempAmt + newAmt) / asset.getSharesOwned());
       } else {
         assetsAvgValue.put(code, asset.getInitPrice());
@@ -391,9 +393,7 @@ public class PortfolioController {
                       getAssetsAvgValue(id));
     } else {
       portfolioRepository.findById(id).get().setCashAmount(getCash(id) + transactionID);
-      System.out.println(portfolioRepository.findById(id).get().getAssets());
       editAsset(id, transactionRepository.findById(transactionID).get().getSecurityCode(), transactionRepository.findById(transactionID).get().getShareAmount(), transactionRepository.findById(transactionID).get().getCashAmount());
-      System.out.println(portfolioRepository.findById(id).get().getAssets());
       portfolio =
               new Portfolio(
                       id,
