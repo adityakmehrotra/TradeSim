@@ -437,6 +437,11 @@ public class PortfolioController {
     return portfolioRepository.save(portfolio);
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get all of the Portfolios",
+      description =
+          "Get the List of all Portfolios. The response is the list of Portfolios.")
   @GetMapping("/all")
   public List<Portfolio> getAllPortfolios() {
     return portfolioRepository.findAll();
