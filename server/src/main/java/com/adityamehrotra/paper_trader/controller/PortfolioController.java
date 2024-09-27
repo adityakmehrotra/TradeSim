@@ -147,8 +147,14 @@ public class PortfolioController {
     return portfolioRepository.findById(id).get().getInitialBalance();
   }
 
+  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
+  @Operation(
+      summary = "Get Transactions by Portfolio ID",
+      description =
+          "Get the Transactions for a specific portfolio. The response is a List of Integers, each integer is a transactionID.")
   @GetMapping("/get/transactions")
-  public List<Integer> getTransactionList(@RequestParam Integer id) {
+  public List<Integer> getTransactionList(@Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getTransactionList();
   }
 
