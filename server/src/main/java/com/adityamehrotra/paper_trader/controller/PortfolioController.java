@@ -368,8 +368,16 @@ public class PortfolioController {
     return portfolioRepository.save(portfolio);
   }
 
+  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
+  @Operation(
+      summary = "Add Transaction to a Portfolio by Portfolio ID",
+      description =
+          "Add a transaction to the transaction list for a specific portfolio. The response is a Portfolio object with the transaction added to the transaction list.")
   @PostMapping("/add/transaction")
-  public Portfolio addTransaction(@RequestParam Integer id, @RequestParam Integer transactionID) {
+  public Portfolio addTransaction(@Parameter(description = "Portfolio ID which needs a holding added", required = true)
+      @RequestParam Integer id,
+      @Parameter(description = "TransactionID of the transaction where the asset is added", required = true)
+      @RequestParam Integer transactionID) {
     List<Integer> transactions;
     List<Integer> transactionList = portfolioRepository.findById(id).get().getTransactionList();
     if (transactionList == null) {
