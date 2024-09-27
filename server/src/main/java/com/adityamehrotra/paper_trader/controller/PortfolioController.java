@@ -68,7 +68,8 @@ public class PortfolioController {
       summary = "Delete Portfolio",
       description = "Delete a Portfolio.")
   @DeleteMapping("/remove")
-  public void delete(@RequestParam Integer id) {
+  public void delete(@Parameter(description = "Portfolio ID whose portfolio needs needs to be removed", required = true)
+  @RequestParam Integer id) {
     List<Integer> currPortfolioList = new ArrayList<>();
     for (int i = 0;
          i
@@ -101,7 +102,8 @@ public class PortfolioController {
       description =
           "Get the information for a specific portfolio. The response is the Portfolio object that matches the id.")
   @GetMapping("/get")
-  public Portfolio getAllInfo(@RequestParam Integer id) {
+  public Portfolio getAllInfo(@Parameter(description = "Portfolio ID whose portfolio needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get();
   }
 
@@ -111,7 +113,8 @@ public class PortfolioController {
       description =
           "Get the Account ID for a specific portfolio. The response is an integer of the Account ID.")
   @GetMapping("/get/accountID")
-  public Integer getAccountID(@RequestParam Integer id) {
+  public Integer getAccountID(@Parameter(description = "Portfolio ID whose Account ID needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getAccountID();
   }
 
@@ -121,7 +124,8 @@ public class PortfolioController {
       description =
           "Get the Name for a specific portfolio. The response is an String of the Name.")
   @GetMapping("/get/name")
-  public String getPortfolioName(@RequestParam Integer id) {
+  public String getPortfolioName(@Parameter(description = "Portfolio ID whose portfolio name needs to be retrieved", required = true)
+  @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getPortfolioName();
   }
 
