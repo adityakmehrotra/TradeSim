@@ -302,9 +302,20 @@ public class PortfolioController {
     return null;
   }
 
+  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
+  @Operation(
+      summary = "Add Asset to a Portfolio by Portfolio ID",
+      description =
+          "Add a asset to the asset map for a specific portfolio. The response is a Portfolio object with the asset added to the asset map.")
   @PostMapping("/add/asset")
-  public Portfolio addAsset(
-          @RequestParam Integer id, @RequestParam String code, @RequestBody Asset asset, @RequestParam Integer transactionID) {
+    public Portfolio addAsset(@Parameter(description = "Portfolio ID which needs a holding added", required = true)
+      @RequestParam Integer id,
+      @Parameter(description = "Asset Symbol of the holding that needs to be added", required = true)
+      @RequestParam String code,
+      @Parameter(description = "Asset that needs to be added", required = true)
+      @RequestBody Asset asset,
+      @Parameter(description = "TransactionID of the transaction where the asset is added", required = true)
+      @RequestParam Integer transactionID) {
     if (code.equals("Cash")) {
       Map<String, Asset> assets = new HashMap<>();
       assets.put(code, asset);
