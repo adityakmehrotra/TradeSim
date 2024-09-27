@@ -68,7 +68,8 @@ public class PortfolioController {
       summary = "Delete Portfolio",
       description = "Delete a Portfolio.")
   @DeleteMapping("/remove")
-  public void delete(@RequestParam Integer id) {
+  public void delete(@Parameter(description = "Portfolio ID whose portfolio needs needs to be removed", required = true)
+  @RequestParam Integer id) {
     List<Integer> currPortfolioList = new ArrayList<>();
     for (int i = 0;
          i
