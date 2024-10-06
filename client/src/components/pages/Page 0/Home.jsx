@@ -62,9 +62,14 @@ function Home({ setActiveTab }) {
               <h5>{stock.ticker}</h5>
               <p>{stock.name}</p>
               <p>${stock.price.toFixed(2)}</p>
-              <p style={{ color: stock.change >= 0 ? 'green' : 'red' }}>
-                {stock.change.toFixed(2)} ({stock.changePerc.toFixed(2)}%)
-              </p>
+              {stock.change >= 0 ? 
+                <p style={{ color: 'green' }}>
+                  +{stock.change.toFixed(2)} (+{stock.changePerc.toFixed(2)}%)
+                </p> :
+                <p style={{ color: 'red' }}>
+                  {stock.change.toFixed(2)} ({stock.changePerc.toFixed(2)}%)
+                </p>
+              }
             </div>
           ))}
         </div>
