@@ -1,0 +1,38 @@
+.home-container {
+    position: relative;
+  }
+  
+  .scrolling-ticker {
+    display: flex;
+    white-space: nowrap;
+    animation: scrollLeft 30s linear infinite;
+    padding: 10px 0;
+  }
+  
+  .stock-card {
+    display: inline-block;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    width: 150px;
+    margin: 0 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  
+  .stock-card:hover {
+    transform: scale(1.05);
+  }
+  
+  @keyframes scrollLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
