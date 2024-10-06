@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import './Home.css';
 
-const stockTickers = ['AAPL', 'TSLA', 'AMZN', 'GOOG', 'MSFT', 'SPY', 'NFLX', 'NVDA', 'META', 'BABA', 'JPM', 'DIS'];
+const stockTickers = ['AAPL', 'TSLA', 'AMZN', 'GOOG', 'MSFT', 'SPY', 'NFLX', 'NVDA', 'META', 'JPM', 'DIS'];
+const stockNames = ['Apple', 'Tesla', 'Amazon', 'Google', 'Microsoft', 'S&P 500', 'Netflix', 'NVIDIA', 'Meta', 'JP Morgan Chase', 'Disney'];
 
 function Home({ setActiveTab }) {
   const [stocksData, setStocksData] = useState([]);
@@ -21,9 +22,10 @@ function Home({ setActiveTab }) {
     try {
       const response = await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/polygon/price?ticker=${ticker}`);
       const data = await response.json();
+      const index = stockTickers.indexOf(ticker);
       return {
         ticker: data.ticker.ticker,
-        name: ticker,
+        name: stockNames[index],
         price: data.ticker.day.c,
         change: data.ticker.todaysChange,
         changePerc: data.ticker.todaysChangePerc
