@@ -82,11 +82,9 @@
 
 # About The Project
 
-<a href="https://tradesime.adityakmehrotra.com" target="_blank">
+<a href="https://tradesim.adityakmehrotra.com" target="_blank">
   <img src="https://github.com/user-attachments/assets/9fe749fa-77dc-4cdd-9ff6-5aff45faa185" alt="TradeSim">
 </a>
-
-![TradeSim (1)](https://github.com/user-attachments/assets/9fe749fa-77dc-4cdd-9ff6-5aff45faa185)
 
 
 [![React][React.js]][React-url]
