@@ -12,10 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AccountController.class)
@@ -37,38 +40,51 @@ class AccountControllerTest {
 
   private Account account;
 
+  private String username;
+
+  private String password;
+
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
     account = new Account();
-    account.setAccountID(accountController.getNextAccountID());
+    account.setAccountID(1);
     account.setFirstName("John");
     account.setLastName("Doe");
     account.setEmailAddress("john.doe@example.com");
     account.setPassword("password");
+
+    username = "john_doe";
+    password = "password";
   }
 
   @Test
   void testAddAccount() throws Exception {
-    Account account1 = new Account();
-    account1.setAccountID(accountController.getNextAccountID());
-    account1.setFirstName("John");
-    account1.setLastName("Doe");
-    account1.setEmailAddress("john.doe@example.com");
-    account1.setPassword("password");
-    System.out.println("AAAKJFDLKJFL: " + account1.getAccountID());
-
-    when(accountService.addAccount(account1, "john_doe", "password")).thenReturn(account1);
-
-    System.out.println("AAAKJFDLKJFL: " + accountController.getNextAccountID());
+    when(accountService.addAccount(account, "john_doe", "password")).thenReturn(account);
 
     mockMvc.perform(post("/paper_trader/account/add")
-            .contentType(MediaType.APPLICATION_JSON)
-            .param("username", "john_doe")
-            .param("password", "password")
-            .content("{ \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailAddress\": \"john.doe@example.com\" }"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .param("username", "john_doe")
+                    .param("password", "password")
+                    .content("{ \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailAddress\": \"john.doe@example.com\" }"))
             .andExpect(status().isOk());
   }
 
+  @Test
+  void testGetAccountIDByUsername() throws Exception {
+    Integer expectedAccountID = 1;
+
+    when(accountService.getAccountIDByUsername(username)).thenReturn(expectedAccountID);
+
+    MvcResult result = mockMvc.perform(get("/paper_trader/account/get/accountID_username")
+                    .param("username", username))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String responseContent = result.getResponse().getContentAsString();
+    System.out.println("Response Content: " + responseContent);
+
+    assertEquals(expectedAccountID.toString(), responseContent);
+  }
 
 }
