@@ -16,7 +16,12 @@ public class SwaggerConfig {
         .info(
             new Info()
                 .title("Paper Trader Backend - Used by Paper Trader UI")
-                .description("Read more about the Paper Trader project at GitHub")
+                .version("1.4.7")
+                .description("""
+                    ### API Documentation for TradeSim Backend. Read more about TradeSim in the GitHub Repository:
+                    
+                    #### https://github.com/adityakmehrotra/tradesim
+                    """)
                 .license(new License().name("Copyright 2024 Aditya Mehrotra"))
                 .contact(new Contact().name("Aditya Mehrotra")));
   }
