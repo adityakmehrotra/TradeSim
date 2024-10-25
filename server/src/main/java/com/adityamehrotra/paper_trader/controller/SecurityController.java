@@ -40,17 +40,7 @@ public class SecurityController {
 
   @GetMapping("/suggestion/{userInput}")
   public Set<SecurityModel> getSuggestion(@PathVariable String userInput) {
-    userInput = userInput.toLowerCase();
-    Set<SecurityModel> codeList = new HashSet<>();
-
-    for (SecurityModel securityModel : securityRepository.findAll()) {
-      if (securityModel.getCode().toLowerCase().startsWith(userInput)) {
-        codeList.add(securityModel);
-      } else if (securityModel.getName().toLowerCase().startsWith(userInput)) {
-        codeList.add(securityRepository.findById(securityModel.getCode()).get());
-      }
-    }
-    return codeList;
+    return securityService.getSuggestion(userInput);
   }
 
   @GetMapping("/suggestion/test/{userInput}")
