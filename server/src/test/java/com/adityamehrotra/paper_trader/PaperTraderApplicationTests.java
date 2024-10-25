@@ -8,8 +8,5 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(locations = "classpath:application.properties")
 class PaperTraderApplicationTests {
 
-  @Test
-  void contextLoads() {
-  }
 
 }
