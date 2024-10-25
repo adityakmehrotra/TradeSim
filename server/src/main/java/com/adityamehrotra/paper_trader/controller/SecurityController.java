@@ -5,6 +5,8 @@ import com.adityamehrotra.paper_trader.repository.SecurityRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.adityamehrotra.paper_trader.service.SecurityService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,17 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/paper_trader/security")
 public class SecurityController {
   private final SecurityRepository securityRepository;
+  private final SecurityService securityService;
 
-  public SecurityController(SecurityRepository securityRepository) {
+  public SecurityController(SecurityRepository securityRepository, SecurityService securityService) {
     this.securityRepository = securityRepository;
+    this.securityService = securityService;
   }
 
-  @PostMapping("create/one")
+  @PostMapping("/create/one")
   public SecurityModel createOne(@RequestBody SecurityModel securityModel) {
-    return securityRepository.save(securityModel);
+    return securityService.createOne(securityModel);
   }
 
-  @PostMapping("create/many")
+  @PostMapping("/create/many")
   public void createMany(@RequestBody List<SecurityModel> securityModelList) {
     for (SecurityModel securityModel : securityModelList) {
       securityRepository.save(securityModel);
