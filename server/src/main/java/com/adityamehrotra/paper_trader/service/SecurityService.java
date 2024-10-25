@@ -46,4 +46,8 @@ public class SecurityService {
     public List<SecurityModel> getAllSecurities() {
         return securityRepository.findAll();
     }
+
+    public void deleteById(String id) {
+        securityRepository.deleteById(id);
+    }
 }

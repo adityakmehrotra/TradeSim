@@ -55,6 +55,6 @@ public class SecurityController {
 
   @DeleteMapping("/delete/{id}")
   public void deleteById(@PathVariable String id) {
-    securityRepository.deleteById(id);
+    securityService.deleteById(id);
   }
 }
