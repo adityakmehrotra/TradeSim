@@ -37,4 +37,9 @@ public class SecurityService {
         }
         return codeList;
     }
+
+    public Set<SecurityModel> getSuggestionTest(String userInput) {
+        userInput = userInput.toLowerCase();
+        return securityRepository.findSecuritiesStartingWith(userInput);
+    }
 }

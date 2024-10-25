@@ -45,8 +45,7 @@ public class SecurityController {
 
   @GetMapping("/suggestion/test/{userInput}")
   public Set<SecurityModel> getSuggestionTest(@PathVariable String userInput) {
-    userInput = userInput.toLowerCase();
-    return securityRepository.findSecuritiesStartingWith(userInput);
+    return securityService.getSuggestionTest(userInput);
   }
 
   @GetMapping("/all")
