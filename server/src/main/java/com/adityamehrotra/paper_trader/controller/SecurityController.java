@@ -35,9 +35,7 @@ public class SecurityController {
 
   @PostMapping("/create/many")
   public void createMany(@RequestBody List<SecurityModel> securityModelList) {
-    for (SecurityModel securityModel : securityModelList) {
-      securityRepository.save(securityModel);
-    }
+    securityService.createMany(securityModelList);
   }
 
   @GetMapping("/suggestion/{userInput}")
