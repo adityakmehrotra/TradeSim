@@ -50,7 +50,7 @@ public class SecurityController {
 
   @GetMapping("/all")
   public List<SecurityModel> getAllSecurities() {
-    return securityRepository.findAll();
+    return securityService.getAllSecurities();
   }
 
   @DeleteMapping("/delete/{id}")

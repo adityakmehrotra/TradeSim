@@ -42,4 +42,8 @@ public class SecurityService {
         userInput = userInput.toLowerCase();
         return securityRepository.findSecuritiesStartingWith(userInput);
     }
+
+    public List<SecurityModel> getAllSecurities() {
+        return securityRepository.findAll();
+    }
 }
