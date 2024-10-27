@@ -121,6 +121,7 @@ export default function PortfolioList({ setActiveTab }) {
           accountID: id,
           orderType: "Fund",
           securityCode: "Cash",
+          gmtTime: new Date().toUTCString(),
           shareAmount: 1.0,
           cashAmount: cashAmount
         };
