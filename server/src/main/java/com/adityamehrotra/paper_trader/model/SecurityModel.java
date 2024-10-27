@@ -27,6 +27,3 @@ public class SecurityModel {
 
   private String isin;
 }
-
-// API to get all of the information (NYSE MKT, NASDAQ)
-// https://eodhd.com/api/exchange-symbol-list/NYSE MKT?api_token=66830b4654fa43.50681554&fmt=json
