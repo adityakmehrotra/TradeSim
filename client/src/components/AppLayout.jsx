@@ -121,7 +121,7 @@ export default function AppLayout() {
                         </Form>
                         <Nav className="ms-auto">
                             <Nav.Link as={NavLink} to="/portfolio" className={({ isActive }) => isActive ? "active" : ""}>Portfolio</Nav.Link>
-                            <Nav.Link as={NavLink} to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>Notifications</Nav.Link>
+                            {/* <Nav.Link as={NavLink} to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>Notifications</Nav.Link> */}
                             <Nav.Link as={NavLink} to="/account" className={({ isActive }) => isActive ? "active" : ""}>Account</Nav.Link>
                         </Nav>
                     </Navbar.Collapse>

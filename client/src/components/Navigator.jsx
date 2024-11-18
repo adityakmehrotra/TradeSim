@@ -18,7 +18,7 @@ export default function Navigator({ setActiveTab }) {
                     <Route index element={<Home setActiveTab={setActiveTab} />} />
                     <Route path="/portfolio" element={<Portfolio setActiveTab={setActiveTab} />} />
                     <Route path="/portfolio/:portfolioID" element={<PortfolioDetails />} />
-                    <Route path="/notifications" element={<Notifications />} />
+                    {/* <Route path="/notifications" element={<Notifications />} /> */}
                     <Route path="/account" element={<Account setActiveTab={setActiveTab} />} />
                     <Route path="/search/:searchQuery" element={<SecurityPage setActiveTab={setActiveTab} />} />
                     <Route path="*" element={<Portfolio />} />

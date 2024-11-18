@@ -276,7 +276,7 @@ export default function PortfolioDetails() {
       <Row className="mb-4">
         <Col>
           <h2>{portfolio?.portfolioName}</h2>
-          <p>Current Value: ${totalMarketValue.toFixed(2)}</p>
+          <p>Current Value: ${formatNumberWithCommas(totalMarketValue, 2)}</p>
         </Col>
       </Row>
       <Row>
@@ -284,7 +284,7 @@ export default function PortfolioDetails() {
           {chartData.datasets ? (
             <div style={{ width: '300px', height: '300px', marginBottom: '60px' }}>
               <Pie data={chartData} options={chartOptions} />
-              <p>Buying Power: ${portfolio?.cashAmount ? portfolio.cashAmount.toFixed(2) : '0.00'}</p>
+              <p>Buying Power: ${portfolio?.cashAmount ? formatNumberWithCommas(portfolio.cashAmount, 2) : '0.00'}</p>
             </div>
           ) : (
             <p>Loading chart...</p>

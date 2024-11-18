@@ -10,6 +10,7 @@ export default function PortfolioList({ setActiveTab }) {
   const [newPortfolioName, setNewPortfolioName] = useState("");
   const [newPortfolioCash, setNewPortfolioCash] = useState("");
   const [visiblePortfolios, setVisiblePortfolios] = useState(3);
+  const [totalMarketValue, setTotalMarketValue] = useState(0);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
@@ -64,6 +65,11 @@ export default function PortfolioList({ setActiveTab }) {
 
   const handlePortfolioClick = (portfolioID) => {
     navigate(`/portfolio/${portfolioID}`);
+  };
+
+  const formatNumberWithCommas = (number, decimalPlaces) => {
+    if (isNaN(number) || number === null) return '0';
+    return number.toFixed(decimalPlaces).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   const handleCreatePortfolio = () => {
@@ -199,6 +205,9 @@ export default function PortfolioList({ setActiveTab }) {
         <Col>
           <h2>Portfolios</h2>
         </Col>
+        <Col className="text-end">
+          <Button onClick={() => setShowCreateForm(!showCreateForm)}>Add Portfolio</Button>
+        </Col>
       </Row>
       {portfolios.slice(0, visiblePortfolios).map(portfolio => (
         <Row key={portfolio.portfolioID} className="mb-4">
@@ -207,7 +216,7 @@ export default function PortfolioList({ setActiveTab }) {
               <Card.Body onClick={() => handlePortfolioClick(portfolio.portfolioID)}>
                 <Card.Title>{portfolio.name}</Card.Title>
                 <Card.Text>
-                  Initial Investment: ${portfolio.cash.toFixed(2)}
+                  Initial Investment: ${formatNumberWithCommas(portfolio.cash, 2)}
                 </Card.Text>
                 <Button
                   variant="danger"
@@ -231,38 +240,37 @@ export default function PortfolioList({ setActiveTab }) {
           </Col>
         </Row>
       )}
-      <Row className="mt-4">
-        <Col>
-          <Button onClick={() => setShowCreateForm(true)}>Add Portfolio</Button>
-        </Col>
-      </Row>
       {showCreateForm && (
-        <Row className="mt-4 mb-4">
-          <Col>
-            <h3>Create a New Portfolio</h3>
-            <Form>
-              <Form.Group>
-                <Form.Label>Portfolio Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newPortfolioName}
-                  onChange={(e) => setNewPortfolioName(e.target.value)}
-                  placeholder="Enter portfolio name"
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>Cash Amount</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={newPortfolioCash}
-                  onChange={(e) => setNewPortfolioCash(e.target.value)}
-                  placeholder="Enter initial cash amount"
-                />
-              </Form.Group>
-              <Button onClick={handleCreatePortfolio} className="mt-2">Create Portfolio</Button>
-            </Form>
-          </Col>
-        </Row>
+        <div>
+          <br />
+          <hr />
+          <Row className="mt-4 mb-4">
+            <Col>
+              <h3>Create a New Portfolio</h3>
+              <Form>
+                <Form.Group>
+                  <Form.Label>Portfolio Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newPortfolioName}
+                    onChange={(e) => setNewPortfolioName(e.target.value)}
+                    placeholder="Enter portfolio name"
+                  />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Cash Amount</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={newPortfolioCash}
+                    onChange={(e) => setNewPortfolioCash(e.target.value)}
+                    placeholder="Enter initial cash amount"
+                  />
+                </Form.Group>
+                <Button onClick={handleCreatePortfolio} className="mt-2">Create Portfolio</Button>
+              </Form>
+            </Col>
+          </Row>
+        </div>
       )}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
