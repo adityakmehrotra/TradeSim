@@ -21,6 +21,7 @@ export default function PortfolioDetails() {
   const [portfolioToDelete, setPortfolioToDelete] = useState(null);
   const [totalMarketValue, setTotalMarketValue] = useState(0);
   const [currPortfolio, setCurrPortfolio] = useState("Select Portfolio");
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   useEffect(() => {
     if (accountID) {
@@ -48,7 +49,6 @@ export default function PortfolioDetails() {
     };
 
     calcTotalVal();
-    console.log("Total Market Value:", totalMarketValue);
 
   }, [assetData, portfolio, totalMarketValue]);
 
@@ -313,10 +313,11 @@ export default function PortfolioDetails() {
               </tr>
             </thead>
             <tbody>
+              {console.log(assetData)}
               {assetData.map((asset, index) => (
                 <tr key={index}>
                   <td>{asset.name}</td>
-                  <td>{asset.name === "Cash" ? '' : asset.sharesOwned.toFixed(4)}</td>
+                  <td>{asset.name === "Cash" ? portfolio.cashAmount.toFixed(2) : asset.sharesOwned.toFixed(4)}</td>
                   <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
                   <td>${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}</td>
                 </tr>
@@ -330,29 +331,50 @@ export default function PortfolioDetails() {
           <h3>Transactions</h3>
           <Table striped bordered hover>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Order Type</th>
-                <th>Security</th>
-                <th>Shares</th>
-                <th>Cash</th>
-              </tr>
+            <tr>
+              <th>#</th>
+              <th>Order Type</th>
+              <th>Date</th>
+              <th>Security</th>
+              <th>Shares</th>
+              <th>Cash</th>
+            </tr>
             </thead>
             <tbody>
               {transactions.slice().reverse().map((transaction, index) => (
-                <tr key={index}>
-                  <td>{transactions.length - index}</td>
-                  <td>{transaction.orderType}</td>
-                  <td>{transaction.securityCode}</td>
-                  <td>{transaction.securityCode === "Cash" ? '' : transaction.shareAmount.toFixed(4)}</td>
-                  <td>${transaction.cashAmount ? formatNumberWithCommas(transaction.cashAmount, 2) : 'N/A'}</td>
-                </tr>
+                  <tr key={index}>
+                    <td>{transactions.length - index}</td>
+                    <td>{transaction.orderType}</td>
+                    <td>
+                      {new Date(transaction.gmtTime).toLocaleDateString(undefined, {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td
+                        onMouseEnter={transaction.securityCode === "Cash" ? () => setHoveredRow(index) : null}
+                        onMouseLeave={transaction.securityCode === "Cash" ? () => setHoveredRow(null) : null}
+                    >
+                      {transaction.securityCode === "Cash" ?
+                          "Cash" :
+                          <span
+                              onClick={() => navigate(`/search/${transaction.securityCode}`)}
+                              style={{cursor: "pointer", fontWeight: hoveredRow === index ? "bold" : "normal"}}
+                          >
+                            {transaction.securityCode}
+                            </span>
+                      }
+                    </td>
+                    <td>{transaction.securityCode === "Cash" ? transaction.cashAmount ? formatNumberWithCommas(transaction.cashAmount, 2) : 'N/A' : transaction.shareAmount.toFixed(4)}</td>
+                    <td>${transaction.cashAmount ? formatNumberWithCommas(transaction.cashAmount, 2) : 'N/A'}</td>
+                  </tr>
               ))}
             </tbody>
           </Table>
         </Col>
       </Row>
-  
+
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
