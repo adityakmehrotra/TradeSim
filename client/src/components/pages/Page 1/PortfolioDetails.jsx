@@ -305,28 +305,57 @@ export default function PortfolioDetails() {
           <h3>Assets</h3>
           <Table striped bordered hover>
             <thead>
-              <tr>
-                <th>Security</th>
-                <th>Shares Owned</th>
-                <th>Initial Investment</th>
-                <th>Current Market Value</th>
-              </tr>
+            <tr>
+              <th>Security</th>
+              <th>Shares Owned</th>
+              <th>Initial Investment</th>
+              <th>Average Cost (Share Price)</th>
+              <th>Current Market Value</th>
+            </tr>
             </thead>
             <tbody>
-              {console.log(assetData)}
-              {assetData.map((asset, index) => (
-                <tr key={index}>
-                  <td>{asset.name}</td>
-                  <td>{asset.name === "Cash" ? portfolio.cashAmount.toFixed(2) : asset.sharesOwned.toFixed(4)}</td>
-                  <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
-                  <td>${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}</td>
-                </tr>
-              ))}
+            {console.log(portfolio)}
+            {assetData
+                .slice()
+                .sort((a, b) => {
+                  // Calculate Current Market Value for both assets
+                  const aMarketValue = a.name === "Cash" ? portfolio.cashAmount : a.sharesOwned * a.currentPrice;
+                  const bMarketValue = b.name === "Cash" ? portfolio.cashAmount : b.sharesOwned * b.currentPrice;
+
+                  // Sort in descending order of Market Value
+                  return bMarketValue - aMarketValue;
+                })
+                .map((asset, index) => (
+                    <tr key={index}>
+                      <td>{asset.name}</td>
+                      <td>{asset.name === "Cash" ? portfolio.cashAmount.toFixed(2) : asset.sharesOwned.toFixed(4)}</td>
+                      <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
+                      <td>${formatNumberWithCommas(portfolio.assetsAvgValue[asset.name] || 0, 2)}</td>
+                      <td>
+                        <div>
+                            <span>
+
+                              ${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}
+                            </span>
+                          <span
+                              style={{color: asset.name === "Cash" ? "black" : asset.currentPrice >= portfolio.assetsAvgValue[asset.name] ? "green" : "red"}}>
+
+                            <span>
+                              {asset.name !== "Cash" ? asset.currentPrice >= portfolio.assetsAvgValue[asset.name] ? " (+" : " (-" : ""}
+                            </span>
+                            <span>
+                                {asset.name !== "Cash" ? formatNumberWithCommas(Math.abs(asset.sharesOwned * asset.currentPrice - asset.initialCashInvestment) * 100 / asset.initialCashInvestment, 2) : ""}%)
+                            </span>
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                ))}
             </tbody>
           </Table>
         </Col>
       </Row>
-      <Row style={{ marginTop: '40px' }}>
+      <Row style={{marginTop: '40px'}}>
         <Col>
           <h3>Transactions</h3>
           <Table striped bordered hover>
@@ -341,17 +370,17 @@ export default function PortfolioDetails() {
             </tr>
             </thead>
             <tbody>
-              {transactions.slice().reverse().map((transaction, index) => (
-                  <tr key={index}>
-                    <td>{transactions.length - index}</td>
-                    <td>{transaction.orderType}</td>
-                    <td>
-                      {new Date(transaction.gmtTime).toLocaleDateString(undefined, {
-                        month: "2-digit",
-                        day: "2-digit",
-                        year: "numeric",
-                      })}
-                    </td>
+            {transactions.slice().reverse().map((transaction, index) => (
+                <tr key={index}>
+                  <td>{transactions.length - index}</td>
+                  <td>{transaction.orderType}</td>
+                  <td>
+                    {new Date(transaction.gmtTime).toLocaleDateString(undefined, {
+                      month: "2-digit",
+                      day: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
                     <td
                         onMouseEnter={transaction.securityCode === "Cash" ? () => setHoveredRow(index) : null}
                         onMouseLeave={transaction.securityCode === "Cash" ? () => setHoveredRow(null) : null}

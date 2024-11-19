@@ -289,6 +289,7 @@ public class PortfolioController {
           asset.setInitialCashInvestment(assets.get(code).getInitialCashInvestment() - cashAmt);
           assets.put(code, asset);
 
+
           Portfolio portfolio = new Portfolio(
                   id,
                   getAccountID(id),
@@ -346,6 +347,7 @@ public class PortfolioController {
     } else {
       assets = assetsMap;
     }
+    Double currInit = getInitCash(id);
     if (!assets.isEmpty()) {
       if (assets.containsKey(code)) {
         Double currAmt = assets.get(code).getSharesOwned();
@@ -353,6 +355,7 @@ public class PortfolioController {
         Double tempAmt = assetsAvgValue.get(code) * currAmt;
         Double newAmt = transactionRepository.findById(transactionID).get().getShareAmount() * transactionRepository.findById(transactionID).get().getCurrPrice();
         assetsAvgValue.put(code, (tempAmt + newAmt) / asset.getSharesOwned());
+        currInit += assets.get(code).getInitialCashInvestment();
       } else {
         assetsAvgValue.put(code, asset.getInitPrice());
       }
@@ -364,7 +367,7 @@ public class PortfolioController {
                     getAccountID(id),
                     getPortfolioName(id),
                     getCash(id),
-                    getInitCash(id),
+                    currInit,
                     getTransactionList(id),
                     assets,
                     addHolding(id, code).getHoldings(),
@@ -392,6 +395,7 @@ public class PortfolioController {
     transactions.add(transactionID);
     Portfolio portfolio;
     Transaction transaction = transactionRepository.findById(transactionID).get();
+
     if (transaction.getOrderType().equals("Buy")) {
       Asset asset = new Asset(transaction.getShareAmount(), transaction.getCashAmount(), transaction.getGmtTime(), transaction.getCurrPrice());
       addAsset(id, transactionRepository.findById(transactionID).get().getSecurityCode(), asset, transactionID);
