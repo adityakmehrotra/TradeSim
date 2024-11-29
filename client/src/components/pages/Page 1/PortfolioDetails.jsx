@@ -308,49 +308,87 @@ export default function PortfolioDetails() {
             <tr>
               <th>Security</th>
               <th>Shares Owned</th>
-              <th>Initial Investment</th>
               <th>Average Cost (Share Price)</th>
+              <th>Current Share Price</th>
+              <th>Initial Investment</th>
               <th>Current Market Value</th>
             </tr>
             </thead>
             <tbody>
             {console.log(portfolio)}
             {assetData
-                .slice()
-                .sort((a, b) => {
-                  // Calculate Current Market Value for both assets
-                  const aMarketValue = a.name === "Cash" ? portfolio.cashAmount : a.sharesOwned * a.currentPrice;
-                  const bMarketValue = b.name === "Cash" ? portfolio.cashAmount : b.sharesOwned * b.currentPrice;
+              .slice()
+              .sort((a, b) => {
+                // Special sorting to place "Cash" at the bottom
+                if (a.name === "Cash") return 1; // Push "Cash" to the bottom
+                if (b.name === "Cash") return -1;
 
-                  // Sort in descending order of Market Value
-                  return bMarketValue - aMarketValue;
-                })
-                .map((asset, index) => (
-                    <tr key={index}>
-                      <td>{asset.name}</td>
-                      <td>{asset.name === "Cash" ? portfolio.cashAmount.toFixed(2) : asset.sharesOwned.toFixed(4)}</td>
-                      <td>${formatNumberWithCommas(asset.initialCashInvestment, 2)}</td>
-                      <td>${formatNumberWithCommas(portfolio.assetsAvgValue[asset.name] || 0, 2)}</td>
-                      <td>
-                        <div>
-                            <span>
-
-                              ${formatNumberWithCommas(asset.name === "Cash" ? portfolio.cashAmount : asset.sharesOwned * asset.currentPrice, 2)}
-                            </span>
-                          <span
-                              style={{color: asset.name === "Cash" ? "black" : asset.currentPrice >= portfolio.assetsAvgValue[asset.name] ? "green" : "red"}}>
-
-                            <span>
-                              {asset.name !== "Cash" ? asset.currentPrice >= portfolio.assetsAvgValue[asset.name] ? " (+" : " (-" : ""}
-                            </span>
-                            <span>
-                                {asset.name !== "Cash" ? formatNumberWithCommas(Math.abs(asset.sharesOwned * asset.currentPrice - asset.initialCashInvestment) * 100 / asset.initialCashInvestment, 2) : ""}%)
-                            </span>
+                // Sort remaining assets by descending Current Market Value
+                const aMarketValue = a.sharesOwned * a.currentPrice;
+                const bMarketValue = b.sharesOwned * b.currentPrice;
+                return bMarketValue - aMarketValue;
+              })
+              .map((asset, index) => (
+                <tr key={index}>
+                  <td>{asset.name}</td>
+                  <td>
+                    {asset.name === "Cash"
+                      ? "" // Empty for Cash
+                      : asset.sharesOwned.toFixed(4)} {/* Show shares for non-Cash */}
+                  </td>
+                  <td>
+                    {asset.name === "Cash"
+                      ? "" // Empty for Cash
+                      : `$${formatNumberWithCommas(
+                          portfolio.assetsAvgValue[asset.name] || 0,
+                          2
+                        )}`}
+                  </td>
+                  <td>
+                    {asset.name === "Cash"
+                      ? "" // Empty for Cash
+                      : `$${formatNumberWithCommas(asset.currentPrice, 2)}`}
+                  </td>
+                  <td>
+                    {/* Always show Initial Investment */}
+                    ${formatNumberWithCommas(asset.initialCashInvestment || 0, 2)}
+                  </td>
+                  <td>
+                    <div>
+                      {/* Always show Current Market Value */}
+                      <span>
+                        ${formatNumberWithCommas(
+                          asset.name === "Cash"
+                            ? portfolio.cashAmount
+                            : asset.sharesOwned * asset.currentPrice,
+                          2
+                        )}
+                      </span>
+                      {/* Show gain/loss percentage only for non-Cash */}
+                      {asset.name !== "Cash" && (
+                        <span
+                          style={{
+                            color:
+                              asset.currentPrice >= portfolio.assetsAvgValue[asset.name]
+                                ? "green"
+                                : "red",
+                          }}
+                        >
+                          <span>
+                            {asset.currentPrice >= portfolio.assetsAvgValue[asset.name]
+                              ? " (+"
+                              : " (-"}
+                              {formatNumberWithCommas(
+                              Math.abs(
+                                (asset.sharesOwned * asset.currentPrice - asset.initialCashInvestment) * 100 / asset.initialCashInvestment), 2
+                            ) + "%)"}
                           </span>
-                        </div>
-                      </td>
-                    </tr>
-                ))}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </Table>
         </Col>
