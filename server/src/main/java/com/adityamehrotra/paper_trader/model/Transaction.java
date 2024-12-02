@@ -3,6 +3,7 @@ package com.adityamehrotra.paper_trader.model;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,22 +15,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "Paper Trader- Transaction")
+@Document(collection = "Paper Trader-Transaction")
 public class Transaction {
+
   @Id
   @NotNull(message = "Transaction ID cannot be null")
+  @Min(value = 1, message = "Transaction ID must be greater than 0")
   private Integer transactionID;
 
   @NotNull(message = "Portfolio ID cannot be null")
+  @Min(value = 1, message = "Portfolio ID must be greater than 0")
   private Integer portfolioID;
 
   @NotNull(message = "Account ID cannot be null")
+  @Min(value = 1, message = "Account ID must be greater than 0")
   private Integer accountID;
 
   @NotEmpty(message = "Order type cannot be empty")
+  @Size(max = 20, message = "Order type must not exceed 20 characters")
   private String orderType;
 
   @NotEmpty(message = "Security code cannot be empty")
+  @Size(max = 20, message = "Security code must not exceed 20 characters")
   private String securityCode;
 
   @NotEmpty(message = "GMT time cannot be empty")

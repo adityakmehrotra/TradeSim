@@ -1,6 +1,7 @@
 package com.adityamehrotra.paper_trader.model;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,8 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(collection = "Paper Trader- Asset")
+@Document(collection = "Paper Trader-Asset")
 public class Asset {
+
   @NotNull(message = "Shares owned cannot be null")
   @Min(value = 0, message = "Shares owned must be greater than or equal to 0")
   private Double sharesOwned;
@@ -22,7 +24,7 @@ public class Asset {
   @Min(value = 0, message = "Initial cash investment must be non-negative")
   private Double initialCashInvestment;
 
-  @NotNull(message = "GMT purchased time cannot be null")
+  @NotEmpty(message = "GMT purchased time cannot be empty")
   private String gmtPurchased;
 
   @NotNull(message = "Initial price cannot be null")

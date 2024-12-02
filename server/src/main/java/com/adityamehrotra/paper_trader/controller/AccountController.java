@@ -8,22 +8,24 @@ import com.adityamehrotra.paper_trader.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/paper_trader/account")
+@Tag(name = "Account Management", description = "Endpoints for managing accounts, including creation, deletion, and retrieval of account details.")
+@Validated
 public class AccountController {
 
     private final AccountRepository accountRepository;
@@ -37,207 +39,89 @@ public class AccountController {
         this.specAccountRepository = specAccountRepository;
     }
 
-    @Tag(name = "Account Management", description = "Endpoints for creating new accounts and deleting existing accounts")
-    @Operation(
-            summary = "Add Account",
-            description =
-                    "Add an Account. The response is an Account object with the parameters given.")
+    @Operation(summary = "Add Account", description = "Create a new account with the specified details.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Account successfully created"),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/add")
+    @ResponseStatus(HttpStatus.CREATED)
     public Account addAccount(
-            @Parameter(description = "Account object to be created", required = true) @RequestBody Account account,
-            @Parameter(description = "Username of the Account to be created", required = true)
-            @RequestParam String username,
-            @Parameter(description = "Password of the Account to be created", required = true)
-            @RequestParam String password) {
+            @Parameter(description = "Account object to be created", required = true) @Valid @RequestBody Account account,
+            @Parameter(description = "Username for the account", required = true) @NotNull @Size(min = 3, max = 20) @RequestParam String username,
+            @Parameter(description = "Password for the account", required = true) @NotNull @Size(min = 6) @RequestParam String password) {
         return accountService.addAccount(account, username, password);
     }
 
-    @Tag(name = "Account Retrieval", description = "Endpoints for retrieving account information")
-    @Operation(
-            summary = "Get Specific Account by Account ID",
-            description =
-                    "Get the information for a specific account. The response is the Account object that matches the id.")
+    @Operation(summary = "Get Account Details by ID", description = "Retrieve account details using the account ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account details retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/get")
-    public Account getAllInfo(
-            @Parameter(description = "ID of Account to be retrieved", required = true) @RequestParam
-            Integer id) {
+    public Account getAccountById(
+            @Parameter(description = "Account ID to retrieve details", required = true) @NotNull @RequestParam Integer id) {
         return accountService.getAccount(id);
     }
 
-    @Tag(name = "Account Retrieval", description = "Endpoints for retrieving account information")
-    @Operation(
-            summary = "Get Account ID by Account Username",
-            description =
-                    "Get the account ID of a specific account by the username. The response is an integer of the Account ID.")
-    @GetMapping("/get/accountID_username")
-    public Integer getAccountIDByUsername(
-            @Parameter(description = "Username of Account ID to be retrieved", required = true) @RequestParam
-            String username) {
-        return accountService.getAccountIDByUsername(username);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get First Name of Account by Account ID",
-            description =
-                    "Get the First Name of a specific account by the id. The response is a string of the First Name.")
-    @GetMapping("/get/firstname")
-    public String getFirstName(
-            @Parameter(description = "ID of Account First Name to be retrieved", required = true) @RequestParam
-            Integer id) {
-        return accountService.getAccountFirstNameByID(id);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get Last Name of Account by Account ID",
-            description =
-                    "Get the Last Name of a specific account by the id. The response is a string of the Last Name.")
-    @GetMapping("/get/lastname")
-    public String getLastName(
-            @Parameter(description = "ID of Account Last Name to be retrieved", required = true) @RequestParam
-            Integer id) {
-        return accountService.getAccountLastNameByID(id);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get Email Address of Account by Account ID",
-            description =
-                    "Get the Email Address of a specific account by the id. The response is a string of the Email Address.")
-    @GetMapping("/get/emailAddress")
-    public String getEmailAddress(
-            @Parameter(description = "ID of Account Email Address to be retrieved", required = true) @RequestParam
-            Integer id) {
-        return accountService.getEmailAddressByID(id);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get Password of Account by Username of Account",
-            description =
-                    "Get the Password of a specific account by the username. The response is a string of the Password.")
-    @GetMapping("/get/password")
-    public String getPasswordByUsername(
-            @Parameter(description = "Username of Account Password to be retrieved", required = true) @RequestParam
-            String username) {
-        return accountService.getPasswordByUsername(username);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get Password of Account by Account ID",
-            description =
-                    "Get the Password of a specific account by the id. The response is a string of the Password.")
-    @GetMapping("/get/password/by/id")
-    public String getPasswordByID(
-            @Parameter(description = "ID of Account Password to be retrieved", required = true) @RequestParam
-            Integer id) {
-        return accountService.getPasswordByID(id);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Check if the Username exists",
-            description =
-                    "Check if the username exists. The response is a boolean (True or False) if the username already exists.")
-    @GetMapping("/check/username")
-    public boolean checkUsername(
-            @Parameter(description = "Username to check if exists or not", required = true) @RequestParam
-            String username) {
-        return accountService.checkUsernameExistsByUsername(username);
-    }
-
-    @Tag(name = "Account Information", description = "Retrieve detailed information for a specific account")
-    @Operation(
-            summary = "Get the Portfolio List",
-            description =
-                    "Get the Portfolio List of an Account. The response is the list of Portfolio IDs.")
-    @GetMapping("/get/portfolioList")
-    public List<Integer> getPortfolioList(
-            @Parameter(description = "ID of Account's Portfolios to be retrieved", required = true)
-            @RequestParam
-            Integer id) {
-        return accountService.getPortfolioList(id);
-    }
-
-    @Tag(name = "Account Details Management", description = "Endpoints for modifying and managing account details")
-    @Operation(
-            summary = "Add Portfolio",
-            description =
-                    "Add a Portfolio to an Account. The response is an Account object with the portfolioID appended to the Account's list of portfolios.")
-    @PostMapping("/add/portfolioList")
-    public Account addPortfolio(
-            @Parameter(description = "ID of Account to add Portfolio to", required = true) @RequestParam
-            Integer id,
-            @Parameter(
-                    description = "ID of portfolio to add to Account's list of Portfolios",
-                    required = true)
-            @RequestParam
-            Integer portfolioID) {
-        return accountService.addPortfolio(id, portfolioID);
-    }
-
-    @Tag(name = "Account Management", description = "Endpoints for creating new accounts and deleting existing accounts")
-    @Operation(
-            summary = "Delete Account",
-            description = "Delete an Account.")
+    @Operation(summary = "Delete Account", description = "Delete an account using the account ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @DeleteMapping("/delete")
-    public void deleteById(
-            @Parameter(description = "ID of Account to delete", required = true) @RequestParam
-            Integer id) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteAccount(
+            @Parameter(description = "Account ID to delete", required = true) @NotNull @RequestParam Integer id) {
         accountRepository.deleteById(id);
     }
 
-    @Tag(name = "Account Details Management", description = "Endpoints for modifying and managing account details")
-    @Operation(
-            summary = "Delete Portfolio",
-            description =
-                    "Delete a Portfolio from an Account. The response is an Account object with the portfolioID removed from the Account's list of portfolios.")
-    @PostMapping("/delete/portfolioList")
-    public Account deletePortfolio(
-            @Parameter(description = "ID of Account to remove Portfolio from", required = true)
-            @RequestParam
-            Integer id,
-            @Parameter(
-                    description = "ID of portfolio to remove from Account's list of Portfolios",
-                    required = true)
-            @RequestParam
-            Integer portfolioID) {
-        return accountService.deletePortfolio(id, portfolioID);
-    }
-
-    @Tag(name = "Account Retrieval", description = "Endpoints for retrieving account information")
-    @Operation(
-            summary = "Get all of the Accounts",
-            description =
-                    "Get the List of all Accounts. The response is the list of Accounts.")
+    @Operation(summary = "Get All Accounts", description = "Retrieve a list of all accounts.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Accounts retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/all")
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
 
-    @Tag(name = "Account Retrieval", description = "Endpoints for retrieving account information")
-    @Operation(
-            summary = "Get all of the Specific Accounts",
-            description =
-                    "Get the List of all Specific Accounts. The response is the list of Specific Accounts.")
+    @Operation(summary = "Get All Specific Accounts", description = "Retrieve a list of all specific accounts.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Specific accounts retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/all/spec")
     public List<SpecAccount> getAllSpecAccounts() {
         return specAccountRepository.findAll();
     }
 
-    @Tag(name = "Next ID", description = "Get the next ID available in database for a new object")
-    @Operation(
-            summary = "Get the next new accountID",
-            description =
-                    "Get the next new Account ID which should be 1 larger than the largest current Account ID. The response is an integer of the Account ID."
-    )
+    @Operation(summary = "Get Next Account ID", description = "Retrieve the next available account ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Next account ID retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/get/nextAccountID")
     public Integer getNextAccountID() {
         return accountRepository.findAll().stream()
                 .max(Comparator.comparingInt(Account::getAccountID))
                 .map(account -> account.getAccountID() + 1)
                 .orElse(1);
+    }
+
+    // Exception handling for validation and other errors
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleGeneralException(Exception ex) {
+        return "An unexpected error occurred: " + ex.getMessage();
     }
 }
