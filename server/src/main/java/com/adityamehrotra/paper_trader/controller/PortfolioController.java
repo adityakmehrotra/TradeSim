@@ -452,6 +452,7 @@ public class PortfolioController {
           "Get the List of all Portfolios. The response is the list of Portfolios.")
   @GetMapping("/all")
   public List<Portfolio> getAllPortfolios() {
+    System.out.println("HIIIIIII");
     return portfolioRepository.findAll();
   }
 
