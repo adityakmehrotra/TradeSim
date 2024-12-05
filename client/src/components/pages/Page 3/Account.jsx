@@ -21,6 +21,8 @@ export default function Account({ setActiveTab }) {
   const [usernameExists, setUsernameExists] = useState(false);
   const { user, id, login, logout } = useContext(UserContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ firstName, setFirstName ] = useState("");
+  const [ lastName, setLastName ] = useState("");
 
   useEffect(() => {
     if (!isLogin && formData.username !== "") {
@@ -29,6 +31,11 @@ export default function Account({ setActiveTab }) {
 
     setActiveTab("Account | TradeSim")
   }, [formData.username, isLogin, setActiveTab]);
+
+  useEffect(() => {
+    setFirstName(getAccountFirstName());
+    setLastName(getAccountLastName());
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,7 +63,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const loginAttempt = () => {
-    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/password?username=${formData.username}`, {
+    fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/get/password?username=${formData.username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -67,7 +74,7 @@ export default function Account({ setActiveTab }) {
       try {
         const data = text;
         if (data === formData.password) {
-          fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/accountID?username=${formData.username}`, {
+          fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/get/accountID?username=${formData.username}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -96,7 +103,7 @@ export default function Account({ setActiveTab }) {
 
   const signUpAttempt = async () => {
     try {
-      const response = await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/nextAccountID`, {
+      const response = await fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/get/nextAccountID`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -104,7 +111,7 @@ export default function Account({ setActiveTab }) {
       });
       const newAccountID = await response.json();
 
-      await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
+      await fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -126,7 +133,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const checkUsernameExists = (username, callback) => {
-    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/check/username?username=${username}`, {
+    fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/check/username?username=${username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -163,7 +170,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const handleDeleteAccount = () => {
-    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/delete?id=${id}`, {
+    fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/delete?id=${id}`, {
       method: 'DELETE'
     })
     .then(response => {
@@ -181,84 +188,160 @@ export default function Account({ setActiveTab }) {
     });
   };
 
+  const getAccountFirstName = () => {
+    fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/get/firstname?id=${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          // Check content type to decide how to process the response
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            return response.json(); // Parse as JSON
+          }
+          return response.text(); // Parse as plain text
+        })
+        .then(data => {
+          setFirstName(data);
+          console.log("Account Info:", data); // Log the data (JSON or plain text)
+        })
+        .catch(error => {
+          console.error('Error during account retrieval:', error);
+          setError("An error occurred. Please try again.");
+        });
+  };
+
+  const getAccountLastName = () => {
+    fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/account/get/lastname?id=${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          // Check content type to decide how to process the response
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            return response.json(); // Parse as JSON
+          }
+          return response.text(); // Parse as plain text
+        })
+        .then(data => {
+          setLastName(data);
+          console.log("Account Info:", data); // Log the data (JSON or plain text)
+        })
+        .catch(error => {
+          console.error('Error during account retrieval:', error);
+          setError("An error occurred. Please try again.");
+        });
+  };
+
+
   if (user) {
+    console.log(lastName);
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <Card style={{ width: '30rem', padding: '2rem' }}>
-          <Card.Body>
-            <Card.Title>Welcome, {user.username}</Card.Title>
-            <div className="mb-3"></div>
-            <div className="d-flex justify-content-between">
-              <Button variant="primary" onClick={() => logout(resetForm)}>Logout</Button>
-              <Button variant="danger" onClick={() => setShowDeleteModal(true)}>Delete Account</Button>
-            </div>
-          </Card.Body>
-        </Card>
-        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirm Account Deletion</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Are you sure you want to delete your account? This action cannot be undone.
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDeleteAccount}>
-              Delete
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+        <div className="">
+          <Card className="" style={{width: '28rem', padding: '2rem', border: 'none'}}>
+            <Card.Body>
+              <Card.Title className="text-center mb-4">
+                <h2>Hello, {firstName} {lastName}!</h2>
+              </Card.Title>
+              <Card.Subtitle className="text-center text-muted mb-4">
+                Welcome back to your account dashboard.
+              </Card.Subtitle>
+              <div className="text-center mb-4">
+                <p>
+                  <strong>Username:</strong> {user.username}
+                </p>
+                <p>
+                  <strong>Email:</strong> {user.email}
+                </p>
+              </div>
+              <div className="d-flex justify-content-between">
+                <Button variant="primary" onClick={() => logout(resetForm)}>
+                  Logout
+                </Button>
+                <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
+                  Delete Account
+                </Button>
+              </div>
+            </Card.Body>
+          </Card>
+
+          {/* Delete Account Modal */}
+          <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Confirm Account Deletion</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              Are you sure you want to delete your account? This action cannot be undone.
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="danger" onClick={handleDeleteAccount}>
+                Delete
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </div>
     );
   }
 
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
-      <Card style={{ width: '30rem', padding: '2rem' }}>
-        <Card.Body>
-          <Card.Title>{isLogin ? "Login" : "Sign Up"}</Card.Title>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
-            {!isLogin && (
-              <>
-                <Form.Group controlId="formFirstName">
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    placeholder="Enter first name"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="formLastName">
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    placeholder="Enter last name"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="formEmail">
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter email"
-                    required
-                  />
-                </Form.Group>
-              </>
-            )}
-            <Form.Group controlId="formUsername">
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Card style={{width: '30rem', padding: '2rem'}}>
+          <Card.Body>
+            <Card.Title>{isLogin ? "Login" : "Sign Up"}</Card.Title>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Form onSubmit={handleSubmit}>
+              {!isLogin && (
+                  <>
+                    <Form.Group controlId="formFirstName">
+                      <Form.Label>First Name</Form.Label>
+                      <Form.Control
+                          type="text"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          placeholder="Enter first name"
+                          required
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="formLastName">
+                      <Form.Label>Last Name</Form.Label>
+                      <Form.Control
+                          type="text"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          placeholder="Enter last name"
+                          required
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="formEmail">
+                      <Form.Label>Email address</Form.Label>
+                      <Form.Control
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Enter email"
+                          required
+                      />
+                    </Form.Group>
+                  </>
+              )}
+              <Form.Group controlId="formUsername">
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"

@@ -26,7 +26,7 @@ export default function PortfolioList({ setActiveTab }) {
   }, [id, setActiveTab]);
 
   const fetchPortfolioList = () => {
-    fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/account/get/portfolioList?id=${id}`)
+    fetch(`http://localhost:5000/paper_trader/account/get/portfolioList?id=${id}`)
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)) {

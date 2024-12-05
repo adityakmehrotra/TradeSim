@@ -20,7 +20,7 @@ function Home({ setActiveTab }) {
 
   const fetchStockInfo = async (ticker) => {
     try {
-      const response = await fetch(`https://tradesim-api.adityakmehrotra.com/paper_trader/polygon/price?ticker=${ticker}`);
+      const response = await fetch(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/polygon/price?ticker=${ticker}`);
       const data = await response.json();
       const index = stockTickers.indexOf(ticker);
       return {
@@ -56,23 +56,25 @@ function Home({ setActiveTab }) {
         </Col>
       </Row>
 
-      {/* Scrolling Stock Cards */}
-      <Container fluid style={{ padding: '20px 0', position: 'absolute', bottom: 0, width: '100%', overflow: 'hidden' }}>
-        <div className="scrolling-ticker">
+      <Container
+          fluid
+          style={{ padding: '20px 0', position: 'absolute', bottom: 0, width: '100%', overflow: 'hidden' }}
+      >
+        <div className="scrolling-ticker reverse-scroll">
           {stocksData.length > 0 && stocksData.concat(stocksData).map((stock, index) => (
-            <div className="stock-card" key={index} onClick={() => window.location.href = `/search/${stock.ticker}`}>
-              <h5>{stock.ticker}</h5>
-              <p>{stock.name}</p>
-              <p>${stock.price.toFixed(2)}</p>
-              {stock.change >= 0 ? 
-                <p style={{ color: 'green' }}>
-                  +{stock.change.toFixed(2)} (+{stock.changePerc.toFixed(2)}%)
-                </p> :
-                <p style={{ color: 'red' }}>
-                  {stock.change.toFixed(2)} ({stock.changePerc.toFixed(2)}%)
-                </p>
-              }
-            </div>
+              <div className="stock-card" key={index} onClick={() => window.location.href = `/search/${stock.ticker}`}>
+                <h5>{stock.ticker}</h5>
+                <p>{stock.name}</p>
+                <p>${stock.price.toFixed(2)}</p>
+                {stock.change >= 0 ?
+                    <p style={{ color: 'green' }}>
+                      +{stock.change.toFixed(2)} (+{stock.changePerc.toFixed(2)}%)
+                    </p> :
+                    <p style={{ color: 'red' }}>
+                      {stock.change.toFixed(2)} ({stock.changePerc.toFixed(2)}%)
+                    </p>
+                }
+              </div>
           ))}
         </div>
       </Container>

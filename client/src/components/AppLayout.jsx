@@ -12,7 +12,7 @@ export default function AppLayout() {
 
     const handleSearch = async (ticker) => {
         try {
-            await axios.get(`https://tradesim-api.adityakmehrotra.com/paper_trader/security/suggestion/${ticker}`);
+            await axios.get(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/security/suggestion/${ticker}`);
             navigate(`/search/${encodeURIComponent(ticker)}`);
         } catch (error) {
             alert("Failed to fetch data for the selected security. Please pick another security.");
@@ -51,7 +51,7 @@ export default function AppLayout() {
     const updateSuggestions = async (value) => {
         if (value.length > 1) {
             try {
-                const response = await axios.get(`https://tradesim-api.adityakmehrotra.com/paper_trader/security/suggestion/${value}`);
+                const response = await axios.get(`https://parcel-sides-effort-italiano.trycloudflare.compaper_trader/security/suggestion/${value}`);
                 if (response.data && response.data.length) {
                     const inputWidth = searchInputRef.current ? searchInputRef.current.offsetWidth - 88 : 0;
                     setSuggestions(response.data.map(item => {
