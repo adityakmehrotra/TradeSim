@@ -45,6 +45,7 @@ public class AccountController {
             @ApiResponse(responseCode = "400", description = "Invalid input provided"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public Account addAccount(
