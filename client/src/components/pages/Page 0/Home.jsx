@@ -31,6 +31,7 @@ function Home({ setActiveTab }) {
         changePerc: data.ticker.todaysChangePerc
       };
     } catch (error) {
+      console.log(BACKEND_URL);
       console.error("Error fetching stock data:", error);
       return null;
     }
