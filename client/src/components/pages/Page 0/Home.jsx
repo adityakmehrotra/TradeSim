@@ -31,7 +31,8 @@ function Home({ setActiveTab }) {
         changePerc: data.ticker.todaysChangePerc
       };
     } catch (error) {
-      console.log(BACKEND_URL);
+      const apiUrl = process.env.REACT_APP_BACKEND_URL;
+      console.log("Backend URL:", apiUrl);
       console.error("Error fetching stock data:", error);
       return null;
     }
