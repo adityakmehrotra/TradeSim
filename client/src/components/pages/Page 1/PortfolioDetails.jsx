@@ -23,6 +23,8 @@ export default function PortfolioDetails() {
   const [currPortfolio, setCurrPortfolio] = useState("Select Portfolio");
   const [hoveredRow, setHoveredRow] = useState(null);
 
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     if (accountID) {
       fetchAllPortfolios();

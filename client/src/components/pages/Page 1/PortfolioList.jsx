@@ -17,6 +17,8 @@ export default function PortfolioList({ setActiveTab }) {
   const { user, id } = useContext(UserContext);
   const navigate = useNavigate();
 
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     if (id) {
       fetchPortfolioList();

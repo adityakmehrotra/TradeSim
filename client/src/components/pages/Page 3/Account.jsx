@@ -24,6 +24,8 @@ export default function Account({ setActiveTab }) {
   const [ firstName, setFirstName ] = useState("");
   const [ lastName, setLastName ] = useState("");
 
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     if (!isLogin && formData.username !== "") {
       checkUsernameExists(formData.username);

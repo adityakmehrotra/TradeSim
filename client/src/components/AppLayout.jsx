@@ -10,6 +10,8 @@ export default function AppLayout() {
     const navigate = useNavigate();
     const searchInputRef = useRef();
 
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+
     const handleSearch = async (ticker) => {
         try {
             await axios.get(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/security/suggestion/${ticker}`);

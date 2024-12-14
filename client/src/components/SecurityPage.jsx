@@ -21,6 +21,8 @@ export default function SecurityPage({ setActiveTab }) {
     const ticker = searchQuery.toUpperCase();
     const navigate = useNavigate();
 
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+
     useEffect(() => {
         getCompanyData();
         getQuoteEndpoint();

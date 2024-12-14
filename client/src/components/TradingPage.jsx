@@ -20,6 +20,8 @@ function TradingPage({ ticker, currentPrice }) {
     const [cost, setCost] = useState(0);
     const navigate = useNavigate();
 
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+
     useEffect(() => {
         if (buyInOption === 'Shares') {
             const shares = parseFloat(inputValue.replace(/,/g, ''));

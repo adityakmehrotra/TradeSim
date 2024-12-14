@@ -5,6 +5,8 @@ import './Home.css';
 const stockTickers = ['AAPL', 'TSLA', 'AMZN', 'GOOG', 'MSFT', 'SPY', 'NFLX', 'NVDA', 'META', 'JPM', 'DIS'];
 const stockNames = ['Apple', 'Tesla', 'Amazon', 'Google', 'Microsoft', 'S&P 500', 'Netflix', 'NVIDIA', 'Meta', 'JP Morgan Chase', 'Disney'];
 
+const backendURL = process.env.REACT_APP_BACKEND_URL;
+
 function Home({ setActiveTab }) {
   const [stocksData, setStocksData] = useState([]);
 

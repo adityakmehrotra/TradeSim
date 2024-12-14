@@ -9,6 +9,8 @@ const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
     const [color, setColor] = useState('green');
     const [dates, setDates] = useState([]);
 
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
+
     useEffect(() => {
         const fetchData = async (fromDate, toDate, timespan, multiplier) => {
             const from = fromDate ? fromDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
