@@ -22,7 +22,7 @@ function Home({ setActiveTab }) {
 
   const fetchStockInfo = async (ticker) => {
     try {
-      const response = await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/polygon/price?ticker=${ticker}`);
+      const response = await fetch(`${backendURL}paper_trader/polygon/price?ticker=${ticker}`);
       const data = await response.json();
       const index = stockTickers.indexOf(ticker);
       return {

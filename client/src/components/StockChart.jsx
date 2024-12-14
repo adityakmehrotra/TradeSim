@@ -17,7 +17,7 @@ const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
             const to = toDate ? toDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];         
     
             try {
-                const response = await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`);
+                const response = await fetch(`${backendURL}paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`);
                 const data = await response.json();
     
                 if (data.results && data.results.length > 0) {

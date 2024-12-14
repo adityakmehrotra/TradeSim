@@ -65,7 +65,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const loginAttempt = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/password?username=${formData.username}`, {
+    fetch(`${backendURL}paper_trader/account/get/password?username=${formData.username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -76,7 +76,7 @@ export default function Account({ setActiveTab }) {
       try {
         const data = text;
         if (data === formData.password) {
-          fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/accountID?username=${formData.username}`, {
+          fetch(`${backendURL}paper_trader/account/get/accountID?username=${formData.username}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -105,7 +105,7 @@ export default function Account({ setActiveTab }) {
 
   const signUpAttempt = async () => {
     try {
-      const response = await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/nextAccountID`, {
+      const response = await fetch(`${backendURL}paper_trader/account/get/nextAccountID`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ export default function Account({ setActiveTab }) {
       });
       const newAccountID = await response.json();
 
-      await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
+      await fetch(`${backendURL}paper_trader/account/add?username=${formData.username}&password=${formData.password}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -135,7 +135,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const checkUsernameExists = (username, callback) => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/check/username?username=${username}`, {
+    fetch(`${backendURL}paper_trader/account/check/username?username=${username}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -172,7 +172,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const handleDeleteAccount = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/delete?id=${id}`, {
+    fetch(`${backendURL}paper_trader/account/delete?id=${id}`, {
       method: 'DELETE'
     })
     .then(response => {
@@ -191,7 +191,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const getAccountFirstName = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/firstname?id=${id}`, {
+    fetch(`${backendURL}paper_trader/account/get/firstname?id=${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ export default function Account({ setActiveTab }) {
   };
 
   const getAccountLastName = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/lastname?id=${id}`, {
+    fetch(`${backendURL}paper_trader/account/get/lastname?id=${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

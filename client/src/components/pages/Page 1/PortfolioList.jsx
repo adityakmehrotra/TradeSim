@@ -28,7 +28,7 @@ export default function PortfolioList({ setActiveTab }) {
   }, [id, setActiveTab]);
 
   const fetchPortfolioList = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/get/portfolioList?id=${id}`)
+    fetch(`${backendURL}paper_trader/account/get/portfolioList?id=${id}`)
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -46,10 +46,10 @@ export default function PortfolioList({ setActiveTab }) {
     const fetchPortfolioData = async () => {
       for (const portfolioID of ids) {
         try {
-          const nameResponse = await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/get/name?id=${portfolioID}`);
+          const nameResponse = await fetch(`${backendURL}paper_trader/portfolio/get/name?id=${portfolioID}`);
           const name = await nameResponse.text();
 
-          const cashResponse = await fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/get/initcash?id=${portfolioID}`);
+          const cashResponse = await fetch(`${backendURL}paper_trader/portfolio/get/initcash?id=${portfolioID}`);
           const cash = await cashResponse.text();
 
           if (typeof name === 'string' && !isNaN(parseFloat(cash))) {
@@ -75,7 +75,7 @@ export default function PortfolioList({ setActiveTab }) {
   };
 
   const handleCreatePortfolio = () => {
-    fetch("https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/get/nextportfolioID")
+    fetch("${backendURL}paper_trader/portfolio/get/nextportfolioID")
       .then(response => response.json())
       .then(data => {
         const newPortfolioID = data;
@@ -87,7 +87,7 @@ export default function PortfolioList({ setActiveTab }) {
           initialBalance: parseFloat(newPortfolioCash)
         };
 
-        fetch("https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/create", {
+        fetch("${backendURL}paper_trader/portfolio/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -102,7 +102,7 @@ export default function PortfolioList({ setActiveTab }) {
           }
         })
         .then(() => {
-          fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
+          fetch(`${backendURL}paper_trader/account/add/portfolioList?id=${id}&portfolioID=${newPortfolioID}`, {
             method: "POST"
           })
           .then(() => {
@@ -120,7 +120,7 @@ export default function PortfolioList({ setActiveTab }) {
   };
 
   const createInitialTransaction = (portfolioID, cashAmount) => {
-    fetch("https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/transaction/get/nextTransactionID")
+    fetch("${backendURL}paper_trader/transaction/get/nextTransactionID")
       .then(response => response.json())
       .then(transactionID => {
         const orderDetails = {
@@ -134,12 +134,12 @@ export default function PortfolioList({ setActiveTab }) {
           cashAmount: cashAmount
         };
 
-        fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/add/holding?id=${portfolioID}&code=Cash`, {
+        fetch(`${backendURL}paper_trader/portfolio/add/holding?id=${portfolioID}&code=Cash`, {
           method: "POST"
         })
         .catch(error => console.error('Error adding cash to portfolio:', error));
 
-        fetch("https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/transaction/create", {
+        fetch("${backendURL}paper_trader/transaction/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -148,7 +148,7 @@ export default function PortfolioList({ setActiveTab }) {
         })
         .then(response => response.json())
         .then(() => {
-          fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/add/transaction?id=${portfolioID}&transactionID=${transactionID}`, {
+          fetch(`${backendURL}paper_trader/portfolio/add/transaction?id=${portfolioID}&transactionID=${transactionID}`, {
             method: "POST"
           })
           .catch(error => console.error('Error adding transaction to portfolio:', error));
@@ -168,12 +168,12 @@ export default function PortfolioList({ setActiveTab }) {
   };
 
   const handleConfirmDelete = () => {
-    fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
+    fetch(`${backendURL}paper_trader/portfolio/remove?id=${portfolioToDelete.portfolioID}`, {
       method: "DELETE"
     })
     .then(response => {
       if (response.ok) {
-        fetch(`https://afterwards-optional-kenny-shade.trycloudflare.com/paper_trader/account/delete/portfolioList?id=${id}&portfolioID=${portfolioToDelete.portfolioID}`, {
+        fetch(`${backendURL}paper_trader/account/delete/portfolioList?id=${id}&portfolioID=${portfolioToDelete.portfolioID}`, {
           method: "POST"
         })
         .then(() => {
