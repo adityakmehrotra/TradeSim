@@ -24,6 +24,7 @@ export default function PortfolioDetails() {
   const [hoveredRow, setHoveredRow] = useState(null);
 
   const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const apiKey = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
     if (accountID) {
@@ -115,7 +116,7 @@ export default function PortfolioDetails() {
           currentPrice: 1
         });
       } else {
-        return fetch(`${backendURL}paper_trader/polygon/price?ticker=${asset}`)
+        return fetch(`"https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/${asset}?apiKey=${apiKey}`)
           .then(response => {
             if (!response.ok) {
               throw new Error(`Error fetching price for ${asset}`);
