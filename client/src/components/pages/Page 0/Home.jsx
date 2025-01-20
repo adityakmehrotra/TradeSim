@@ -6,6 +6,7 @@ const stockTickers = ['AAPL', 'TSLA', 'AMZN', 'GOOG', 'MSFT', 'SPY', 'NFLX', 'NV
 const stockNames = ['Apple', 'Tesla', 'Amazon', 'Google', 'Microsoft', 'S&P 500', 'Netflix', 'NVIDIA', 'Meta', 'JP Morgan Chase', 'Disney'];
 
 const backendURL = process.env.REACT_APP_BACKEND_URL;
+const apiKey = process.env.REACT_APP_API_KEY;
 
 function Home({ setActiveTab }) {
   const [stocksData, setStocksData] = useState([]);
@@ -22,7 +23,7 @@ function Home({ setActiveTab }) {
 
   const fetchStockInfo = async (ticker) => {
     try {
-      const response = await fetch(`${backendURL}paper_trader/polygon/price?ticker=${ticker}`);
+      const response = await fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?apiKey=${apiKey}`);
       const data = await response.json();
       const index = stockTickers.indexOf(ticker);
       return {
@@ -33,8 +34,6 @@ function Home({ setActiveTab }) {
         changePerc: data.ticker.todaysChangePerc
       };
     } catch (error) {
-      const apiUrl = process.env.REACT_APP_BACKEND_URL;
-      console.log("Backend URL:", apiUrl);
       console.error("Error fetching stock data:", error);
       return null;
     }

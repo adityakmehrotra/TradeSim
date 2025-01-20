@@ -22,6 +22,7 @@ export default function SecurityPage({ setActiveTab }) {
     const navigate = useNavigate();
 
     const backendURL = process.env.REACT_APP_BACKEND_URL;
+    const apiKey = process.env.REACT_APP_API_KEY;
 
     useEffect(() => {
         getCompanyData();
@@ -38,7 +39,7 @@ export default function SecurityPage({ setActiveTab }) {
     }, [currentPrice, ticker, setActiveTab]);
 
     const getCompanyData = () => {
-        fetch(`${backendURL}paper_trader/polygon/companyData?ticker=${ticker}`)
+        fetch(`https://api.polygon.io/v3/reference/tickers/${ticker}?apiKey=${apiKey}`)
         .then(response => response.json())
         .then(data => {
             if (data.status === "OK") {
@@ -49,7 +50,7 @@ export default function SecurityPage({ setActiveTab }) {
     };
 
     const getKeyStatisticsEndpoint = () => {
-        fetch(`${backendURL}paper_trader/polygon/keyStatistics?ticker=${ticker}`, {
+        fetch(`https://api.polygon.io/v2/aggs/ticker/${ticker}/prev?adjusted=true&apiKey=${apiKey}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -67,7 +68,7 @@ export default function SecurityPage({ setActiveTab }) {
     };
 
     const getQuoteEndpoint = () => {
-        fetch(`${backendURL}paper_trader/polygon/news?ticker=${ticker}`, {
+        fetch(`https://api.polygon.io/v2/reference/news?ticker=${ticker}&order=desc&limit=50&apiKey=${apiKey}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -88,8 +89,7 @@ export default function SecurityPage({ setActiveTab }) {
     };
 
     const fetchCurrentPrice = () => {
-        console.log("Called");
-        fetch(`${backendURL}paper_trader/polygon/price?ticker=${ticker}`)
+        fetch(`https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?apiKey=${apiKey}`)
         .then(response => response.json())
         .then(data => {
             if (data && data.ticker && data.ticker.day && data.ticker.day.c) {
@@ -103,7 +103,7 @@ export default function SecurityPage({ setActiveTab }) {
 
     const fetchStartingPrice = () => {
         const [multiplier, timespan, from, to] = getIntervalParams(selectedRange);
-        fetch(`${backendURL}paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`)
+        fetch(`https://api.polygon.io/v2/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=50000&apiKey=${apiKey}`)
             .then(response => response.json())
             .then(data => {
                 if (data.results && data.results.length > 0) {
