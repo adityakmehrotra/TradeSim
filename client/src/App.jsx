@@ -11,8 +11,7 @@ function App() {
   useEffect(() => {
     document.title = activeTab;
     
-    // Set maintenance end time (January 21, 2025, at 12:00 AM CST)
-    const maintenanceEnd = new Date('2025-01-21T06:00:00Z');  // UTC time equivalent of CST 12:00 AM
+    const maintenanceEnd = new Date('2025-01-21T06:00:00Z');
     const currentTime = new Date();
 
     if (currentTime < maintenanceEnd) {
@@ -26,7 +25,6 @@ function App() {
     <UserProvider>
       <Navigator setActiveTab={setActiveTab} />
 
-      {/* Maintenance Modal */}
       <Modal show={showMaintenance} backdrop="static" keyboard={false} centered>
         <Modal.Header>
           <Modal.Title>Maintenance in Progress</Modal.Title>
