@@ -10,7 +10,6 @@ const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
     const [dates, setDates] = useState([]);
 
     const backendURL = process.env.REACT_APP_BACKEND_URL;
-    const apiKey = process.env.REACT_APP_API_KEY;
 
     useEffect(() => {
         const fetchData = async (fromDate, toDate, timespan, multiplier) => {
@@ -18,7 +17,7 @@ const StockChart = ({ ticker, selectedRange, setSelectedRange }) => {
             const to = toDate ? toDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];         
     
             try {
-                const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${ticker}/range/${multiplier}/${timespan}/${from}/${to}?adjusted=true&sort=asc&limit=50000&apiKey=${apiKey}`);
+                const response = await fetch(`${backendURL}paper_trader/polygon/chart?ticker=${ticker}&multiplier=${multiplier}&timespan=${timespan}&from=${from}&to=${to}`);
                 const data = await response.json();
     
                 if (data.results && data.results.length > 0) {
