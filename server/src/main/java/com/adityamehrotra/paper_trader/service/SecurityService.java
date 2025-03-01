@@ -1,16 +1,18 @@
 package com.adityamehrotra.paper_trader.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import com.adityamehrotra.paper_trader.model.SecurityModel;
 import com.adityamehrotra.paper_trader.repository.SecurityRepository;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Service class for managing and retrieving security-related information.
@@ -63,9 +65,10 @@ public class SecurityService {
             @ApiResponse(responseCode = "400", description = "Invalid input."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public void createMany(
+    public List<SecurityModel> createMany(
             @Parameter(description = "List of SecurityModel objects to save", required = true) List<SecurityModel> securityModelList) {
-        securityRepository.saveAll(securityModelList);
+                // System.out.println(securityModelList);
+        return securityRepository.saveAll(securityModelList);
     }
 
     /**
@@ -87,9 +90,10 @@ public class SecurityService {
             @Parameter(description = "Input string to search for", required = true) String userInput) {
         userInput = userInput.toLowerCase();
         Set<SecurityModel> codeList = new HashSet<>();
-
         for (SecurityModel securityModel : securityRepository.findAll()) {
+                System.out.println("AAAAA: " + securityModel.getCode());
             if (securityModel.getCode().toLowerCase().startsWith(userInput)) {
+                System.out.println("Security Model: " + securityModel.getCode().toLowerCase());
                 codeList.add(securityModel);
             } else if (securityModel.getName().toLowerCase().startsWith(userInput)) {
                 codeList.add(securityRepository.findById(securityModel.getCode()).get());

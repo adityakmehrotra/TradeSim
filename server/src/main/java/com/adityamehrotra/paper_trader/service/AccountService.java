@@ -1,21 +1,20 @@
 package com.adityamehrotra.paper_trader.service;
 
-import com.adityamehrotra.paper_trader.model.Account;
-import com.adityamehrotra.paper_trader.model.SpecAccount;
-import com.adityamehrotra.paper_trader.repository.AccountRepository;
-import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static com.adityamehrotra.paper_trader.utils.Constants.ID_NOT_FOUND;
-import static com.adityamehrotra.paper_trader.utils.Constants.USERNAME_NOT_FOUND;
+import org.springframework.stereotype.Service;
+
+import com.adityamehrotra.paper_trader.model.Account;
+import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.repository.AccountRepository;
+import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Service
 public class AccountService {
@@ -61,7 +60,7 @@ public class AccountService {
     public Account getAccount(
             @NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**
@@ -75,7 +74,7 @@ public class AccountService {
             @NotEmpty(message = "Username cannot be empty") String username) {
         return specAccountRepository.findById(username)
                 .map(SpecAccount::getAccountID)
-                .orElseThrow(() -> new NoSuchElementException(USERNAME_NOT_FOUND + username));
+                .orElseThrow(() -> new NoSuchElementException("Username not found: " + username));
     }
 
     /**
@@ -88,7 +87,7 @@ public class AccountService {
     public String getAccountFirstNameByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getFirstName)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**
@@ -101,7 +100,7 @@ public class AccountService {
     public String getAccountLastNameByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getLastName)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**
@@ -114,7 +113,7 @@ public class AccountService {
     public String getEmailAddressByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getEmailAddress)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**
@@ -127,7 +126,7 @@ public class AccountService {
     public String getPasswordByUsername(@NotEmpty(message = "Username cannot be empty") String username) {
         return specAccountRepository.findById(username)
                 .map(SpecAccount::getPassword)
-                .orElseThrow(() -> new NoSuchElementException(USERNAME_NOT_FOUND + username));
+                .orElseThrow(() -> new NoSuchElementException("Username not found: " + username));
     }
 
     /**
@@ -140,7 +139,7 @@ public class AccountService {
     public String getPasswordByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getPassword)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**
@@ -165,7 +164,7 @@ public class AccountService {
             @NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .map(Account::getPortfolioList)
-                .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+                .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
     /**

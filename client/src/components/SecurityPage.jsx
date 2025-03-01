@@ -39,7 +39,13 @@ export default function SecurityPage({ setActiveTab }) {
     }, [currentPrice, ticker, setActiveTab]);
 
     const getCompanyData = () => {
-        fetch(`https://api.polygon.io/v3/reference/tickers/${ticker}?apiKey=${apiKey}`)
+        fetch(`https://api.polygon.io/v3/reference/tickers/${ticker}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+        })
         .then(response => response.json())
         .then(data => {
             if (data.status === "OK") {

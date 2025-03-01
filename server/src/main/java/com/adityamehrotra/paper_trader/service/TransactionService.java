@@ -1,6 +1,5 @@
 package com.adityamehrotra.paper_trader.service;
 
-import static com.adityamehrotra.paper_trader.utils.Constants.ID_NOT_FOUND;
 
 import com.adityamehrotra.paper_trader.model.Transaction;
 import com.adityamehrotra.paper_trader.repository.TransactionRepository;
@@ -47,7 +46,7 @@ public class TransactionService {
   public Transaction getTransaction(
           @Parameter(description = "Transaction ID to fetch", required = true) Integer id) {
     return transactionRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + id));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + id));
   }
 
   /**
@@ -65,7 +64,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch portfolio ID", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getPortfolioID)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -83,7 +82,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch account ID", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getAccountID)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -101,7 +100,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch order type", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getOrderType)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -119,7 +118,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch day", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getGmtTime)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -137,7 +136,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch share amount", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getShareAmount)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -155,7 +154,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch cash amount", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getCashAmount)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 
   /**
@@ -173,6 +172,6 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch security code", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getSecurityCode)
-            .orElseThrow(() -> new NoSuchElementException(ID_NOT_FOUND + transactionId));
+            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
   }
 }

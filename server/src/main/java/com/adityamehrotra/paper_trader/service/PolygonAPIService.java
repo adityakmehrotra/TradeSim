@@ -1,13 +1,17 @@
 package com.adityamehrotra.paper_trader.service;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Service class for interacting with the Polygon.io API to fetch stock-related data.
@@ -75,28 +79,34 @@ public class PolygonAPIService {
         return restTemplate.getForEntity(url, String.class);
     }
 
-    /**
-     * Fetches key statistics for a given stock ticker.
-     *
-     * @param ticker The stock ticker symbol.
-     * @return A ResponseEntity containing the key statistics data as a String.
-     */
-    @Operation(
-            summary = "Get Key Statistics",
-            description = "Fetches key statistical data for the given stock ticker."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved key statistics."),
-            @ApiResponse(responseCode = "400", description = "Invalid ticker provided."),
-            @ApiResponse(responseCode = "500", description = "Internal server error.")
-    })
-    public ResponseEntity<String> getKeyStatistics(
-            @Parameter(description = "Stock ticker symbol", required = true) String ticker) {
-        String url = String.format(
-                "https://api.polygon.io/v2/aggs/ticker/%s/prev?adjusted=true&apiKey=%s",
-                ticker, polygonApiKey);
-        return restTemplate.getForEntity(url, String.class);
-    }
+        /**
+         * Fetches key statistics for a given stock ticker.
+         *
+         * @param ticker The stock ticker symbol.
+         * @return A ResponseEntity containing the key statistics data as a String.
+         */
+        @Operation(
+                summary = "Get Key Statistics",
+                description = "Fetches key statistical data for the given stock ticker."
+        )
+        @ApiResponses({
+                @ApiResponse(responseCode = "200", description = "Successfully retrieved key statistics."),
+                @ApiResponse(responseCode = "400", description = "Invalid ticker provided."),
+                @ApiResponse(responseCode = "500", description = "Internal server error.")
+        })
+        public ResponseEntity<String> getKeyStatistics(
+                @Parameter(description = "Stock ticker symbol", required = true) String ticker) {
+                String url = String.format(
+                        "https://api.polygon.io/v2/aggs/ticker/%s/prev?adjusted=true",
+                        ticker);
+                
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", "Bearer " + polygonApiKey);
+                
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+                
+                return restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        }
 
     /**
      * Fetches company data for a given stock ticker.

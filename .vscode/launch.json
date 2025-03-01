@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PaperTraderApplication<paper_trader>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.adityamehrotra.paper_trader.PaperTraderApplication",
+            "projectName": "paper_trader",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
