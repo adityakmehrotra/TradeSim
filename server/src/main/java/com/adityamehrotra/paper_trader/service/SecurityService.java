@@ -91,9 +91,7 @@ public class SecurityService {
         userInput = userInput.toLowerCase();
         Set<SecurityModel> codeList = new HashSet<>();
         for (SecurityModel securityModel : securityRepository.findAll()) {
-                System.out.println("AAAAA: " + securityModel.getCode());
             if (securityModel.getCode().toLowerCase().startsWith(userInput)) {
-                System.out.println("Security Model: " + securityModel.getCode().toLowerCase());
                 codeList.add(securityModel);
             } else if (securityModel.getName().toLowerCase().startsWith(userInput)) {
                 codeList.add(securityRepository.findById(securityModel.getCode()).get());
