@@ -1,15 +1,17 @@
 package com.adityamehrotra.paper_trader.service;
 
 
+import java.util.NoSuchElementException;
+
+import org.springframework.stereotype.Service;
+
 import com.adityamehrotra.paper_trader.model.Transaction;
 import com.adityamehrotra.paper_trader.repository.TransactionRepository;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
 
 /**
  * Service class for managing and retrieving transaction-related information.
@@ -46,7 +48,7 @@ public class TransactionService {
   public Transaction getTransaction(
           @Parameter(description = "Transaction ID to fetch", required = true) Integer id) {
     return transactionRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + id));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: " + id));
   }
 
   /**
@@ -64,7 +66,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch portfolio ID", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getPortfolioID)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -82,7 +84,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch account ID", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getAccountID)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -100,7 +102,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch order type", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getOrderType)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -118,7 +120,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch day", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getGmtTime)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -136,7 +138,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch share amount", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getShareAmount)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -154,7 +156,7 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch cash amount", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getCashAmount)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 
   /**
@@ -172,6 +174,6 @@ public class TransactionService {
           @Parameter(description = "Transaction ID to fetch security code", required = true) Integer transactionId) {
     return transactionRepository.findById(transactionId)
             .map(Transaction::getSecurityCode)
-            .orElseThrow(() -> new NoSuchElementException(Username "ID not found: "not found:  + transactionId));
+            .orElseThrow(() -> new NoSuchElementException("ID not found: "+ transactionId));
   }
 }

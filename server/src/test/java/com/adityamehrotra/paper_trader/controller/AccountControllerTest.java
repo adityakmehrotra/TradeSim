@@ -1,90 +1,208 @@
 package com.adityamehrotra.paper_trader.controller;
 
-import com.adityamehrotra.paper_trader.model.Account;
-import com.adityamehrotra.paper_trader.service.AccountService;
-import com.adityamehrotra.paper_trader.repository.AccountRepository;
-import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.adityamehrotra.paper_trader.model.Account;
+import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.repository.AccountRepository;
+import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
+import com.adityamehrotra.paper_trader.service.AccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AccountController.class)
-class AccountControllerTest {
+public class AccountControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-  @MockBean
-  private AccountRepository accountRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-  @MockBean
-  private AccountService accountService;
+    @MockBean
+    private AccountService accountService;
 
-  @MockBean
-  private SpecAccountRepository specAccountRepository;
-  @Autowired
-  private AccountController accountController;
+    @MockBean
+    private AccountRepository accountRepository;
 
-  private Account account;
+    @MockBean
+    private SpecAccountRepository specAccountRepository;
 
-  private String username;
+    private Account testAccount;
+    private SpecAccount testSpecAccount;
+    private List<Integer> portfolioList;
 
-  private String password;
+    @BeforeEach
+    void setUp() {
+        // Initialize test data
+        portfolioList = Arrays.asList(101, 102);
+        
+        testAccount = new Account();
+        testAccount.setAccountID(1);
+        testAccount.setFirstName("John");
+        testAccount.setLastName("Doe");
+        testAccount.setEmailAddress("john.doe@example.com");
+        testAccount.setPassword("password123");
+        testAccount.setPortfolioList(portfolioList);
+        
+        testSpecAccount = new SpecAccount("johndoe", "password123", 1);
+    }
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-    account = new Account();
-    account.setAccountID(1);
-    account.setFirstName("John");
-    account.setLastName("Doe");
-    account.setEmailAddress("john.doe@example.com");
-    account.setPassword("password");
+    @Test
+    void testAddAccount() throws Exception {
+        // Setup - Match the parameters used in the test
+        when(accountService.addAccount(org.mockito.ArgumentMatchers.any(Account.class), eq("johndoe"), eq("password123")))
+            .thenReturn(testAccount);
 
-    username = "john_doe";
-    password = "password";
-  }
+        // Rest of the test remains the same
+        mockMvc.perform(post("/paper_trader/account/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testAccount))
+                .param("username", "johndoe")
+                .param("password", "password123"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accountID").value(1));
+                // ... rest of assertions
+                
+        verify(accountService).addAccount(org.mockito.ArgumentMatchers.any(Account.class), eq("johndoe"), eq("password123"));
+    }
 
-  @Test
-  void testAddAccount() throws Exception {
-    when(accountService.addAccount(account, "john_doe", "password")).thenReturn(account);
+    @Test
+    void testGetAccountById() throws Exception {
+        // Setup
+        when(accountService.getAccount(1)).thenReturn(testAccount);
 
-    mockMvc.perform(post("/paper_trader/account/add")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .param("username", "john_doe")
-                    .param("password", "password")
-                    .content("{ \"firstName\": \"John\", \"lastName\": \"Doe\", \"emailAddress\": \"john.doe@example.com\" }"))
-            .andExpect(status().isOk());
-  }
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/get")
+                .param("id", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountID").value(1))
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.emailAddress").value("john.doe@example.com"))
+                .andExpect(jsonPath("$.portfolioList[0]").value(101));
+                
+        verify(accountService).getAccount(1);
+    }
+    
+    @Test
+    void testGetAccountById_NotFound() throws Exception {
+        // Setup
+        when(accountService.getAccount(99)).thenThrow(
+            new NoSuchElementException("No account found with ID: 99"));
 
-  @Test
-  void testGetAccountIDByUsername() throws Exception {
-    Integer expectedAccountID = 1;
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/get")
+                .param("id", "99"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("An unexpected error occurred")));
+    }
 
-    when(accountService.getAccountIDByUsername(username)).thenReturn(expectedAccountID);
+    @Test
+    void testDeleteAccount() throws Exception {
+        // Setup
+        doNothing().when(accountRepository).deleteById(1);
 
-    MvcResult result = mockMvc.perform(get("/paper_trader/account/get/accountID_username")
-                    .param("username", username))
-            .andExpect(status().isOk())
-            .andReturn();
+        // Execution & Verification
+        mockMvc.perform(delete("/paper_trader/account/delete")
+                .param("id", "1"))
+                .andExpect(status().isOk());
+                
+        verify(accountRepository).deleteById(1);
+    }
 
-    String responseContent = result.getResponse().getContentAsString();
-    System.out.println("Response Content: " + responseContent);
+    @Test
+    void testGetAllAccounts() throws Exception {
+        // Setup
+        List<Account> accounts = Arrays.asList(testAccount);
+        when(accountRepository.findAll()).thenReturn(accounts);
 
-    assertEquals(expectedAccountID.toString(), responseContent);
-  }
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/all"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].accountID").value(1))
+                .andExpect(jsonPath("$[0].firstName").value("John"))
+                .andExpect(jsonPath("$[0].lastName").value("Doe"));
+                
+        verify(accountRepository).findAll();
+    }
 
+    @Test
+    void testGetAllSpecAccounts() throws Exception {
+        // Setup
+        List<SpecAccount> specAccounts = Arrays.asList(testSpecAccount);
+        when(specAccountRepository.findAll()).thenReturn(specAccounts);
+
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/all/spec"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].username").value("johndoe"))
+                .andExpect(jsonPath("$[0].accountID").value(1));
+                
+        verify(specAccountRepository).findAll();
+    }
+
+    @Test
+    void testGetNextAccountID() throws Exception {
+        // Setup
+        when(accountRepository.findAll()).thenReturn(Arrays.asList(testAccount));
+
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/get/nextAccountID"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("2"));
+                
+        verify(accountRepository).findAll();
+    }
+
+    @Test
+    void testGetNextAccountID_EmptyRepository() throws Exception {
+        // Setup
+        when(accountRepository.findAll()).thenReturn(Arrays.asList());
+
+        // Execution & Verification
+        mockMvc.perform(get("/paper_trader/account/get/nextAccountID"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1"));
+                
+        verify(accountRepository).findAll();
+    }
+
+    @Test
+    void testAddAccount_ValidationFailure() throws Exception {
+        // Create an invalid account (missing required fields)
+        Account invalidAccount = new Account();
+        invalidAccount.setAccountID(1);
+        // Missing first name, last name, and email
+
+        mockMvc.perform(post("/paper_trader/account/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidAccount))
+                .param("username", "u") // too short username
+                .param("password", "pwd")) // too short password
+                .andExpect(status().isBadRequest());
+    }
 }
