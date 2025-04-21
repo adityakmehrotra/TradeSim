@@ -11,7 +11,7 @@
 
 <br />
 <div align="center">
-  <a href="https://tradesim.adityakmehrotra.com">
+  <a href="https://tradesim.adityamehrotra.com">
     <img src="client/public/tradesim_icon.png" alt="TradeSim Logo" width="80" height="80">
   </a>
   
@@ -20,14 +20,14 @@
   <p align="center">
     A web application that lets users simulate stock market investments with paper (virtual) money, track their portfolio performance, and enhance their trading skills without any financial risk. Users have access to comprehensive market data for each company, including charts, news, and detailed financial information. 
     <br />
-    <a href="https://tradesim-api.adityakmehrotra.com/swagger-ui/index.html"><strong>Explore the docs »</strong></a>
+    <a href="https://tradesim-api.adityamehrotra.com/swagger-ui/index.html"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/adityakmehrotra/TradeSim">View Demo</a>
+    <a href="https://github.com/adityamehrotra/TradeSim">View Demo</a>
     ·
-    <a href="https://github.com/adityakmehrotra/TradeSim/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/adityamehrotra/TradeSim/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/adityakmehrotra/TradeSim/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/adityamehrotra/TradeSim/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -82,7 +82,7 @@
 
 # About The Project
 
-<a href="https://tradesim.adityakmehrotra.com" target="_blank">
+<a href="https://tradesim.adityamehrotra.com" target="_blank">
   <img src="https://github.com/user-attachments/assets/9fe749fa-77dc-4cdd-9ff6-5aff45faa185" alt="TradeSim">
 </a>
 
@@ -93,7 +93,7 @@
 [![AWS][AWS.com]][AWS-url]
 
 ## Overview
-TradeSim is an advanced web application that allows users to simulate stock market trading with paper (virtual) currency. This full-stack application features a React frontend paired with a Spring Boot backend, ensuring a seamless and responsive user experience. The application leverages a MongoDB cluster to efficiently manage and store user data and transaction history. Hosted on an AWS EC2 instance, TradeSim offers a robust platform for practicing market trading risk-free, making it an ideal tool for both novice traders and seasoned investors to hone their skills. Visit the application [here](https://tradesim.adityakmehrotra.com).
+TradeSim is an advanced web application that allows users to simulate stock market trading with paper (virtual) currency. This full-stack application features a React frontend paired with a Spring Boot backend, ensuring a seamless and responsive user experience. The application leverages a MongoDB cluster to efficiently manage and store user data and transaction history. Hosted on an AWS EC2 instance, TradeSim offers a robust platform for practicing market trading risk-free, making it an ideal tool for both novice traders and seasoned investors to hone their skills. Visit the application [here](https://tradesim.adityamehrotra.com).
 
 ## Features
 - **Virtual Trading**: Users can simulate buying and selling stocks with virtual currency, practicing market strategies risk-free.
@@ -227,9 +227,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 For any queries, you can reach out to me at `adi1.mehrotra@gmail.com`.
 
-Project Website: https://tradesim.adityakmehrotra.com
+Project Website: https://tradesim.adityamehrotra.com
 
-Project Repo: https://github.com/adityakmehrotra/TradeSim
+Project Repo: https://github.com/adityamehrotra/TradeSim
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
