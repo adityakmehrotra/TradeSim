@@ -15,9 +15,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +36,8 @@ public class AccountController {
     private final SpecAccountRepository specAccountRepository;
 
     public AccountController(
-            AccountRepository accountRepository, AccountService accountService, SpecAccountRepository specAccountRepository) {
+            AccountRepository accountRepository, AccountService accountService,
+            SpecAccountRepository specAccountRepository) {
         this.accountRepository = accountRepository;
         this.accountService = accountService;
         this.specAccountRepository = specAccountRepository;
@@ -65,6 +69,45 @@ public class AccountController {
     public Account getAccountById(
             @Parameter(description = "Account ID to retrieve details", required = true) @NotNull @RequestParam Integer id) {
         return accountService.getAccount(id);
+    }
+
+    @Operation(summary = "User Login", description = "Authenticate user with username and password.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Authentication successful"),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping("/login")
+    public ResponseEntity<?> login(
+            @Parameter(description = "Username", required = true) @NotNull @RequestParam String username,
+            @Parameter(description = "Password", required = true) @NotNull @RequestParam String password) {
+        try {
+            SpecAccount specAccount = specAccountRepository.findById(username).orElse(null);
+
+            if (specAccount != null && specAccount.getPassword().equals(password)) {
+                Account account = accountRepository.findById(specAccount.getAccountID()).orElse(null);
+
+                if (account != null) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("message", "Authentication successful");
+                    response.put("account", account);
+                    response.put("username", username);
+
+                    return ResponseEntity.ok(response);
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Map.of("success", false, "message", "Account details not found"));
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("success", false, "message", "Invalid username or password"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message",
+                            "An error occurred during authentication: " + e.getMessage()));
+        }
     }
 
     @Operation(summary = "Delete Account", description = "Delete an account using the account ID.")
