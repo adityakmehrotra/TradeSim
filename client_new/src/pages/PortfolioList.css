@@ -1,0 +1,235 @@
+.portfolio-list-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+  
+  .portfolio-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  
+  .portfolio-list-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+  
+  .btn-icon {
+    margin-right: 6px;
+    font-size: 18px;
+    line-height: 0;
+  }
+  
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  
+  .portfolio-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    text-decoration: none;
+    color: var(--text-color);
+  }
+  
+  .portfolio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  .portfolio-card-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--light-background);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .portfolio-card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .portfolio-id {
+    color: var(--light-text);
+    font-size: 14px;
+  }
+  
+  .portfolio-card-body {
+    padding: 20px 16px;
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 16px;
+  }
+  
+  .portfolio-value,
+  .portfolio-cash,
+  .portfolio-return,
+  .portfolio-holdings-count {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .label {
+    font-size: 14px;
+    color: var(--light-text);
+    margin-bottom: 4px;
+  }
+  
+  .value {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .portfolio-value .value {
+    font-size: 20px;
+    color: var(--text-color);
+  }
+  
+  .positive {
+    color: var(--success-color);
+  }
+  
+  .negative {
+    color: var(--error-color);
+  }
+  
+  .portfolio-card-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .arrow-icon {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+  }
+  
+  .portfolio-card:hover .arrow-icon {
+    transform: translateX(4px);
+  }
+  
+  .empty-portfolios {
+    text-align: center;
+    padding: 60px 0;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+  }
+  
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  .empty-portfolios h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .empty-portfolios p {
+    color: var(--light-text);
+    max-width: 400px;
+    margin: 0 auto 24px;
+  }
+  
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--primary-color);
+  }
+  
+  .loading-spinner:before,
+  .btn-spinner:before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  .btn-spinner:before {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    border-width: 2px;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .error-message {
+    padding: 16px;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 16px;
+  }
+  
+  .btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color, #3b82f6);
+    color: white;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover, #2563eb);
+  }
+  
+  .mt-4 {
+    margin-top: 16px;
+  }
+  
+  @media (max-width: 768px) {
+    .portfolio-list-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    
+    .portfolio-grid {
+      grid-template-columns: 1fr;
+    }
+  }
