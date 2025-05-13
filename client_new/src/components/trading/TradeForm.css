@@ -1,0 +1,460 @@
+.trade-form {
+  background-color: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 24px;
+  transition: box-shadow var(--transition-normal);
+}
+
+.trade-form:hover {
+  box-shadow: var(--hover-shadow);
+}
+
+.trade-form h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.order-type-tabs {
+  display: flex;
+  background-color: var(--light-background);
+  border-radius: var(--button-radius);
+  margin-bottom: 24px;
+  padding: 4px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--light-text);
+  transition: all var(--transition-fast);
+}
+
+.tab-button:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tab-button.active {
+  color: white;
+}
+
+.tab-button.active.buy-active {
+  background-color: var(--success-color);
+}
+
+.tab-button.active.sell-active {
+  background-color: var(--error-color);
+}
+
+.form-field {
+  margin-bottom: 18px;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.field-header label {
+  font-size: 14px;
+  color: var(--light-text);
+  font-weight: 500;
+}
+
+.max-button {
+  font-size: 12px;
+  background-color: var(--light-background);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.max-button:hover {
+  background-color: rgba(30, 64, 175, 0.1);
+}
+
+.field-value {
+  padding: 12px 16px;
+  background-color: var(--light-background);
+  border-radius: var(--button-radius);
+  font-weight: 500;
+}
+
+.field-value.symbol {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.field-value.price {
+  color: var(--text-color);
+}
+
+.field-value.estimated-total {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.shares-input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--light-background);
+  border: 2px solid transparent;
+  border-radius: var(--button-radius);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.shares-input:focus {
+  border-color: var(--primary-color);
+  background-color: white;
+}
+
+.account-info {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--light-background);
+  padding: 12px 16px;
+  border-radius: var(--button-radius);
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.account-info .insufficient {
+  color: var(--error-color);
+}
+
+.available-cash, .available-shares {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.available-cash span:first-child,
+.available-shares span:first-child {
+  color: var(--light-text);
+  font-size: 12px;
+}
+
+.available-cash span:last-child,
+.available-shares span:last-child {
+  font-weight: 600;
+}
+
+.trade-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--button-radius);
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.buy-button {
+  background-color: var(--success-color);
+}
+
+.buy-button:hover:not(:disabled) {
+  background-color: #0ea371;
+  transform: translateY(-1px);
+}
+
+.sell-button {
+  background-color: var(--error-color);
+}
+
+.sell-button:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.trade-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: 12px;
+  border-radius: var(--button-radius);
+  font-size: 14px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.order-confirmation {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.confirmation-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--success-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px;
+}
+
+.order-confirmation h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.order-confirmation p {
+  font-size: 16px;
+  color: var(--light-text);
+  margin-bottom: 24px;
+}
+
+.highlight {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.confirmation-details {
+  background-color: var(--light-background);
+  padding: 16px;
+  border-radius: var(--button-radius);
+  margin-top: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.detail-row:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row.total {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.detail-row span:first-child {
+  color: var(--light-text);
+}
+
+.portfolio-selector-container {
+  position: relative;
+  width: 100%;
+}
+
+.portfolio-selector {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: var(--light-background);
+  border: 2px solid transparent;
+  border-radius: var(--button-radius);
+  font-size: 15px;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.portfolio-selector:focus {
+  border-color: var(--primary-color);
+  background-color: white;
+  outline: none;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 10px;
+  color: var(--light-text);
+}
+
+.portfolio-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.portfolio-balance span:first-child {
+  color: var(--light-text);
+  font-size: 12px;
+}
+
+.portfolio-balance span:last-child {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.no-portfolio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.no-portfolio-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.no-portfolio h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.no-portfolio p {
+  color: var(--light-text);
+  margin-bottom: 24px;
+}
+
+.create-portfolio-button {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--button-radius);
+  font-weight: 600;
+  transition: all var(--transition-normal);
+}
+
+.create-portfolio-button:hover {
+  background-color: var(--primary-hover, #2563eb);
+  transform: translateY(-1px);
+}
+
+.confirmation-details .detail-row:first-child {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-color, #3b82f6);
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.loading-container p {
+  color: var(--light-text, #64748b);
+  margin: 0;
+}
+
+.cash-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cash-amount {
+  font-weight: 600;
+}
+
+.mini-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-color, #3b82f6);
+  animation: spin 1s linear infinite;
+}
+
+.portfolio-selector:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.field-value.cash-value,
+.field-value.shares-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-value.cash-value.insufficient,
+.field-value.shares-value.insufficient {
+  color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.field-value.portfolio-name {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.portfolio-field {
+  margin-bottom: 24px;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.field-header .mini-spinner {
+  margin-left: 8px;
+}
+
+.account-info {
+  display: none;
+}
