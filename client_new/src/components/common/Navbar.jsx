@@ -1,7 +1,7 @@
 import { useState, useContext, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import SearchBar from './SearchBar'; // Import the SearchBar component
+import SearchBar from './SearchBar';
 import './Navbar.css';
 
 function Navbar() {
@@ -11,7 +11,6 @@ function Navbar() {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -53,7 +52,6 @@ function Navbar() {
         </div>
         
         <div className={`navbar-middle ${isMenuOpen ? 'open' : ''}`}>
-          {/* Replace the simple search form with the SearchBar component */}
           <SearchBar />
         </div>
         
