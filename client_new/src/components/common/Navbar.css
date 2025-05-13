@@ -1,0 +1,333 @@
+.navbar {
+    width: 100%;
+    background-color: var(--background);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--header-height);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .navbar-container {
+    max-width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  
+  .navbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 24px;
+  }
+  
+  .logo-icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+  
+  .mobile-menu-button {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+  
+  .hamburger {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: var(--text-color);
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+  
+  .navbar-middle {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .search-form {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--light-background);
+    font-size: 15px;
+    transition: all var(--transition-fast);
+  }
+  
+  .search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    background-color: white;
+  }
+  
+  .search-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--light-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast);
+  }
+  
+  .search-button:hover {
+    color: var(--primary-color);
+  }
+  
+  .navbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .nav-button {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: var(--button-radius);
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .nav-button svg {
+    margin-right: 6px;
+  }
+  
+  .nav-button:hover {
+    background-color: var(--light-background);
+  }
+  
+  .account-button {
+    position: relative;
+  }
+  
+  .account-section {
+    position: relative;
+  }
+  
+  .account-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 180px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--popover-shadow);
+    z-index: 101;
+    overflow: hidden;
+    animation: dropdown-fade 0.2s ease-out;
+    border: 1px solid var(--border-color);
+  }
+  
+  @keyframes dropdown-fade {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .dropdown-item {
+    display: block;
+    padding: 12px 16px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .dropdown-item:hover {
+    background-color: var(--light-background);
+  }
+  
+  .dropdown-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  
+  .logout-button {
+    color: var(--light-text);
+  }
+  
+  .logout-button:hover {
+    color: var(--error-color);
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-container {
+      flex-wrap: wrap;
+    }
+  
+    .navbar-left {
+      width: 100%;
+      justify-content: space-between;
+    }
+  
+    .mobile-menu-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  
+    .navbar-middle,
+    .navbar-right {
+      flex-basis: 100%;
+      display: none;
+      padding: 16px 0;
+    }
+  
+    .navbar-middle.open,
+    .navbar-right.open {
+      display: flex;
+    }
+  
+    .navbar {
+      height: auto;
+      padding: 12px 0;
+    }
+  
+    .navbar.expanded {
+      max-height: none;
+    }
+  
+    .navbar-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .nav-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+  
+    .nav-button {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 12px;
+    }
+  
+    .navbar-middle {
+      order: 3;
+    }
+  
+    .navbar-right {
+      order: 2;
+    }
+  
+    .account-dropdown {
+      position: static;
+      box-shadow: none;
+      border: none;
+      border-radius: 0;
+      animation: none;
+      margin-top: 4px;
+    }
+  
+    .dropdown-item {
+      padding-left: 36px;
+    }
+  }
+
+
+/* Add this to your existing Navbar.css file */
+
+/* Adjust navbar-middle to properly host the SearchBar component */
+.navbar-middle {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+}
+
+/* Make sure search container fits well in the navbar */
+.navbar-middle .search-container {
+  width: 100%;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .navbar-middle {
+    padding: 12px 0;
+  }
+  
+  .navbar-middle .search-container {
+    max-width: 100%;
+  }
+}
+
