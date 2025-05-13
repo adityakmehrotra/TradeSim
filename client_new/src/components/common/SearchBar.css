@@ -1,0 +1,198 @@
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .search-form {
+    position: relative;
+    width: 100%;
+  }
+  
+  .search-input-container {
+    display: flex;
+    position: relative;
+    align-items: center;
+    background-color: var(--input-background, white);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--border-radius, 8px);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  
+  .search-input-container:focus-within {
+    border-color: var(--primary-color, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+  
+  .search-icon-left {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: var(--light-text, #64748b);
+  }
+  
+  .search-input {
+    flex-grow: 1;
+    height: 44px;
+    padding: 0;
+    border: none;
+    font-size: 16px;
+    background-color: transparent;
+    color: var(--text-color, #333);
+    width: 100%;
+  }
+  
+  .search-input:focus {
+    outline: none;
+  }
+  
+  .clear-button {
+    background: none;
+    border: none;
+    color: var(--light-text, #64748b);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 44px;
+    transition: color 0.2s;
+  }
+  
+  .clear-button:hover {
+    color: var(--text-color, #333);
+  }
+  
+  .suggestions-container {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    border-radius: var(--border-radius, 8px);
+    background-color: var(--card-background, white);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border: 1px solid var(--border-color, #e2e8f0);
+    animation: fadeIn 0.2s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    transition: background-color 0.15s;
+  }
+  
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+  
+  .suggestion-item:hover,
+  .suggestion-item.selected {
+    background-color: var(--light-background, #f8fafc);
+  }
+  
+  .suggestion-symbol {
+    font-weight: 600;
+    color: var(--primary-color, #3b82f6);
+    margin-right: 12px;
+    min-width: 60px;
+  }
+  
+  .suggestion-name {
+    color: var(--text-color, #334155);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  
+  .suggestion-type {
+    color: var(--light-text, #64748b);
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--light-background, #f8fafc);
+    margin-left: 8px;
+  }
+  
+  .suggestion-error {
+    padding: 12px 16px;
+    color: var(--error-color, #ef4444);
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .search-spinner {
+    display: block;
+    margin: 0 12px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-top-color: var(--primary-color, #3b82f6);
+    border-radius: 50%;
+    animation: spinner 0.8s linear infinite;
+  }
+  
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .search-input:focus-visible {
+    outline: none;
+  }
+  
+  .suggestion-item:focus {
+    outline: 2px solid var(--primary-color, #3b82f6);
+    outline-offset: -2px;
+  }
+  
+  @media (max-width: 640px) {
+    .search-input {
+      font-size: 15px;
+    }
+    
+    .search-input-container {
+      height: 42px;
+    }
+    
+    .search-input {
+      height: 40px;
+    }
+    
+    .suggestions-container {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-height: 60vh;
+      margin: 0;
+      border-radius: 16px 16px 0 0;
+      border-bottom: none;
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    
+    .suggestion-item {
+      padding: 14px 16px;
+    }
+  }
