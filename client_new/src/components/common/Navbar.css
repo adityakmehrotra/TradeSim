@@ -152,8 +152,8 @@
     margin-right: 6px;
   }
   
-  .nav-button:hover {
-    background-color: var(--light-background);
+  .nav-button span {
+    display: inline-block;
   }
   
   .account-button {
