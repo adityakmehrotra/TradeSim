@@ -21,7 +21,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @ToString
 @Document(collection = "Paper Trader-Portfolio")
-public class Portfolio_Old {
+public class PortfolioLegacy {
 
   @Id
   @NotNull(message = "Portfolio ID cannot be null")
