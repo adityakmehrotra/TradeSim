@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @ToString
 @Document(collection = "Paper Trader-Asset")
-public class Asset {
+public class AssetLegacy {
 
   @NotNull(message = "Shares owned cannot be null")
   @Min(value = 0, message = "Shares owned must be greater than or equal to 0")
