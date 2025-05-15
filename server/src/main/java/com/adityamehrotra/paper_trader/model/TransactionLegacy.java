@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @ToString
 @Document(collection = "Paper Trader-Transaction")
-public class Transaction {
+public class TransactionLegacy {
 
   @Id
   @NotNull(message = "Transaction ID cannot be null")
