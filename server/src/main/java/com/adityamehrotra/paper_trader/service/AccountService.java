@@ -7,7 +7,7 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
-import com.adityamehrotra.paper_trader.model.Account;
+import com.adityamehrotra.paper_trader.model.AccountLegacy;
 import com.adityamehrotra.paper_trader.model.SpecAccount;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
@@ -41,8 +41,8 @@ public class AccountService {
      * @param password The password for the SpecAccount.
      * @return The saved Account object.
      */
-    public Account addAccount(
-            @Valid @NotNull(message = "Account cannot be null") Account account,
+    public AccountLegacy addAccount(
+            @Valid @NotNull(message = "Account cannot be null") AccountLegacy account,
             @NotEmpty(message = "Username cannot be empty") String username,
             @NotEmpty(message = "Password cannot be empty") String password) {
         SpecAccount specAccount = new SpecAccount(username, password, account.getAccountID());
@@ -57,7 +57,7 @@ public class AccountService {
      * @return The Account object.
      * @throws NoSuchElementException If the Account with the given ID does not exist.
      */
-    public Account getAccount(
+    public AccountLegacy getAccount(
             @NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
@@ -86,7 +86,7 @@ public class AccountService {
      */
     public String getAccountFirstNameByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getFirstName)
+                .map(AccountLegacy::getFirstName)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
@@ -99,7 +99,7 @@ public class AccountService {
      */
     public String getAccountLastNameByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getLastName)
+                .map(AccountLegacy::getLastName)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
@@ -112,7 +112,7 @@ public class AccountService {
      */
     public String getEmailAddressByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getEmailAddress)
+                .map(AccountLegacy::getEmailAddress)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
@@ -138,7 +138,7 @@ public class AccountService {
      */
     public String getPasswordByID(@NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getPassword)
+                .map(AccountLegacy::getPassword)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
@@ -163,7 +163,7 @@ public class AccountService {
     public List<Integer> getPortfolioList(
             @NotNull(message = "Account ID cannot be null") Integer id) {
         return accountRepository.findById(id)
-                .map(Account::getPortfolioList)
+                .map(AccountLegacy::getPortfolioList)
                 .orElseThrow(() -> new NoSuchElementException("No account found with ID: " + id));
     }
 
@@ -174,12 +174,12 @@ public class AccountService {
      * @param portfolioID The portfolio ID to add.
      * @return The updated Account object.
      */
-    public Account addPortfolio(
+    public AccountLegacy addPortfolio(
             @NotNull(message = "Account ID cannot be null") Integer id,
             @NotNull(message = "Portfolio ID cannot be null") Integer portfolioID) {
         List<Integer> portfolios = Objects.requireNonNullElseGet(getPortfolioList(id), ArrayList::new);
         portfolios.add(0, portfolioID);
-        Account account = new Account(
+        AccountLegacy account = new AccountLegacy(
                 id,
                 getAccountFirstNameByID(id),
                 getAccountLastNameByID(id),
@@ -197,12 +197,12 @@ public class AccountService {
      * @param portfolioID The portfolio ID to remove.
      * @return The updated Account object.
      */
-    public Account deletePortfolio(
+    public AccountLegacy deletePortfolio(
             @NotNull(message = "Account ID cannot be null") Integer id,
             @NotNull(message = "Portfolio ID cannot be null") Integer portfolioID) {
         List<Integer> portfolios = getPortfolioList(id);
         portfolios.remove(portfolioID);
-        Account account = new Account(
+        AccountLegacy account = new AccountLegacy(
                 id,
                 getAccountFirstNameByID(id),
                 getAccountLastNameByID(id),
