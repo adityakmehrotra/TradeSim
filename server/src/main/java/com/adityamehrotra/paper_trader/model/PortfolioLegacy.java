@@ -57,7 +57,7 @@ public class PortfolioLegacy {
   @NotNull(message = "Holdings set cannot be null")
   @Size(max = 500, message = "Holdings set cannot contain more than 500 securities")
   private Set<
-          @NotNull(message = "Holding object cannot be null") SecurityModel> holdings;
+          @NotNull(message = "Holding object cannot be null") SecurityModelLegacy> holdings;
 
   @NotNull(message = "Assets average value map cannot be null")
   private Map<

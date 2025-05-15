@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.adityamehrotra.paper_trader.model.SecurityModel;
+import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
 import com.adityamehrotra.paper_trader.service.SecurityService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,10 +48,10 @@ public class SecurityController {
           @ApiResponse(responseCode = "500", description = "Internal server error")
   })
   @PostMapping("/create/one")
-  public ResponseEntity<SecurityModel> createOne(
+  public ResponseEntity<SecurityModelLegacy> createOne(
           @Parameter(description = "SecurityModel object to be created", required = true)
-          @Valid @RequestBody SecurityModel securityModel) {
-    SecurityModel createdSecurity = securityService.createOne(securityModel);
+          @Valid @RequestBody SecurityModelLegacy securityModel) {
+    SecurityModelLegacy createdSecurity = securityService.createOne(securityModel);
     return new ResponseEntity<>(createdSecurity, HttpStatus.CREATED);
   }
 
@@ -62,11 +62,11 @@ public class SecurityController {
           @ApiResponse(responseCode = "500", description = "Internal server error")
   })
   @PostMapping("/create/many")
-  public ResponseEntity<List<SecurityModel>> createMany(
+  public ResponseEntity<List<SecurityModelLegacy>> createMany(
           @Parameter(description = "List of SecurityModel objects to be created", required = true)
-          @Valid @RequestBody List<SecurityModel> securityModelList) {
+          @Valid @RequestBody List<SecurityModelLegacy> securityModelList) {
                 System.out.println(securityModelList);
-    List<SecurityModel> createdSecurity = securityService.createMany(securityModelList);
+    List<SecurityModelLegacy> createdSecurity = securityService.createMany(securityModelList);
     return new ResponseEntity<>(createdSecurity, HttpStatus.CREATED);
   }
 
@@ -77,10 +77,10 @@ public class SecurityController {
           @ApiResponse(responseCode = "500", description = "Internal server error")
   })
   @GetMapping("/suggestion/{userInput}")
-  public ResponseEntity<Set<SecurityModel>> getSuggestion(
+  public ResponseEntity<Set<SecurityModelLegacy>> getSuggestion(
           @Parameter(description = "User input for generating security suggestions", required = true)
           @PathVariable @NotNull String userInput) {
-    Set<SecurityModel> suggestions = securityService.getSuggestion(userInput);
+    Set<SecurityModelLegacy> suggestions = securityService.getSuggestion(userInput);
     return new ResponseEntity<>(suggestions, HttpStatus.OK);
   }
 
@@ -91,10 +91,10 @@ public class SecurityController {
           @ApiResponse(responseCode = "500", description = "Internal server error")
   })
   @GetMapping("/suggestion/test/{userInput}")
-  public ResponseEntity<Set<SecurityModel>> getSuggestionTest(
+  public ResponseEntity<Set<SecurityModelLegacy>> getSuggestionTest(
           @Parameter(description = "User input for generating test security suggestions", required = true)
           @PathVariable @NotNull String userInput) {
-    Set<SecurityModel> testSuggestions = securityService.getSuggestionTest(userInput);
+    Set<SecurityModelLegacy> testSuggestions = securityService.getSuggestionTest(userInput);
     return new ResponseEntity<>(testSuggestions, HttpStatus.OK);
   }
 
@@ -104,8 +104,8 @@ public class SecurityController {
           @ApiResponse(responseCode = "500", description = "Internal server error")
   })
   @GetMapping("/all")
-  public ResponseEntity<List<SecurityModel>> getAllSecurities() {
-    List<SecurityModel> securities = securityService.getAllSecurities();
+  public ResponseEntity<List<SecurityModelLegacy>> getAllSecurities() {
+    List<SecurityModelLegacy> securities = securityService.getAllSecurities();
     return new ResponseEntity<>(securities, HttpStatus.OK);
   }
 

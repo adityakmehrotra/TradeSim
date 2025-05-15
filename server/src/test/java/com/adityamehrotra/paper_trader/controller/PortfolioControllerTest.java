@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.adityamehrotra.paper_trader.model.Asset;
 import com.adityamehrotra.paper_trader.model.Portfolio;
-import com.adityamehrotra.paper_trader.model.SecurityModel;
+import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
 import com.adityamehrotra.paper_trader.model.Transaction;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.PortfolioRepository;
@@ -62,11 +62,11 @@ public class PortfolioControllerTest {
 
     private Portfolio testPortfolio;
     private Asset testAsset;
-    private SecurityModel testSecurity;
+    private SecurityModelLegacy testSecurity;
     private Transaction testTransaction;
     private List<Integer> transactionList;
     private Map<String, Asset> assetMap;
-    private Set<SecurityModel> holdings;
+    private Set<SecurityModelLegacy> holdings;
     private Map<String, Double> assetsAvgValue;
 
     @BeforeEach
@@ -86,7 +86,7 @@ public class PortfolioControllerTest {
         assetMap.put("AAPL", testAsset);
         assetsAvgValue.put("AAPL", 100.0);
         
-        testSecurity = new SecurityModel();
+        testSecurity = new SecurityModelLegacy();
         testSecurity.setCode("AAPL");
         testSecurity.setName("Apple Inc.");
         holdings.add(testSecurity);
@@ -248,11 +248,11 @@ public class PortfolioControllerTest {
     @Test
     void testAddHolding() throws Exception {
         // Setup both normal and cash security cases
-        SecurityModel cashSecurity = new SecurityModel();
+        SecurityModelLegacy cashSecurity = new SecurityModelLegacy();
         cashSecurity.setCode("Cash");
         
         when(portfolioRepository.findById(1)).thenReturn(Optional.of(testPortfolio));
-        when(securityRepository.findById("MSFT")).thenReturn(Optional.of(new SecurityModel("MSFT", "Microsoft Corp", null, null, null, null, null)));
+        when(securityRepository.findById("MSFT")).thenReturn(Optional.of(new SecurityModelLegacy("MSFT", "Microsoft Corp", null, null, null, null, null)));
         when(portfolioRepository.save(any(Portfolio.class))).thenReturn(testPortfolio);
 
         // Test adding a regular security

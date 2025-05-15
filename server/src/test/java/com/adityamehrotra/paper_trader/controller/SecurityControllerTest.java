@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.adityamehrotra.paper_trader.model.SecurityModel;
+import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
 import com.adityamehrotra.paper_trader.service.SecurityService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,14 +43,14 @@ public class SecurityControllerTest {
     @MockBean
     private SecurityService securityService;
 
-    private SecurityModel testSecurity;
-    private List<SecurityModel> securityList;
-    private Set<SecurityModel> securitySet;
+    private SecurityModelLegacy testSecurity;
+    private List<SecurityModelLegacy> securityList;
+    private Set<SecurityModelLegacy> securitySet;
 
     @BeforeEach
     void setUp() {
         // Initialize test data
-        testSecurity = new SecurityModel();
+        testSecurity = new SecurityModelLegacy();
         testSecurity.setCode("AAPL");
         testSecurity.setName("Apple Inc.");
         testSecurity.setCountry("USA");
@@ -59,7 +59,7 @@ public class SecurityControllerTest {
         testSecurity.setType("Common Stock");
         testSecurity.setIsin("US0378331005");
 
-        SecurityModel testSecurity2 = new SecurityModel();
+        SecurityModelLegacy testSecurity2 = new SecurityModelLegacy();
         testSecurity2.setCode("MSFT");
         testSecurity2.setName("Microsoft Corporation");
         testSecurity2.setCountry("USA");
@@ -74,7 +74,7 @@ public class SecurityControllerTest {
 
     @Test
     void testCreateOne_Success() throws Exception {
-        when(securityService.createOne(any(SecurityModel.class))).thenReturn(testSecurity);
+        when(securityService.createOne(any(SecurityModelLegacy.class))).thenReturn(testSecurity);
 
         mockMvc.perform(post("/paper_trader/security/create/one")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +88,7 @@ public class SecurityControllerTest {
                 .andExpect(jsonPath("$.type").value("Common Stock"))
                 .andExpect(jsonPath("$.isin").value("US0378331005"));
 
-        verify(securityService).createOne(any(SecurityModel.class));
+        verify(securityService).createOne(any(SecurityModelLegacy.class));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class SecurityControllerTest {
 
     @Test
     void testCreateOne_InvalidInput() throws Exception {
-        SecurityModel invalidSecurity = new SecurityModel();
+        SecurityModelLegacy invalidSecurity = new SecurityModelLegacy();
         // Missing required fields
 
         mockMvc.perform(post("/paper_trader/security/create/one")
