@@ -1,6 +1,6 @@
 package com.adityamehrotra.paper_trader.controller;
 
-import com.adityamehrotra.paper_trader.model.Account;
+import com.adityamehrotra.paper_trader.model.AccountLegacy;
 import com.adityamehrotra.paper_trader.model.SpecAccount;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
@@ -52,8 +52,8 @@ public class AccountController {
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Account addAccount(
-            @Parameter(description = "Account object to be created", required = true) @Valid @RequestBody Account account,
+    public AccountLegacy addAccount(
+            @Parameter(description = "Account object to be created", required = true) @Valid @RequestBody AccountLegacy account,
             @Parameter(description = "Username for the account", required = true) @NotNull @Size(min = 3, max = 20) @RequestParam String username,
             @Parameter(description = "Password for the account", required = true) @NotNull @Size(min = 6) @RequestParam String password) {
         return accountService.addAccount(account, username, password);
@@ -66,7 +66,7 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/get")
-    public Account getAccountById(
+    public AccountLegacy getAccountById(
             @Parameter(description = "Account ID to retrieve details", required = true) @NotNull @RequestParam Integer id) {
         return accountService.getAccount(id);
     }
@@ -85,7 +85,7 @@ public class AccountController {
             SpecAccount specAccount = specAccountRepository.findById(username).orElse(null);
 
             if (specAccount != null && specAccount.getPassword().equals(password)) {
-                Account account = accountRepository.findById(specAccount.getAccountID()).orElse(null);
+                AccountLegacy account = accountRepository.findById(specAccount.getAccountID()).orElse(null);
 
                 if (account != null) {
                     Map<String, Object> response = new HashMap<>();
@@ -129,7 +129,7 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/all")
-    public List<Account> getAllAccounts() {
+    public List<AccountLegacy> getAllAccounts() {
         return accountRepository.findAll();
     }
 
@@ -151,7 +151,7 @@ public class AccountController {
     @GetMapping("/get/nextAccountID")
     public Integer getNextAccountID() {
         return accountRepository.findAll().stream()
-                .max(Comparator.comparingInt(Account::getAccountID))
+                .max(Comparator.comparingInt(AccountLegacy::getAccountID))
                 .map(account -> account.getAccountID() + 1)
                 .orElse(1);
     }
