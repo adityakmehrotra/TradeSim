@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @ToString
 @Document(collection = "Paper Trader-SpecificAccount")
-public class SpecAccount {
+public class SpecAccountLegacy {
 
   @Id
   @NotEmpty(message = "Username cannot be empty")
