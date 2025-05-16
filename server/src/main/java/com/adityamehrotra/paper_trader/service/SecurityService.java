@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import com.adityamehrotra.paper_trader.model.SecurityModel;
+import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
 import com.adityamehrotra.paper_trader.repository.SecurityRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,8 +46,8 @@ public class SecurityService {
             @ApiResponse(responseCode = "400", description = "Invalid input."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public SecurityModel createOne(
-            @Parameter(description = "SecurityModel object to save", required = true) SecurityModel securityModel) {
+    public SecurityModelLegacy createOne(
+            @Parameter(description = "SecurityModel object to save", required = true) SecurityModelLegacy securityModel) {
         return securityRepository.save(securityModel);
     }
 
@@ -65,8 +65,8 @@ public class SecurityService {
             @ApiResponse(responseCode = "400", description = "Invalid input."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public List<SecurityModel> createMany(
-            @Parameter(description = "List of SecurityModel objects to save", required = true) List<SecurityModel> securityModelList) {
+    public List<SecurityModelLegacy> createMany(
+            @Parameter(description = "List of SecurityModel objects to save", required = true) List<SecurityModelLegacy> securityModelList) {
                 // System.out.println(securityModelList);
         return securityRepository.saveAll(securityModelList);
     }
@@ -86,11 +86,11 @@ public class SecurityService {
             @ApiResponse(responseCode = "400", description = "Invalid input."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public Set<SecurityModel> getSuggestion(
+    public Set<SecurityModelLegacy> getSuggestion(
             @Parameter(description = "Input string to search for", required = true) String userInput) {
         userInput = userInput.toLowerCase();
-        Set<SecurityModel> codeList = new HashSet<>();
-        for (SecurityModel securityModel : securityRepository.findAll()) {
+        Set<SecurityModelLegacy> codeList = new HashSet<>();
+        for (SecurityModelLegacy securityModel : securityRepository.findAll()) {
             if (securityModel.getCode().toLowerCase().startsWith(userInput)) {
                 codeList.add(securityModel);
             } else if (securityModel.getName().toLowerCase().startsWith(userInput)) {
@@ -115,7 +115,7 @@ public class SecurityService {
             @ApiResponse(responseCode = "400", description = "Invalid input."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public Set<SecurityModel> getSuggestionTest(
+    public Set<SecurityModelLegacy> getSuggestionTest(
             @Parameter(description = "Input string to search for", required = true) String userInput) {
         userInput = userInput.toLowerCase();
         return securityRepository.findSecuritiesStartingWith(userInput);
@@ -134,7 +134,7 @@ public class SecurityService {
             @ApiResponse(responseCode = "200", description = "Securities fetched successfully."),
             @ApiResponse(responseCode = "500", description = "Internal server error.")
     })
-    public List<SecurityModel> getAllSecurities() {
+    public List<SecurityModelLegacy> getAllSecurities() {
         return securityRepository.findAll();
     }
 

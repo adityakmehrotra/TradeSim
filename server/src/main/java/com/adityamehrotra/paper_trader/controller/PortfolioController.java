@@ -2,7 +2,7 @@ package com.adityamehrotra.paper_trader.controller;
 
 import com.adityamehrotra.paper_trader.model.Asset;
 import com.adityamehrotra.paper_trader.model.Portfolio;
-import com.adityamehrotra.paper_trader.model.SecurityModel;
+import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
 import com.adityamehrotra.paper_trader.model.Transaction;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.PortfolioRepository;
@@ -163,7 +163,7 @@ public class PortfolioController {
   @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
   @Operation(summary = "Get Set of Holdings by Portfolio ID", description = "Get the Holdings for a specific portfolio. The response is a Set of Holdings.")
   @GetMapping("/get/holdings")
-  public Set<SecurityModel> getHolding(
+  public Set<SecurityModelLegacy> getHolding(
       @Parameter(description = "Portfolio ID whose holdings needs to be retrieved", required = true) @RequestParam Integer id) {
     return portfolioRepository.findById(id).get().getHoldings();
   }
@@ -183,8 +183,8 @@ public class PortfolioController {
       @Parameter(description = "Portfolio ID which needs a holding added", required = true) @RequestParam Integer id,
       @Parameter(description = "Asset Symbol of the holding that needs to be added", required = true) @RequestParam String code) {
     if (code.equals("Cash")) {
-      Set<SecurityModel> holdings = new HashSet<>();
-      SecurityModel cashSecurityModel = new SecurityModel("Cash", null, null, null, null, null, null);
+      Set<SecurityModelLegacy> holdings = new HashSet<>();
+      SecurityModelLegacy cashSecurityModel = new SecurityModelLegacy("Cash", null, null, null, null, null, null);
       holdings.add(cashSecurityModel);
       Portfolio portfolio = new Portfolio(id,
           getAccountID(id),
@@ -197,7 +197,7 @@ public class PortfolioController {
           getAssetsAvgValue(id));
       return portfolioRepository.save(portfolio);
     }
-    Set<SecurityModel> holdingsSet = portfolioRepository.findById(id).get().getHoldings();
+    Set<SecurityModelLegacy> holdingsSet = portfolioRepository.findById(id).get().getHoldings();
     holdingsSet.add(securityRepository.findById(code).get());
     Portfolio portfolio = new Portfolio(
         id,
@@ -221,7 +221,7 @@ public class PortfolioController {
         if (currAmt - shareAmt == 0) {
           assets.remove(code);
           assetsAvgValue.remove(code);
-          Set<SecurityModel> holdings = portfolioRepository.findById(id).get().getHoldings();
+          Set<SecurityModelLegacy> holdings = portfolioRepository.findById(id).get().getHoldings();
           holdings.remove(code);
           Portfolio portfolio = new Portfolio(
               id,

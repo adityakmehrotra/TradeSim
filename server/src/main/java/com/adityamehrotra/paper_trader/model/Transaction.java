@@ -1,55 +1,63 @@
 package com.adityamehrotra.paper_trader.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@Document(collection = "Paper Trader-Transaction")
+@Document(collection = "TradeSim-Transaction")
 public class Transaction {
+    @Id
+    @NotNull(message = "Transaction ID cannot be null")
+    @Min(value = 1, message = "Transaction ID must be greater than 0")
+    private Integer transactionID;
 
-  @Id
-  @NotNull(message = "Transaction ID cannot be null")
-  @Min(value = 1, message = "Transaction ID must be greater than 0")
-  private Integer transactionID;
+    @NotNull(message = "Portfolio ID cannot be null")
+    @Min(value = 1, message = "Portfolio ID must be greater than 0")
+    private Integer portfolioID;
 
-  @NotNull(message = "Portfolio ID cannot be null")
-  @Min(value = 1, message = "Portfolio ID must be greater than 0")
-  private Integer portfolioID;
+    @NotNull(message = "Holding ID cannot be null")
+    @Min(value = 1, message = "Holding ID must be greater than 0")
+    private Integer holdingID;
 
-  @NotNull(message = "Account ID cannot be null")
-  @Min(value = 1, message = "Account ID must be greater than 0")
-  private Integer accountID;
+    @NotEmpty(message = "Ticker cannot be empty")
+    private String ticker;
 
-  @NotEmpty(message = "Order type cannot be empty")
-  @Size(max = 20, message = "Order type must not exceed 20 characters")
-  private String orderType;
+    @NotNull(message = "Filled date cannot be null")
+    private Instant filledDate;  
 
-  @NotEmpty(message = "Security code cannot be empty")
-  @Size(max = 20, message = "Security code must not exceed 20 characters")
-  private String securityCode;
+    @NotNull(message = "Submitted date cannot be null")
+    private Instant submittedDate;  
 
-  @NotEmpty(message = "GMT time cannot be empty")
-  private String gmtTime;
+    @NotEmpty(message = "Type cannot be empty")
+    @Size(max = 20, message = "Type must not exceed 20 characters")
+    private String type;
 
-  @NotNull(message = "Share amount cannot be null")
-  @Min(value = 0, message = "Share amount must be non-negative")
-  private Double shareAmount;
+    @NotEmpty(message = "Status cannot be empty")
+    @Size(max = 20, message = "Status must not exceed 20 characters")
+    private String status;
 
-  @NotNull(message = "Cash amount cannot be null")
-  @Min(value = 0, message = "Cash amount must be non-negative")
-  private Double cashAmount;
+    @NotNull(message = "Shares cannot be null")
+    @Min(value = 0, message = "Shares must be non-negative")
+    private Double shares;
 
-  @Min(value = 0, message = "Current price must be non-negative")
-  private Double currPrice;
+    @NotNull(message = "Price cannot be null")
+    @Min(value = 0, message = "Price must be non-negative")
+    private Double price;
+
+    @NotNull(message = "Total amount cannot be null")
+    @Min(value = 0, message = "Total amount must be non-negative")
+    private Double totalAmount;
 }

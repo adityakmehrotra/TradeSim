@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Document(collection = "Paper Trader-Security")
-public class SecurityModel {
+public class SecurityModelLegacy {
 
   @Id
   private String code;

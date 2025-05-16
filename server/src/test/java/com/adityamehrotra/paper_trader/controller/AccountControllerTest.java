@@ -24,8 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.adityamehrotra.paper_trader.model.Account;
-import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.model.AccountLegacy;
+import com.adityamehrotra.paper_trader.model.SpecAccountLegacy;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
 import com.adityamehrotra.paper_trader.service.AccountService;
@@ -49,8 +49,8 @@ public class AccountControllerTest {
     @MockBean
     private SpecAccountRepository specAccountRepository;
 
-    private Account testAccount;
-    private SpecAccount testSpecAccount;
+    private AccountLegacy testAccount;
+    private SpecAccountLegacy testSpecAccount;
     private List<Integer> portfolioList;
 
     @BeforeEach
@@ -58,7 +58,7 @@ public class AccountControllerTest {
         // Initialize test data
         portfolioList = Arrays.asList(101, 102);
         
-        testAccount = new Account();
+        testAccount = new AccountLegacy();
         testAccount.setAccountID(1);
         testAccount.setFirstName("John");
         testAccount.setLastName("Doe");
@@ -66,13 +66,13 @@ public class AccountControllerTest {
         testAccount.setPassword("password123");
         testAccount.setPortfolioList(portfolioList);
         
-        testSpecAccount = new SpecAccount("johndoe", "password123", 1);
+        testSpecAccount = new SpecAccountLegacy("johndoe", "password123", 1);
     }
 
     @Test
     void testAddAccount() throws Exception {
         // Setup - Match the parameters used in the test
-        when(accountService.addAccount(org.mockito.ArgumentMatchers.any(Account.class), eq("johndoe"), eq("password123")))
+        when(accountService.addAccount(org.mockito.ArgumentMatchers.any(AccountLegacy.class), eq("johndoe"), eq("password123")))
             .thenReturn(testAccount);
 
         // Rest of the test remains the same
@@ -85,7 +85,7 @@ public class AccountControllerTest {
                 .andExpect(jsonPath("$.accountID").value(1));
                 // ... rest of assertions
                 
-        verify(accountService).addAccount(org.mockito.ArgumentMatchers.any(Account.class), eq("johndoe"), eq("password123"));
+        verify(accountService).addAccount(org.mockito.ArgumentMatchers.any(AccountLegacy.class), eq("johndoe"), eq("password123"));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class AccountControllerTest {
     @Test
     void testGetAllAccounts() throws Exception {
         // Setup
-        List<Account> accounts = Arrays.asList(testAccount);
+        List<AccountLegacy> accounts = Arrays.asList(testAccount);
         when(accountRepository.findAll()).thenReturn(accounts);
 
         // Execution & Verification
@@ -152,7 +152,7 @@ public class AccountControllerTest {
     @Test
     void testGetAllSpecAccounts() throws Exception {
         // Setup
-        List<SpecAccount> specAccounts = Arrays.asList(testSpecAccount);
+        List<SpecAccountLegacy> specAccounts = Arrays.asList(testSpecAccount);
         when(specAccountRepository.findAll()).thenReturn(specAccounts);
 
         // Execution & Verification
@@ -194,7 +194,7 @@ public class AccountControllerTest {
     @Test
     void testAddAccount_ValidationFailure() throws Exception {
         // Create an invalid account (missing required fields)
-        Account invalidAccount = new Account();
+        AccountLegacy invalidAccount = new AccountLegacy();
         invalidAccount.setAccountID(1);
         // Missing first name, last name, and email
 
