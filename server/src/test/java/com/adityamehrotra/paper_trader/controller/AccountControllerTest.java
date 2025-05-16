@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.adityamehrotra.paper_trader.model.AccountLegacy;
-import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.model.SpecAccountLegacy;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
 import com.adityamehrotra.paper_trader.service.AccountService;
@@ -50,7 +50,7 @@ public class AccountControllerTest {
     private SpecAccountRepository specAccountRepository;
 
     private AccountLegacy testAccount;
-    private SpecAccount testSpecAccount;
+    private SpecAccountLegacy testSpecAccount;
     private List<Integer> portfolioList;
 
     @BeforeEach
@@ -66,7 +66,7 @@ public class AccountControllerTest {
         testAccount.setPassword("password123");
         testAccount.setPortfolioList(portfolioList);
         
-        testSpecAccount = new SpecAccount("johndoe", "password123", 1);
+        testSpecAccount = new SpecAccountLegacy("johndoe", "password123", 1);
     }
 
     @Test
@@ -152,7 +152,7 @@ public class AccountControllerTest {
     @Test
     void testGetAllSpecAccounts() throws Exception {
         // Setup
-        List<SpecAccount> specAccounts = Arrays.asList(testSpecAccount);
+        List<SpecAccountLegacy> specAccounts = Arrays.asList(testSpecAccount);
         when(specAccountRepository.findAll()).thenReturn(specAccounts);
 
         // Execution & Verification

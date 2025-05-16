@@ -1,7 +1,7 @@
 package com.adityamehrotra.paper_trader.controller;
 
 import com.adityamehrotra.paper_trader.model.AccountLegacy;
-import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.model.SpecAccountLegacy;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
 import com.adityamehrotra.paper_trader.service.AccountService;
@@ -82,7 +82,7 @@ public class AccountController {
             @Parameter(description = "Username", required = true) @NotNull @RequestParam String username,
             @Parameter(description = "Password", required = true) @NotNull @RequestParam String password) {
         try {
-            SpecAccount specAccount = specAccountRepository.findById(username).orElse(null);
+            SpecAccountLegacy specAccount = specAccountRepository.findById(username).orElse(null);
 
             if (specAccount != null && specAccount.getPassword().equals(password)) {
                 AccountLegacy account = accountRepository.findById(specAccount.getAccountID()).orElse(null);
@@ -139,7 +139,7 @@ public class AccountController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/all/spec")
-    public List<SpecAccount> getAllSpecAccounts() {
+    public List<SpecAccountLegacy> getAllSpecAccounts() {
         return specAccountRepository.findAll();
     }
 

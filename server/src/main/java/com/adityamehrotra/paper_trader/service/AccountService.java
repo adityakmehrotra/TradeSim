@@ -8,7 +8,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.adityamehrotra.paper_trader.model.AccountLegacy;
-import com.adityamehrotra.paper_trader.model.SpecAccount;
+import com.adityamehrotra.paper_trader.model.SpecAccountLegacy;
 import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.SpecAccountRepository;
 
@@ -45,7 +45,7 @@ public class AccountService {
             @Valid @NotNull(message = "Account cannot be null") AccountLegacy account,
             @NotEmpty(message = "Username cannot be empty") String username,
             @NotEmpty(message = "Password cannot be empty") String password) {
-        SpecAccount specAccount = new SpecAccount(username, password, account.getAccountID());
+        SpecAccountLegacy specAccount = new SpecAccountLegacy(username, password, account.getAccountID());
         specAccountRepository.save(specAccount);
         return accountRepository.save(account);
     }
@@ -73,7 +73,7 @@ public class AccountService {
     public Integer getAccountIDByUsername(
             @NotEmpty(message = "Username cannot be empty") String username) {
         return specAccountRepository.findById(username)
-                .map(SpecAccount::getAccountID)
+                .map(SpecAccountLegacy::getAccountID)
                 .orElseThrow(() -> new NoSuchElementException("Username not found: " + username));
     }
 
@@ -125,7 +125,7 @@ public class AccountService {
      */
     public String getPasswordByUsername(@NotEmpty(message = "Username cannot be empty") String username) {
         return specAccountRepository.findById(username)
-                .map(SpecAccount::getPassword)
+                .map(SpecAccountLegacy::getPassword)
                 .orElseThrow(() -> new NoSuchElementException("Username not found: " + username));
     }
 
