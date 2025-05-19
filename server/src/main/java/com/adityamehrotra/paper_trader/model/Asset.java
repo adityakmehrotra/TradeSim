@@ -26,4 +26,9 @@ public class Asset {
 
     @NotEmpty(message = "Name cannot be empty")
     private String name;
+
+    @NotEmpty(message = "Type cannot be empty")
+    private String type;
+
+    private String isin;
 }
