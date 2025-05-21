@@ -1,36 +1,21 @@
 package com.adityamehrotra.paper_trader.controller;
 
-import com.adityamehrotra.paper_trader.model.Asset;
+import com.adityamehrotra.paper_trader.dto.PortfolioRequest;
 import com.adityamehrotra.paper_trader.model.Portfolio;
-import com.adityamehrotra.paper_trader.model.SecurityModelLegacy;
-import com.adityamehrotra.paper_trader.model.Transaction;
-import com.adityamehrotra.paper_trader.repository.AccountRepository;
 import com.adityamehrotra.paper_trader.repository.PortfolioRepository;
-import com.adityamehrotra.paper_trader.repository.SecurityRepository;
-import com.adityamehrotra.paper_trader.repository.TransactionRepository;
 import com.adityamehrotra.paper_trader.service.PortfolioService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.ArrayList;
-import java.util.Comparator;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/paper_trader/portfolio")
+@RequestMapping("/tradesim/api/portfolio")
+@Validated
 public class PortfolioController {
   private final AccountRepository accountRepository;
   private final PortfolioRepository portfolioRepository;
