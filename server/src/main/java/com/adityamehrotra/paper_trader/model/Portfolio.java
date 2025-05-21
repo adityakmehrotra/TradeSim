@@ -1,9 +1,6 @@
 package com.adityamehrotra.paper_trader.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -19,6 +16,7 @@ import jakarta.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Getter
 @Document(collection = "TradeSim-Portfolio")
 public class Portfolio {
     @Id
@@ -30,10 +28,15 @@ public class Portfolio {
     @Min(value = 1, message = "Account ID must be greater than 0")
     private Integer accountID;
 
+    @Setter
     @NotEmpty(message = "Portfolio name cannot be empty")
     @Size(max = 100, message = "Portfolio name must not exceed 100 characters")
     private String name;
 
+    @Setter
+    private String description;
+
+    @Setter
     @NotNull(message = "Cash amount cannot be null")
     @Min(value = 0, message = "Cash amount must be non-negative")
     private Double cash;
@@ -42,12 +45,14 @@ public class Portfolio {
     @Min(value = 1, message = "Initial balance must be greater than 0")
     private Double initialBalance;
 
+    @Setter
     @NotNull(message = "Transaction list cannot be null")
     private List<
             @NotNull(message = "Transaction ID cannot be null")
             @Min(value = 1, message = "Transaction ID must be greater than 0")
             Integer> transactionList;
 
+    @Setter
     @NotNull(message = "Holdings list cannot be null")
     private List<
             @NotNull(message = "Holding ID cannot be null")
