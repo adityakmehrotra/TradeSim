@@ -2,6 +2,7 @@ package com.adityamehrotra.paper_trader.model;
 
 import java.util.List;
 
+import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Document(collection = "TradeSim-Holding")
 public class Holding {
     @Id
@@ -25,16 +27,18 @@ public class Holding {
     @Min(value = 1, message = "Portfolio ID must be greater than 0")
     private Integer portfolioID;
 
-    @NotNull(message = "Asset ID cannot be null")
-    @Min(value = 1, message = "Asset ID must be greater than 0")
-    private Integer assetID;
-
     private List<
             @NotNull(message = "Transaction ID cannot be null")
             @Min(value = 1, message = "Transaction ID must be greater than 0")
             Integer> transactionList;
 
-    private Integer shares;
+    private Double shares;
 
-    private Integer avgValue;
+    private Double avgValue;
+
+    private boolean active;
+
+    public boolean getActive() {
+        return active;
+    }
 }

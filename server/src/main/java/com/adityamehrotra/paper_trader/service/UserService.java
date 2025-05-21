@@ -4,6 +4,9 @@ import com.adityamehrotra.paper_trader.dto.LoginRequest;
 import com.adityamehrotra.paper_trader.dto.RegistrationRequest;
 import com.adityamehrotra.paper_trader.model.User;
 import com.adityamehrotra.paper_trader.repository.UserRepository;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +17,25 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, MongoTemplate mongoTemplate) {
         this.userRepository = userRepository;
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    @Transactional
+    public int getNextID() {
+        Query query = new Query();
+        query.with(Sort.by(Sort.Direction.DESC, "userID"));
+        query.limit(1);
+
+        User lastUser = mongoTemplate.findOne(query, User.class);
+        if (lastUser == null) {
+            return 1;
+        } else {
+            return lastUser.getUserID() + 1;
+        }
     }
 
     @Transactional
@@ -53,10 +72,7 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-
-
-        int userID = userRepository.getNextID();
-        System.out.println(userID);
+        int userID = getNextID();
 
         List<Integer> portfolioList = new ArrayList<>();
 
@@ -102,7 +118,7 @@ public class UserService {
     @Transactional
     public User getUser(Integer id) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
+            throw new IllegalArgumentException("Invalid User ID");
         }
 
         User user = userRepository.findByUserID(id);

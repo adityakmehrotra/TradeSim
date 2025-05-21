@@ -13,5 +13,4 @@ public interface UserRepository extends MongoRepository<User, Integer> {
     User findByEmail(@Email(message = "Email address should be valid") @NotEmpty(message = "Email address cannot be empty") String email);
     User findByUsername(@NotEmpty(message = "Username cannot be empty") String username);
     User findByUserID(@NotEmpty(message = "User ID cannot be empty") Integer userID);
-    int getNextID();
 }
