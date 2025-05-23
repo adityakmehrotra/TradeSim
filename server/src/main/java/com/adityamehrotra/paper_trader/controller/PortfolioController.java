@@ -17,374 +17,256 @@ import java.util.Map;
 @RequestMapping("/tradesim/api/portfolio")
 @Validated
 public class PortfolioController {
-  private final AccountRepository accountRepository;
-  private final PortfolioRepository portfolioRepository;
-  private final SecurityRepository securityRepository;
-  private final TransactionRepository transactionRepository;
-  private final PortfolioService portfolioService;
+    private final PortfolioService portfolioService;
+    private final PortfolioRepository portfolioRepository;
+    private final UserController userController;
 
-  public PortfolioController(
-      PortfolioRepository portfolioRepository,
-      SecurityRepository securityRepository,
-      TransactionRepository transactionRepository,
-      AccountRepository accountRepository,
-      PortfolioService portfolioService) {
-    this.portfolioRepository = portfolioRepository;
-    this.securityRepository = securityRepository;
-    this.transactionRepository = transactionRepository;
-    this.accountRepository = accountRepository;
-    this.portfolioService = portfolioService;
-  }
-
-  @Tag(name = "Post Portfolio", description = "POST method of Portfolio APIs")
-  @Operation(summary = "Add Portfolio", description = "Add an Portfolio. The response is a Portfolio object with the parameters given.")
-  @PostMapping("/create")
-  public Portfolio create(
-      @Parameter(description = "Portfolio object to be created", required = true) @RequestBody Portfolio portfolio) {
-    return portfolioService.addPortfolio(portfolio);
-  }
-
-  @Tag(name = "Delete Portfolio", description = "DELETE methods of Portfolio APIs")
-  @Operation(summary = "Delete Portfolio", description = "Delete a Portfolio.")
-  @DeleteMapping("/remove")
-  public void delete(
-      @Parameter(description = "Portfolio ID whose portfolio needs needs to be removed", required = true) @RequestParam Integer id) {
-    List<Integer> currPortfolioList = new ArrayList<>();
-    for (int i = 0; i < accountRepository
-        .findById(portfolioRepository.findById(id).get().getAccountID())
-        .get()
-        .getPortfolioList()
-        .size(); i++) {
-      Integer curr = accountRepository
-          .findById(portfolioRepository.findById(id).get().getAccountID())
-          .get()
-          .getPortfolioList()
-          .get(0);
-      if (id != curr) {
-        currPortfolioList.add(curr);
-      }
+    public PortfolioController(PortfolioService portfolioService, PortfolioRepository portfolioRepository, UserController userController) {
+        this.portfolioService = portfolioService;
+        this.portfolioRepository = portfolioRepository;
+        this.userController = userController;
     }
-    accountRepository
-        .findById(portfolioRepository.findById(id).get().getAccountID())
-        .get()
-        .setPortfolioList(currPortfolioList);
-    portfolioRepository.deleteById(id);
-  }
 
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Specific Portfolio by Portfolio ID", description = "Get the information for a specific portfolio. The response is the Portfolio object that matches the id.")
-  @GetMapping("/get")
-  public Portfolio getAllInfo(
-      @Parameter(description = "Portfolio ID whose portfolio needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get();
-  }
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<?> createPortfolio(@RequestBody PortfolioRequest portfolio) {
+        try {
+            int portfolioID = portfolioService.createPortfolio(portfolio);
+            userController.addPortfolio(portfolio.getAccountID(), portfolioID);
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", "INSERT TOKEN HERE");
+            response.put("id", portfolioID);
 
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Account ID by Portfolio ID", description = "Get the Account ID for a specific portfolio. The response is an integer of the Account ID.")
-  @GetMapping("/get/accountID")
-  public Integer getAccountID(
-      @Parameter(description = "Portfolio ID whose Account ID needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getAccountID();
-  }
 
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Name by Portfolio ID", description = "Get the Name for a specific portfolio. The response is an String of the Name.")
-  @GetMapping("/get/name")
-  public String getPortfolioName(
-      @Parameter(description = "Portfolio ID whose portfolio name needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getPortfolioName();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Cash by Portfolio ID", description = "Get the Cash for a specific portfolio. The response is a Double of the Cash value.")
-  @GetMapping("/get/cash")
-  public Double getCash(
-      @Parameter(description = "Portfolio ID whose cash needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getCashAmount();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Initial Cash by Portfolio ID", description = "Get the Initial Cash for a specific portfolio. The response is a Double of the Initial Cash value.")
-  @GetMapping("/get/initcash")
-  public Double getInitCash(
-      @Parameter(description = "Portfolio ID whose initial cash needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getInitialBalance();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Transactions by Portfolio ID", description = "Get the Transactions for a specific portfolio. The response is a List of Integers, each integer is a transactionID.")
-  @GetMapping("/get/transactions")
-  public List<Integer> getTransactionList(
-      @Parameter(description = "Portfolio ID whose transaction list needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getTransactionList();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Assets by Portfolio ID", description = "Get the Assets for a specific portfolio. The response is a List of Assets.")
-  @GetMapping("/get/assets")
-  public List<Asset> getAssets(
-      @Parameter(description = "Portfolio ID whose assets list needs to be retrieved", required = true) @RequestParam Integer id) {
-    List<Asset> assetsList = new ArrayList<>(portfolioRepository.findById(id).get().getAssets().values());
-    return assetsList;
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Map of Asset Ticker Symbol and Asset by Portfolio ID", description = "Get the Map of Asset Ticker Symbol and Asset for a specific portfolio. The response is a Map of Asset Ticker Symbol and Asset.")
-  @GetMapping("/get/assetsMap")
-  public Map<String, Asset> getAssetsMap(
-      @Parameter(description = "Portfolio ID whose assets map needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getAssets();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Shares for some Asset Ticker Symbol in Assets Map", description = "Get the Shares for some Asset Ticker Symbol. The response is a Double of the number of shares.")
-  @GetMapping("/get/assetsMap/shares")
-  public Double getAssetsMap(
-      @Parameter(description = "Portfolio ID whose assets map needs to be retrieved", required = true) @RequestParam Integer id,
-      @Parameter(description = "Asset Ticker Symbol whose Shares need to be retrieved", required = true) @RequestParam String code) {
-    return portfolioRepository.findById(id).get().getAssets().get(code).getSharesOwned();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Set of Holdings by Portfolio ID", description = "Get the Holdings for a specific portfolio. The response is a Set of Holdings.")
-  @GetMapping("/get/holdings")
-  public Set<SecurityModelLegacy> getHolding(
-      @Parameter(description = "Portfolio ID whose holdings needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getHoldings();
-  }
-
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get Map of Assets and their Average Value by Portfolio ID", description = "Get the Average Value for each Asset for a specific portfolio. The response is a Map of a String of the Asset Ticker Symbol to a Double of the Average Value.")
-  @GetMapping("/get/assets/avgValue")
-  public Map<String, Double> getAssetsAvgValue(
-      @Parameter(description = "Portfolio ID whose map of assets and their average value needs to be retrieved", required = true) @RequestParam Integer id) {
-    return portfolioRepository.findById(id).get().getAssetsAvgValue();
-  }
-
-  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
-  @Operation(summary = "Add Holding to a Portfolio by Portfolio ID", description = "Add a holding to the holding set for a specific portfolio. The response is a Portfolio object with the holding added to the holding set.")
-  @PostMapping("/add/holding")
-  public Portfolio addHolding(
-      @Parameter(description = "Portfolio ID which needs a holding added", required = true) @RequestParam Integer id,
-      @Parameter(description = "Asset Symbol of the holding that needs to be added", required = true) @RequestParam String code) {
-    if (code.equals("Cash")) {
-      Set<SecurityModelLegacy> holdings = new HashSet<>();
-      SecurityModelLegacy cashSecurityModel = new SecurityModelLegacy("Cash", null, null, null, null, null, null);
-      holdings.add(cashSecurityModel);
-      Portfolio portfolio = new Portfolio(id,
-          getAccountID(id),
-          getPortfolioName(id),
-          getCash(id),
-          getInitCash(id),
-          getTransactionList(id),
-          getAssetsMap(id),
-          holdings,
-          getAssetsAvgValue(id));
-      return portfolioRepository.save(portfolio);
-    }
-    Set<SecurityModelLegacy> holdingsSet = portfolioRepository.findById(id).get().getHoldings();
-    holdingsSet.add(securityRepository.findById(code).get());
-    Portfolio portfolio = new Portfolio(
-        id,
-        getAccountID(id),
-        getPortfolioName(id),
-        getCash(id),
-        getInitCash(id),
-        getTransactionList(id),
-        getAssetsMap(id),
-        holdingsSet,
-        getAssetsAvgValue(id));
-    return portfolioRepository.save(portfolio);
-  }
-
-  public Portfolio editAsset(@RequestParam Integer id, @RequestParam String code, Double shareAmt, Double cashAmt) {
-    Map<String, Asset> assets = portfolioRepository.findById(id).get().getAssets();
-    Map<String, Double> assetsAvgValue = portfolioRepository.findById(id).get().getAssetsAvgValue();
-    if (!assets.isEmpty()) {
-      if (assets.containsKey(code)) {
-        Double currAmt = assets.get(code).getSharesOwned();
-        if (currAmt - shareAmt == 0) {
-          assets.remove(code);
-          assetsAvgValue.remove(code);
-          Set<SecurityModelLegacy> holdings = portfolioRepository.findById(id).get().getHoldings();
-          holdings.remove(code);
-          Portfolio portfolio = new Portfolio(
-              id,
-              getAccountID(id),
-              getPortfolioName(id),
-              getCash(id),
-              getInitCash(id),
-              getTransactionList(id),
-              assets,
-              holdings,
-              assetsAvgValue);
-          return portfolioRepository.save(portfolio);
-        } else {
-          Asset asset = assets.get(code);
-          asset.setSharesOwned(currAmt - shareAmt);
-          asset.setInitialCashInvestment(assets.get(code).getInitialCashInvestment() - cashAmt);
-          assets.put(code, asset);
-
-          Portfolio portfolio = new Portfolio(
-              id,
-              getAccountID(id),
-              getPortfolioName(id),
-              getCash(id),
-              getInitCash(id),
-              getTransactionList(id),
-              assets,
-              getHolding(id),
-              getAssetsAvgValue(id));
-          return portfolioRepository.save(portfolio);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
-      }
-    }
-    return null;
-  }
-
-  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
-  @Operation(summary = "Add Asset to a Portfolio by Portfolio ID", description = "Add a asset to the asset map for a specific portfolio. The response is a Portfolio object with the asset added to the asset map.")
-  @PostMapping("/add/asset")
-  public Portfolio addAsset(
-      @Parameter(description = "Portfolio ID which needs a holding added", required = true) @RequestParam Integer id,
-      @Parameter(description = "Asset Symbol of the holding that needs to be added", required = true) @RequestParam String code,
-      @Parameter(description = "Asset that needs to be added", required = true) @RequestBody Asset asset,
-      @Parameter(description = "TransactionID of the transaction where the asset is added", required = true) @RequestParam Integer transactionID) {
-    if (code.equals("Cash")) {
-      Map<String, Asset> assets = new HashMap<>();
-      assets.put(code, asset);
-      Map<String, Double> assetsAvgValue = new HashMap<>();
-      assetsAvgValue.put("Cash", asset.getInitialCashInvestment());
-      Portfolio portfolio = new Portfolio(id,
-          getAccountID(id),
-          getPortfolioName(id),
-          getCash(id),
-          getInitCash(id),
-          getTransactionList(id),
-          assets,
-          getHolding(id),
-          assetsAvgValue);
-      return portfolioRepository.save(portfolio);
-    }
-    code = code.toUpperCase();
-    Map<String, Asset> assets;
-    Map<String, Asset> assetsMap = portfolioRepository.findById(id).get().getAssets();
-    Map<String, Double> assetsAvgValue = portfolioRepository.findById(id).get().getAssetsAvgValue();
-
-    if (assetsMap == null) {
-      assets = new HashMap<>();
-    } else {
-      assets = assetsMap;
-    }
-    Double currInit = getInitCash(id);
-    if (!assets.isEmpty()) {
-      if (assets.containsKey(code)) {
-        Double currAmt = assets.get(code).getSharesOwned();
-        asset.setSharesOwned(currAmt + asset.getSharesOwned());
-        Double tempAmt = assetsAvgValue.get(code) * currAmt;
-        Double newAmt = transactionRepository.findById(transactionID).get().getShareAmount()
-            * transactionRepository.findById(transactionID).get().getCurrPrice();
-        assetsAvgValue.put(code, (tempAmt + newAmt) / asset.getSharesOwned());
-        currInit += assets.get(code).getInitialCashInvestment();
-      } else {
-        assetsAvgValue.put(code, asset.getInitPrice());
-      }
-    }
-    assets.put(code, asset);
-    Portfolio portfolio = new Portfolio(
-        id,
-        getAccountID(id),
-        getPortfolioName(id),
-        getCash(id),
-        currInit,
-        getTransactionList(id),
-        assets,
-        addHolding(id, code).getHoldings(),
-        assetsAvgValue);
-    return portfolioRepository.save(portfolio);
-  }
-
-  @Tag(name = "Post Portfolio", description = "POST methods of Portfolio APIs")
-  @Operation(summary = "Add Transaction to a Portfolio by Portfolio ID", description = "Add a transaction to the transaction list for a specific portfolio. The response is a Portfolio object with the transaction added to the transaction list.")
-  @PostMapping("/add/transaction")
-  public Portfolio addTransaction(
-      @Parameter(description = "Portfolio ID which needs a holding added", required = true) @RequestParam Integer id,
-      @Parameter(description = "TransactionID of the transaction where the asset is added", required = true) @RequestParam Integer transactionID) {
-    List<Integer> transactions;
-    List<Integer> transactionList = portfolioRepository.findById(id).get().getTransactionList();
-    if (transactionList == null) {
-      transactions = new ArrayList<>();
-    } else {
-      transactions = transactionList;
-    }
-    transactions.add(transactionID);
-    Portfolio portfolio;
-    Transaction transaction = transactionRepository.findById(transactionID).get();
-
-    if (transaction.getOrderType().equals("Buy")) {
-      Asset asset = new Asset(transaction.getShareAmount(), transaction.getCashAmount(), transaction.getGmtTime(),
-          transaction.getCurrPrice());
-      addAsset(id, transactionRepository.findById(transactionID).get().getSecurityCode(), asset, transactionID);
-      portfolio = new Portfolio(
-          id,
-          getAccountID(id),
-          getPortfolioName(id),
-          getCash(id) - transaction.getCashAmount(),
-          getInitCash(id),
-          transactions,
-          getAssetsMap(id),
-          addHolding(id, "Cash").getHoldings(),
-          getAssetsAvgValue(id));
-    } else if (transaction.getOrderType().equals("Fund")) {
-      Asset asset = new Asset(transaction.getShareAmount(), transaction.getCashAmount(), transaction.getGmtTime(),
-          transaction.getCurrPrice());
-      addAsset(id, transactionRepository.findById(transactionID).get().getSecurityCode(), asset, transactionID);
-      portfolio = new Portfolio(
-          id,
-          getAccountID(id),
-          getPortfolioName(id),
-          getCash(id),
-          getInitCash(id),
-          transactions,
-          getAssetsMap(id),
-          addHolding(id, transactionRepository.findById(transactionID).get().getSecurityCode())
-              .getHoldings(),
-          getAssetsAvgValue(id));
-    } else {
-      portfolioRepository.findById(id).get().setCashAmount(getCash(id) + transactionID);
-      editAsset(id, transactionRepository.findById(transactionID).get().getSecurityCode(),
-          transactionRepository.findById(transactionID).get().getShareAmount(),
-          transactionRepository.findById(transactionID).get().getCashAmount());
-      portfolio = new Portfolio(
-          id,
-          getAccountID(id),
-          getPortfolioName(id),
-          getCash(id) + transaction.getCashAmount(),
-          getInitCash(id),
-          transactions,
-          getAssetsMap(id),
-          addHolding(id, transactionRepository.findById(transactionID).get().getSecurityCode())
-              .getHoldings(),
-          getAssetsAvgValue(id));
     }
 
-    return portfolioRepository.save(portfolio);
-  }
+    @GetMapping("/name")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioName(@RequestParam Integer portfolioID) {
+        try {
+            String portfolioName = portfolioService.getPortfolio(portfolioID).getName();
+            Map<String, String> response = new HashMap<>();
+            response.put("name", portfolioName);
 
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get all of the Portfolios", description = "Get the List of all Portfolios. The response is the list of Portfolios.")
-  @GetMapping("/all")
-  public List<Portfolio> getAllPortfolios() {
-    return portfolioRepository.findAll();
-  }
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
 
-  @Tag(name = "Get Portfolio", description = "GET methods of Portfolio APIs")
-  @Operation(summary = "Get the next new portfolioID", description = "Get the next new Portfolio ID which should be 1 larger than the largest current Portfolio ID. The response is an integer of the Portfolio ID.")
-  @GetMapping("/get/nextportfolioID")
-  public Integer getNextPortfolioID() {
-    return portfolioRepository.findAll().stream()
-        .max(Comparator.comparingInt(Portfolio::getPortfolioID))
-        .map(account -> account.getPortfolioID() + 1)
-        .orElse(1);
-  }
+    @PutMapping("/name")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<?> updatePortfolioName(@RequestParam Integer portfolioID, @RequestParam String name) {
+        try {
+            portfolioService.updatePortfolioName(portfolioID, name);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio name updated successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/description")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioDescription(@RequestParam Integer portfolioID) {
+        try {
+            String portfolioDescription = portfolioService.getPortfolio(portfolioID).getDescription();
+            Map<String, String> response = new HashMap<>();
+            response.put("description", portfolioDescription);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/description")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<?> updatePortfolioDescription(@RequestParam Integer portfolioID, @RequestParam String description) {
+        try {
+            portfolioService.updatePortfolioDescription(portfolioID, description);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio description updated successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/cash")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioCash(@RequestParam Integer portfolioID) {
+        try {
+            Double portfolioCash = portfolioService.getPortfolio(portfolioID).getCash();
+            Map<String, Double> response = new HashMap<>();
+            response.put("cash", portfolioCash);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/cash")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<?> updatePortfolioCash(@RequestParam Integer portfolioID, @RequestParam Double cash) {
+        try {
+            portfolioService.updatePortfolioCash(portfolioID, cash);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio cash updated successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/initialBalance")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioInitialBalance(@RequestParam Integer portfolioID) {
+        try {
+            Double initialBalance = portfolioService.getPortfolio(portfolioID).getInitialBalance();
+            Map<String, Double> response = new HashMap<>();
+            response.put("initialBalance", initialBalance);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/transactionList")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioTransactionList(@RequestParam Integer portfolioID) {
+        try {
+            Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
+            Map<String, Object> response = new HashMap<>();
+            response.put("transactionList", portfolio.getTransactionList());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/transactionList")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<?> updatePortfolioTransactionList(@RequestParam Integer portfolioID, @RequestParam Integer transactionID) {
+        try {
+            portfolioService.addTransaction(portfolioID, transactionID);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio transaction list updated successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/transactionList")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> deletePortfolioTransaction(@RequestParam Integer portfolioID, @RequestParam Integer transactionID) {
+        try {
+            portfolioService.removeTransaction(portfolioID, transactionID);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Transaction deleted successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/holdingsList")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getPortfolioHoldingsList(@RequestParam Integer portfolioID) {
+        try {
+            Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
+            Map<String, Object> response = new HashMap<>();
+            response.put("holdingsList", portfolio.getHoldingsList());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/holdingsList")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<?> updatePortfolioHoldingsList(@RequestParam Integer portfolioID, @RequestParam Integer holdingID) {
+        try {
+            portfolioService.addHolding(portfolioID, holdingID);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio holdings list updated successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/holdingsList")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> deletePortfolioHolding(@RequestParam Integer portfolioID, @RequestParam Integer holdingID) {
+        try {
+            portfolioService.removeHolding(portfolioID, holdingID);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Holding deleted successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> deletePortfolio(@RequestParam Integer portfolioID) {
+        try {
+            portfolioService.deletePortfolio(portfolioID);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Portfolio deleted successfully");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
 }
