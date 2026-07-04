@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AssetRepository extends MongoRepository<Asset, Integer> {
-    Asset findByTicker(String ticker);
-    Asset findByName(String name);
-    Asset findByIsin(String isin);
+  Asset findByTicker(String ticker);
+
+  Asset findByName(String name);
+
+  Asset findByIsin(String isin);
 }

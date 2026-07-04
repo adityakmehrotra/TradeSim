@@ -8,9 +8,19 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends MongoRepository<User, Integer> {
-    boolean existsByEmail(@Email(message = "Email address should be valid") @NotEmpty(message = "Email address cannot be empty") String email);
-    boolean existsByUsername(@NotEmpty(message = "Username cannot be empty") String username);
-    User findByEmail(@Email(message = "Email address should be valid") @NotEmpty(message = "Email address cannot be empty") String email);
-    User findByUsername(@NotEmpty(message = "Username cannot be empty") String username);
-    User findByUserID(@NotEmpty(message = "User ID cannot be empty") Integer userID);
+  boolean existsByEmail(
+      @Email(message = "Email address should be valid")
+          @NotEmpty(message = "Email address cannot be empty")
+          String email);
+
+  boolean existsByUsername(@NotEmpty(message = "Username cannot be empty") String username);
+
+  User findByEmail(
+      @Email(message = "Email address should be valid")
+          @NotEmpty(message = "Email address cannot be empty")
+          String email);
+
+  User findByUsername(@NotEmpty(message = "Username cannot be empty") String username);
+
+  User findByUserID(@NotEmpty(message = "User ID cannot be empty") Integer userID);
 }

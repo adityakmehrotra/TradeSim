@@ -15,8 +15,17 @@ public class TransactionRequest {
   private Double price;
   private Double totalAmount;
 
-  public HoldingRequest(int portfolioID, int holdingID, String ticker, Instant filledDate,
-                        Instant submittedDate, String type, String status, Double shares, Double price, Double totalAmount) {
+  public HoldingRequest(
+      int portfolioID,
+      int holdingID,
+      String ticker,
+      Instant filledDate,
+      Instant submittedDate,
+      String type,
+      String status,
+      Double shares,
+      Double price,
+      Double totalAmount) {
     this.portfolioID = portfolioID;
     this.holdingID = holdingID;
     this.ticker = ticker;
