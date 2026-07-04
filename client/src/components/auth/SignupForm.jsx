@@ -9,7 +9,7 @@ function SignupForm() {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const { signup, error, setError } = useContext(AuthContext);
@@ -19,44 +19,44 @@ function SignupForm() {
     const { name, value } = e.target;
     setUserData({
       ...userData,
-      [name]: value
+      [name]: value,
     });
     if (error) setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!userData.name || !userData.username || !userData.email || !userData.password) {
       setError('Please fill in all required fields');
       return;
     }
-    
+
     if (userData.username.length < 3 || userData.username.length > 20) {
       setError('Username must be between 3 and 20 characters');
       return;
     }
-    
+
     if (userData.password.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
-    
+
     if (userData.password !== userData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const accountData = {
         name: userData.name,
         email: userData.email,
         cash: 10000,
-        dateCreated: new Date().toISOString()
+        dateCreated: new Date().toISOString(),
       };
-      
+
       await signup(accountData, userData.username, userData.password);
       navigate('/');
     } catch (err) {
@@ -70,9 +70,9 @@ function SignupForm() {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Create an Account</h2>
-        
+
         {error && <div className="auth-error">{error}</div>}
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
@@ -86,7 +86,7 @@ function SignupForm() {
               disabled={isLoading}
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -100,7 +100,7 @@ function SignupForm() {
               autoComplete="username"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -113,7 +113,7 @@ function SignupForm() {
               disabled={isLoading}
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -127,7 +127,7 @@ function SignupForm() {
               autoComplete="new-password"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
             <input
@@ -141,16 +141,12 @@ function SignupForm() {
               autoComplete="new-password"
             />
           </div>
-          
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
-          >
+
+          <button type="submit" className="auth-button" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           Already have an account? <Link to="/login">Log in</Link>
         </div>

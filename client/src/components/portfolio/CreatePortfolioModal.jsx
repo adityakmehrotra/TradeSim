@@ -7,29 +7,29 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
   const [errors, setErrors] = useState({});
   const modalRef = useRef(null);
   const inputRef = useRef(null);
-  
+
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [isOpen]);
-  
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         onClose();
       }
     }
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose]);
-  
+
   useEffect(() => {
     if (!isOpen) {
       setPortfolioName('');
@@ -40,11 +40,11 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!portfolioName.trim()) {
       newErrors.portfolioName = 'Portfolio name is required';
     }
-    
+
     const balance = parseFloat(initialBalance);
     if (isNaN(balance)) {
       newErrors.initialBalance = 'Please enter a valid number';
@@ -53,18 +53,18 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
     } else if (balance > 1000000) {
       newErrors.initialBalance = 'Initial balance cannot exceed $1,000,000';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validate()) {
       onSubmit({
         portfolioName: portfolioName.trim(),
-        initialBalance: parseFloat(initialBalance)
+        initialBalance: parseFloat(initialBalance),
       });
     }
   };
@@ -80,7 +80,7 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
             ×
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
             <label htmlFor="portfolioName">Portfolio Name</label>
@@ -96,7 +96,7 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
             />
             {errors.portfolioName && <div className="error-message">{errors.portfolioName}</div>}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="initialBalance">Initial Balance ($)</label>
             <div className="currency-input-container">
@@ -114,21 +114,17 @@ function CreatePortfolioModal({ isOpen, onClose, onSubmit, isCreating }) {
             {errors.initialBalance && <div className="error-message">{errors.initialBalance}</div>}
             <div className="help-text">Min: $1,000 | Max: $1,000,000</div>
           </div>
-          
+
           <div className="modal-footer">
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
+            <button
+              type="button"
+              className="btn btn-secondary"
               onClick={onClose}
               disabled={isCreating}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              disabled={isCreating}
-            >
+            <button type="submit" className="btn btn-primary" disabled={isCreating}>
               {isCreating ? 'Creating...' : 'Create Portfolio'}
             </button>
           </div>

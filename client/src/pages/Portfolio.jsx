@@ -15,15 +15,7 @@ import {
 import api from '../services/api';
 import './Portfolio.css';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 function Portfolio() {
   const { id } = useParams();
@@ -35,7 +27,15 @@ function Portfolio() {
   const navigate = useNavigate();
 
   const [performanceData] = useState({
-    labels: ['7 Days Ago', '6 Days Ago', '5 Days Ago', '4 Days Ago', '3 Days Ago', 'Yesterday', 'Today'],
+    labels: [
+      '7 Days Ago',
+      '6 Days Ago',
+      '5 Days Ago',
+      '4 Days Ago',
+      '3 Days Ago',
+      'Yesterday',
+      'Today',
+    ],
     datasets: [
       {
         label: 'Portfolio Value',
@@ -58,47 +58,48 @@ function Portfolio() {
     const fetchPortfolioDetails = async () => {
       try {
         setLoading(true);
-        
+
         const portfolioData = await api.getPortfolio(id);
-        
+
         if (portfolioData.accountID !== user.accountId) {
           setError("You don't have permission to view this portfolio");
           setLoading(false);
           return;
         }
-        
+
         const cashAmount = portfolioData.cashAmount || 0;
         const totalValue = portfolioData.initialBalance || 0;
         const investedAmount = totalValue - cashAmount;
-        
+
         const processed = {
           ...portfolioData,
           investedAmount,
           holdings: [],
-          transactions: portfolioData.transactionList || []
+          transactions: portfolioData.transactionList || [],
         };
-        
+
         if (portfolioData.assets) {
           processed.holdings = Object.entries(portfolioData.assets)
             .filter(([symbol]) => symbol !== 'Cash')
             .map(([symbol, asset]) => {
               const currentPrice = asset.currentPrice || asset.initialPrice;
               const totalValue = asset.sharesOwned * currentPrice;
-              const costBasis = asset.initialCashInvestment || (asset.sharesOwned * asset.initialPrice);
+              const costBasis =
+                asset.initialCashInvestment || asset.sharesOwned * asset.initialPrice;
               const percentChange = ((totalValue - costBasis) / costBasis) * 100;
-              
+
               return {
                 symbol,
                 name: asset.companyName || symbol,
                 shares: asset.sharesOwned,
-                averageCost: (costBasis / asset.sharesOwned),
+                averageCost: costBasis / asset.sharesOwned,
                 currentPrice,
                 totalValue,
-                percentChange
+                percentChange,
               };
             });
         }
-        
+
         const initialBalance = portfolioData.initialBalance;
         const randomPerformanceData = [
           initialBalance,
@@ -107,11 +108,11 @@ function Portfolio() {
           initialBalance * (1 + (Math.random() * 0.06 - 0.03)),
           initialBalance * (1 + (Math.random() * 0.08 - 0.04)),
           initialBalance * (1 + (Math.random() * 0.1 - 0.05)),
-          totalValue
+          totalValue,
         ];
-        
+
         performanceData.datasets[0].data = randomPerformanceData;
-        
+
         setPortfolio(processed);
       } catch (err) {
         console.error('Error fetching portfolio details:', err);
@@ -163,27 +164,27 @@ function Portfolio() {
       },
       tooltip: {
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             return `$${context.parsed.y.toFixed(2)}`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       y: {
         ticks: {
-          callback: function(value) {
+          callback: function (value) {
             return '$' + value.toFixed(0);
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   };
 
-  const portfolioValue = portfolio.cashAmount + portfolio.holdings.reduce(
-    (total, holding) => total + holding.totalValue, 0
-  );
-  
+  const portfolioValue =
+    portfolio.cashAmount +
+    portfolio.holdings.reduce((total, holding) => total + holding.totalValue, 0);
+
   const gainLoss = portfolioValue - portfolio.initialBalance;
   const gainLossPercent = (gainLoss / portfolio.initialBalance) * 100;
 
@@ -202,22 +203,23 @@ function Portfolio() {
           </Link>
         </div>
       </div>
-      
+
       {/* Portfolio Summary Cards */}
       <div className="portfolio-summary-grid">
         <div className="summary-card">
           <div className="summary-card-title">Portfolio Value</div>
           <div className="summary-card-value">${portfolioValue.toFixed(2)}</div>
           <div className={`summary-card-change ${gainLoss >= 0 ? 'positive' : 'negative'}`}>
-            {gainLoss >= 0 ? '+' : ''}{gainLoss.toFixed(2)} ({gainLossPercent.toFixed(2)}%)
+            {gainLoss >= 0 ? '+' : ''}
+            {gainLoss.toFixed(2)} ({gainLossPercent.toFixed(2)}%)
           </div>
         </div>
-        
+
         <div className="summary-card">
           <div className="summary-card-title">Initial Balance</div>
           <div className="summary-card-value">${portfolio.initialBalance.toFixed(2)}</div>
         </div>
-        
+
         <div className="summary-card">
           <div className="summary-card-title">Invested</div>
           <div className="summary-card-value">${portfolio.investedAmount.toFixed(2)}</div>
@@ -225,7 +227,7 @@ function Portfolio() {
             {((portfolio.investedAmount / portfolio.initialBalance) * 100).toFixed(2)}% of portfolio
           </div>
         </div>
-        
+
         <div className="summary-card">
           <div className="summary-card-title">Cash</div>
           <div className="summary-card-value">${portfolio.cashAmount.toFixed(2)}</div>
@@ -234,7 +236,7 @@ function Portfolio() {
           </div>
         </div>
       </div>
-      
+
       {/* Performance Chart */}
       <div className="portfolio-chart-container">
         <h2>Performance</h2>
@@ -242,23 +244,23 @@ function Portfolio() {
           <Line data={performanceData} options={chartOptions} />
         </div>
       </div>
-      
+
       {/* Holdings and Transactions Tabs */}
       <div className="portfolio-tabs">
-        <button 
+        <button
           className={`tab-button ${activeTab === 'holdings' ? 'active' : ''}`}
           onClick={() => setActiveTab('holdings')}
         >
           Holdings
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'transactions' ? 'active' : ''}`}
           onClick={() => setActiveTab('transactions')}
         >
           Transactions
         </button>
       </div>
-      
+
       {/* Holdings Table */}
       {activeTab === 'holdings' && (
         <div className="table-container">
@@ -292,7 +294,8 @@ function Portfolio() {
                     <td>${holding.currentPrice.toFixed(2)}</td>
                     <td>${holding.totalValue.toFixed(2)}</td>
                     <td className={holding.percentChange >= 0 ? 'positive' : 'negative'}>
-                      {holding.percentChange >= 0 ? '+' : ''}{holding.percentChange.toFixed(2)}%
+                      {holding.percentChange >= 0 ? '+' : ''}
+                      {holding.percentChange.toFixed(2)}%
                     </td>
                   </tr>
                 ))}
@@ -301,7 +304,7 @@ function Portfolio() {
           )}
         </div>
       )}
-      
+
       {/* Transactions Table */}
       {activeTab === 'transactions' && (
         <div className="table-container">
@@ -328,7 +331,11 @@ function Portfolio() {
                 {portfolio.transactions.map((transaction, index) => (
                   <tr key={index}>
                     <td>{new Date(transaction.timestamp).toLocaleDateString()}</td>
-                    <td className={transaction.type.toLowerCase() === 'buy' ? 'buy-cell' : 'sell-cell'}>
+                    <td
+                      className={
+                        transaction.type.toLowerCase() === 'buy' ? 'buy-cell' : 'sell-cell'
+                      }
+                    >
                       {transaction.type}
                     </td>
                     <td className="symbol-cell">{transaction.symbol}</td>

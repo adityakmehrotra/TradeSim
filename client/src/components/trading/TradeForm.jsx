@@ -20,90 +20,93 @@ function TradeForm({ symbol, currentPrice }) {
   const [showModal, setShowModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [availableCash, setAvailableCash] = useState(0);
-  
+
   useEffect(() => {
     const fetchPortfolios = async () => {
       if (!user) {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        
+
         const allPortfolios = await api.getAllPortfolios();
-        
+
         const userPortfolios = allPortfolios.filter(
-          portfolio => portfolio.accountID === user.accountId
+          (portfolio) => portfolio.accountID === user.accountId
         );
-        
-        const formattedPortfolios = userPortfolios.map(portfolio => ({
+
+        const formattedPortfolios = userPortfolios.map((portfolio) => ({
           id: portfolio.portfolioID,
           name: portfolio.portfolioName,
-          holdings: portfolio.assets ? Object.entries(portfolio.assets)
-            .map(([symbol, asset]) => ({
-              symbol: symbol,
-              shares: asset.sharesOwned
-            }))
-            .filter(asset => asset.symbol !== 'Cash') : []
+          holdings: portfolio.assets
+            ? Object.entries(portfolio.assets)
+                .map(([symbol, asset]) => ({
+                  symbol: symbol,
+                  shares: asset.sharesOwned,
+                }))
+                .filter((asset) => asset.symbol !== 'Cash')
+            : [],
         }));
-        
+
         setPortfolios(formattedPortfolios);
-        
+
         if (formattedPortfolios.length > 0) {
           const firstPortfolioId = formattedPortfolios[0].id;
           setSelectedPortfolio(firstPortfolioId);
           fetchPortfolioCash(firstPortfolioId);
         }
-        
+
         setError(null);
       } catch (err) {
-        console.error("Error fetching portfolios:", err);
-        setError("Failed to load your portfolios");
+        console.error('Error fetching portfolios:', err);
+        setError('Failed to load your portfolios');
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchPortfolios();
   }, [user]);
-  
+
   const fetchPortfolioCash = async (portfolioId) => {
     if (!portfolioId) return;
-    
+
     try {
       setCashLoading(true);
-      
-      const response = await fetch(`${API_BASE_URL}/paper_trader/portfolio/get/cash?id=${portfolioId}`);
-      
+
+      const response = await fetch(
+        `${API_BASE_URL}/paper_trader/portfolio/get/cash?id=${portfolioId}`
+      );
+
       if (!response.ok) {
         throw new Error(`Failed to fetch cash: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setAvailableCash(data || 0);
-      
     } catch (err) {
-      console.error("Error fetching portfolio cash:", err);
+      console.error('Error fetching portfolio cash:', err);
     } finally {
       setCashLoading(false);
     }
   };
-  
+
   const handlePortfolioChange = (e) => {
     const newPortfolioId = e.target.value;
     setSelectedPortfolio(newPortfolioId);
     fetchPortfolioCash(newPortfolioId);
   };
-  
+
   const handleCreatePortfolio = async (formData) => {
     if (isCreating) return;
-    
+
     try {
       setIsCreating(true);
-      
+
       const nextId = await api.getNextPortfolioId();
-      
+
       const newPortfolio = {
         portfolioID: nextId,
         accountID: user.accountId,
@@ -112,33 +115,32 @@ function TradeForm({ symbol, currentPrice }) {
         initialBalance: formData.initialBalance,
         transactionList: [],
         assets: {
-          "Cash": {
+          Cash: {
             sharesOwned: 1.0,
             initialCashInvestment: formData.initialBalance,
             gmtTime: new Date().toISOString(),
-            initialPrice: formData.initialBalance
-          }
+            initialPrice: formData.initialBalance,
+          },
         },
         holdings: [],
         assetsAvgValue: {
-          "Cash": formData.initialBalance
-        }
+          Cash: formData.initialBalance,
+        },
       };
-      
+
       const createdPortfolio = await api.createPortfolio(newPortfolio);
-      
+
       const formattedNewPortfolio = {
         id: createdPortfolio.portfolioID,
         name: createdPortfolio.portfolioName,
-        holdings: []
+        holdings: [],
       };
-      
-      setPortfolios(prevPortfolios => [...prevPortfolios, formattedNewPortfolio]);
+
+      setPortfolios((prevPortfolios) => [...prevPortfolios, formattedNewPortfolio]);
       setSelectedPortfolio(formattedNewPortfolio.id);
       setAvailableCash(formData.initialBalance);
-      
+
       setShowModal(false);
-      
     } catch (err) {
       console.error('Error creating portfolio:', err);
       setError('Failed to create a new portfolio. Please try again.');
@@ -146,22 +148,22 @@ function TradeForm({ symbol, currentPrice }) {
       setIsCreating(false);
     }
   };
-  
+
   const getCurrentPortfolio = () => {
     if (!selectedPortfolio || !portfolios.length) return null;
-    return portfolios.find(p => p.id === selectedPortfolio);
+    return portfolios.find((p) => p.id === selectedPortfolio);
   };
-  
+
   const currentPortfolio = getCurrentPortfolio();
-  const ownedShares = currentPortfolio 
-    ? (currentPortfolio.holdings?.find(h => h.symbol === symbol)?.shares || 0) 
+  const ownedShares = currentPortfolio
+    ? currentPortfolio.holdings?.find((h) => h.symbol === symbol)?.shares || 0
     : 0;
-  
+
   const handleSharesChange = (e) => {
     const value = e.target.value === '' ? '' : Math.max(0, parseInt(e.target.value) || 0);
     setShares(value);
   };
-  
+
   const calculateTotal = () => {
     return shares ? (shares * currentPrice).toFixed(2) : '0.00';
   };
@@ -173,14 +175,14 @@ function TradeForm({ symbol, currentPrice }) {
     if (orderType === 'sell' && shares > ownedShares) return false;
     return true;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isValid()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const transaction = {
         securityCode: symbol,
@@ -188,27 +190,27 @@ function TradeForm({ symbol, currentPrice }) {
         shareAmount: shares,
         cashAmount: shares * currentPrice,
         currPrice: currentPrice,
-        gmtTime: new Date().toISOString()
+        gmtTime: new Date().toISOString(),
       };
-      
+
       await api.executeTrade(selectedPortfolio, transaction);
-      
+
       fetchPortfolioCash(selectedPortfolio);
-      
+
       setOrderSubmitted(true);
-      
+
       setTimeout(() => {
         setOrderSubmitted(false);
         setShares(1);
       }, 3000);
     } catch (error) {
-      console.error("Trade execution failed:", error);
-      setError("Failed to execute trade. Please try again.");
+      console.error('Trade execution failed:', error);
+      setError('Failed to execute trade. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   if (loading) {
     return (
       <div className="trade-form">
@@ -220,17 +222,21 @@ function TradeForm({ symbol, currentPrice }) {
       </div>
     );
   }
-  
+
   if (orderSubmitted) {
     const portfolioName = currentPortfolio ? currentPortfolio.name : '';
-    
+
     return (
       <div className="trade-form">
         <div className="order-confirmation">
           <div className="confirmation-icon">✓</div>
           <h3>Order Successful</h3>
           <p>
-            You {orderType === 'buy' ? 'bought' : 'sold'} <span className="highlight">{shares} {shares === 1 ? 'share' : 'shares'}</span> of <span className="highlight">{symbol}</span>
+            You {orderType === 'buy' ? 'bought' : 'sold'}{' '}
+            <span className="highlight">
+              {shares} {shares === 1 ? 'share' : 'shares'}
+            </span>{' '}
+            of <span className="highlight">{symbol}</span>
           </p>
           <div className="confirmation-details">
             <div className="detail-row">
@@ -250,7 +256,7 @@ function TradeForm({ symbol, currentPrice }) {
       </div>
     );
   }
-  
+
   if (portfolios.length === 0) {
     return (
       <div className="trade-form">
@@ -259,14 +265,11 @@ function TradeForm({ symbol, currentPrice }) {
           <div className="no-portfolio-icon">📊</div>
           <h4>No Portfolios Available</h4>
           <p>You need a portfolio to start trading.</p>
-          <button 
-            className="create-portfolio-button"
-            onClick={() => setShowModal(true)}
-          >
+          <button className="create-portfolio-button" onClick={() => setShowModal(true)}>
             Create Portfolio
           </button>
         </div>
-        
+
         <CreatePortfolioModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
@@ -280,7 +283,7 @@ function TradeForm({ symbol, currentPrice }) {
   return (
     <div className="trade-form">
       <h3>Place Order</h3>
-      
+
       <div className="order-type-tabs">
         <button
           className={`tab-button ${orderType === 'buy' ? 'active buy-active' : ''}`}
@@ -295,7 +298,7 @@ function TradeForm({ symbol, currentPrice }) {
           Sell
         </button>
       </div>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-field">
           <div className="field-header">
@@ -303,7 +306,7 @@ function TradeForm({ symbol, currentPrice }) {
           </div>
           <div className="field-value symbol">{symbol}</div>
         </div>
-        
+
         <div className="form-field">
           <div className="field-header">
             <label htmlFor="portfolio">Portfolio</label>
@@ -316,7 +319,7 @@ function TradeForm({ symbol, currentPrice }) {
               className="portfolio-selector"
               disabled={cashLoading || isSubmitting}
             >
-              {portfolios.map(portfolio => (
+              {portfolios.map((portfolio) => (
                 <option key={portfolio.id} value={portfolio.id}>
                   {portfolio.name}
                 </option>
@@ -325,23 +328,19 @@ function TradeForm({ symbol, currentPrice }) {
             <div className="select-arrow">▼</div>
           </div>
         </div>
-        
+
         <div className="form-field">
           <div className="field-header">
             <label>Market Price</label>
           </div>
           <div className="field-value price">${currentPrice.toFixed(2)}</div>
         </div>
-        
+
         <div className="form-field">
           <div className="field-header">
             <label htmlFor="shares">Shares</label>
             {orderType === 'sell' && ownedShares > 0 && (
-              <button 
-                type="button" 
-                className="max-button"
-                onClick={() => setShares(ownedShares)}
-              >
+              <button type="button" className="max-button" onClick={() => setShares(ownedShares)}>
                 Max
               </button>
             )}
@@ -370,7 +369,9 @@ function TradeForm({ symbol, currentPrice }) {
               <label>Available Cash</label>
               {cashLoading && <span className="mini-spinner"></span>}
             </div>
-            <div className={`field-value cash-value ${availableCash < shares * currentPrice ? 'insufficient' : ''}`}>
+            <div
+              className={`field-value cash-value ${availableCash < shares * currentPrice ? 'insufficient' : ''}`}
+            >
               ${availableCash.toFixed(2)}
             </div>
           </div>
@@ -381,7 +382,9 @@ function TradeForm({ symbol, currentPrice }) {
             <div className="field-header">
               <label>Available Shares</label>
             </div>
-            <div className={`field-value shares-value ${ownedShares < shares ? 'insufficient' : ''}`}>
+            <div
+              className={`field-value shares-value ${ownedShares < shares ? 'insufficient' : ''}`}
+            >
               {ownedShares}
             </div>
           </div>
@@ -396,8 +399,8 @@ function TradeForm({ symbol, currentPrice }) {
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className={`trade-button ${orderType}-button`}
           disabled={!isValid() || isSubmitting || cashLoading}
         >
@@ -407,20 +410,16 @@ function TradeForm({ symbol, currentPrice }) {
             `${orderType === 'buy' ? 'Buy' : 'Sell'} ${shares || 0} ${shares === 1 ? 'Share' : 'Shares'}`
           )}
         </button>
-        
+
         {orderType === 'buy' && shares * currentPrice > availableCash && (
-          <div className="error-message">
-            Insufficient funds for this transaction
-          </div>
+          <div className="error-message">Insufficient funds for this transaction</div>
         )}
-        
+
         {orderType === 'sell' && shares > ownedShares && (
-          <div className="error-message">
-            You don't own enough shares
-          </div>
+          <div className="error-message">You don't own enough shares</div>
         )}
       </form>
-      
+
       <CreatePortfolioModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

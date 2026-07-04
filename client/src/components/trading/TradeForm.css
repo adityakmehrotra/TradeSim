@@ -137,7 +137,8 @@
   color: var(--error-color);
 }
 
-.available-cash, .available-shares {
+.available-cash,
+.available-shares {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -202,7 +203,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {

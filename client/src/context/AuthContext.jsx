@@ -26,17 +26,17 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await api.login(username, password);
-      
+
       const userData = {
         username: response.username,
         accountId: response.account.accountID,
         name: response.account.name,
         account: response.account,
       };
-      
+
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
-      
+
       return userData;
     } catch (err) {
       setError(err.message || 'An error occurred during login');
@@ -48,17 +48,17 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await api.signup(userData, username, password);
-      
+
       const newUserData = {
         username: username,
         accountId: response.accountID,
         name: userData.name,
-        account: response
+        account: response,
       };
-      
+
       setUser(newUserData);
       localStorage.setItem('user', JSON.stringify(newUserData));
-      
+
       return newUserData;
     } catch (err) {
       setError(err.message || 'An error occurred during signup');
@@ -72,15 +72,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      signup,
-      logout, 
-      loading,
-      error,
-      setError
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        signup,
+        logout,
+        loading,
+        error,
+        setError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

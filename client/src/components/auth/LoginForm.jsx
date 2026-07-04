@@ -6,7 +6,7 @@ import './AuthForms.css';
 function LoginForm() {
   const [credentials, setCredentials] = useState({
     username: '',
-    password: ''
+    password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const { login, error, setError } = useContext(AuthContext);
@@ -16,21 +16,21 @@ function LoginForm() {
     const { name, value } = e.target;
     setCredentials({
       ...credentials,
-      [name]: value
+      [name]: value,
     });
     if (error) setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!credentials.username || !credentials.password) {
       setError('Please fill in all fields');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       await login(credentials.username, credentials.password);
       navigate('/');
@@ -45,9 +45,9 @@ function LoginForm() {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Log In to TradeSim</h2>
-        
+
         {error && <div className="auth-error">{error}</div>}
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -62,7 +62,7 @@ function LoginForm() {
               autoComplete="username"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -76,16 +76,12 @@ function LoginForm() {
               autoComplete="current-password"
             />
           </div>
-          
-          <button 
-            type="submit" 
-            className="auth-button"
-            disabled={isLoading}
-          >
+
+          <button type="submit" className="auth-button" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           Don't have an account? <Link to="/signup">Sign up</Link>
         </div>

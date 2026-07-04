@@ -152,12 +152,16 @@
 }
 
 .chart-point {
-  transition: cx 0.5s ease, cy 0.5s ease;
+  transition:
+    cx 0.5s ease,
+    cy 0.5s ease;
   opacity: 0.85;
 }
 
 .chart-end-point {
-  transition: cx 0.5s ease, cy 0.5s ease;
+  transition:
+    cx 0.5s ease,
+    cy 0.5s ease;
   filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.2));
 }
 
@@ -239,8 +243,10 @@
   .chart-container {
     height: 400px;
   }
-  
-  .chart-loading, .chart-error, .chart-placeholder {
+
+  .chart-loading,
+  .chart-error,
+  .chart-placeholder {
     height: 400px;
   }
 }
@@ -250,17 +256,17 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .time-range-selector {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 6px;
   }
-  
+
   .chart-y-labels {
     width: 50px;
   }
-  
+
   .chart-x-labels {
     margin-left: 50px;
   }

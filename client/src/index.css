@@ -1,22 +1,22 @@
 :root {
-  --primary-color: #1E40AF;
-  --primary-hover: #1E3A8A;
+  --primary-color: #1e40af;
+  --primary-hover: #1e3a8a;
   --secondary-color: #475569;
-  --text-color: #1E293B; 
-  --light-text: #64748B;
-  --success-color: #10B981;
-  --error-color: #EF4444;
-  --warning-color: #F59E0B;
-  --background: #FFFFFF;
-  --light-background: #F8FAFC;
-  --card-background: #FFFFFF;
-  --border-color: #E2E8F0;
-  --chart-grid: #EEF2F6;
-  
+  --text-color: #1e293b;
+  --light-text: #64748b;
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --background: #ffffff;
+  --light-background: #f8fafc;
+  --card-background: #ffffff;
+  --border-color: #e2e8f0;
+  --chart-grid: #eef2f6;
+
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
   --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --popover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
+
   --header-height: 64px;
   --footer-height: 60px;
   --border-radius: 8px;
@@ -24,8 +24,14 @@
 
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
-  
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    sans-serif;
 }
 
 * {
@@ -35,7 +41,13 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--text-color);
@@ -54,12 +66,20 @@ button {
   border: none;
 }
 
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
   font-family: inherit;
   outline: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   line-height: 1.2;
 }
@@ -83,8 +103,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .loading-spinner {
@@ -97,7 +122,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .loading-spinner:before {
-  content: "";
+  content: '';
   width: 30px;
   height: 30px;
   margin-right: 10px;
@@ -108,7 +133,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .btn {
@@ -504,7 +531,7 @@ h1, h2, h3, h4, h5, h6 {
   .summary-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .auth-card {
     padding: 24px 16px;
   }

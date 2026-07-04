@@ -18,14 +18,14 @@ function StockDetail() {
     company: true,
     stats: true,
     chart: true,
-    news: true
+    news: true,
   });
   const [error, setError] = useState(null);
-  
+
   useEffect(() => {
     if (!symbol) {
-      console.error("No stock symbol provided in URL");
-      navigate("/market", { replace: true });
+      console.error('No stock symbol provided in URL');
+      navigate('/market', { replace: true });
     }
   }, [symbol, navigate]);
 
@@ -37,10 +37,10 @@ function StockDetail() {
     const today = new Date();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(today.getFullYear() - 1);
-    
+
     return {
       from: formatDate(oneYearAgo),
-      to: formatDate(today)
+      to: formatDate(today),
     };
   };
 
@@ -51,48 +51,46 @@ function StockDetail() {
         throw new Error(`Failed to fetch price data: ${response.statusText}`);
       }
       const data = await response.json();
-      
+
       if (data.ticker && data.ticker.lastTrade) {
         setStockPrice({
           price: data.ticker.lastTrade.p,
           previousClose: data.ticker.prevDay.c,
           change: data.ticker.todaysChange,
-          changePercent: data.ticker.todaysChangePerc
+          changePercent: data.ticker.todaysChangePerc,
         });
       } else {
-        const lastPrice = data.ticker?.day?.c || 
-                         data.ticker?.lastQuote?.p || 
-                         data.results?.lastTrade?.p || 
-                         0;
-        const prevClose = data.ticker?.prevDay?.c || 
-                         data.results?.previousClose || 
-                         0;
+        const lastPrice =
+          data.ticker?.day?.c || data.ticker?.lastQuote?.p || data.results?.lastTrade?.p || 0;
+        const prevClose = data.ticker?.prevDay?.c || data.results?.previousClose || 0;
         const change = lastPrice - prevClose;
         const changePercent = prevClose ? (change / prevClose) * 100 : 0;
-        
+
         setStockPrice({
           price: lastPrice,
           previousClose: prevClose,
           change,
-          changePercent
+          changePercent,
         });
       }
     } catch (err) {
-      console.error("Error fetching price:", err);
+      console.error('Error fetching price:', err);
       setError(`Failed to load stock price: ${err.message}`);
     } finally {
-      setLoading(prev => ({ ...prev, price: false }));
+      setLoading((prev) => ({ ...prev, price: false }));
     }
   };
 
   const fetchCompanyData = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/paper_trader/polygon/companyData?ticker=${symbol}`);
+      const response = await fetch(
+        `${API_BASE_URL}/paper_trader/polygon/companyData?ticker=${symbol}`
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch company data: ${response.statusText}`);
       }
       const data = await response.json();
-      
+
       if (data.results) {
         setCompanyData({
           name: data.results.name,
@@ -103,26 +101,29 @@ function StockDetail() {
           website: data.results.homepage_url,
           ceo: data.results.ceo || 'N/A',
           employees: data.results.total_employees || 'N/A',
-          hq: data.results.address ? 
-            `${data.results.address.city}, ${data.results.address.state}` : 'N/A'
+          hq: data.results.address
+            ? `${data.results.address.city}, ${data.results.address.state}`
+            : 'N/A',
         });
       }
     } catch (err) {
-      console.error("Error fetching company data:", err);
+      console.error('Error fetching company data:', err);
       setError(`Failed to load company data: ${err.message}`);
     } finally {
-      setLoading(prev => ({ ...prev, company: false }));
+      setLoading((prev) => ({ ...prev, company: false }));
     }
   };
 
   const fetchKeyStatistics = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/paper_trader/polygon/keyStatistics?ticker=${symbol}`);
+      const response = await fetch(
+        `${API_BASE_URL}/paper_trader/polygon/keyStatistics?ticker=${symbol}`
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch statistics: ${response.statusText}`);
       }
       const data = await response.json();
-      
+
       if (data.results && data.results.length > 0) {
         const result = data.results[0];
         setKeyStats({
@@ -132,14 +133,14 @@ function StockDetail() {
           close: result.c,
           volume: result.v,
           vwap: result.vw,
-          transactions: result.n
+          transactions: result.n,
         });
       }
     } catch (err) {
-      console.error("Error fetching key statistics:", err);
+      console.error('Error fetching key statistics:', err);
       setError(`Failed to load key statistics: ${err.message}`);
     } finally {
-      setLoading(prev => ({ ...prev, stats: false }));
+      setLoading((prev) => ({ ...prev, stats: false }));
     }
   };
 
@@ -153,27 +154,29 @@ function StockDetail() {
         throw new Error(`Failed to fetch chart data: ${response.statusText}`);
       }
       const data = await response.json();
-      
+
       if (data.results) {
         setChartData({
-          labels: data.results.map(item => {
+          labels: data.results.map((item) => {
             const date = new Date(item.t);
             return date.toLocaleDateString();
           }),
-          datasets: [{
-            label: symbol,
-            data: data.results.map(item => item.c),
-            fill: false,
-            borderColor: 'rgb(59, 130, 246)',
-            tension: 0.1
-          }]
+          datasets: [
+            {
+              label: symbol,
+              data: data.results.map((item) => item.c),
+              fill: false,
+              borderColor: 'rgb(59, 130, 246)',
+              tension: 0.1,
+            },
+          ],
         });
       }
     } catch (err) {
-      console.error("Error fetching chart data:", err);
+      console.error('Error fetching chart data:', err);
       setError(`Failed to load chart data: ${err.message}`);
     } finally {
-      setLoading(prev => ({ ...prev, chart: false }));
+      setLoading((prev) => ({ ...prev, chart: false }));
     }
   };
 
@@ -184,20 +187,20 @@ function StockDetail() {
         throw new Error(`Failed to fetch news: ${response.statusText}`);
       }
       const data = await response.json();
-      
+
       if (data.results) {
         setNewsData(data.results.slice(0, 5));
       }
     } catch (err) {
-      console.error("Error fetching news:", err);
+      console.error('Error fetching news:', err);
     } finally {
-      setLoading(prev => ({ ...prev, news: false }));
+      setLoading((prev) => ({ ...prev, news: false }));
     }
   };
 
   useEffect(() => {
     if (!symbol) return;
-    
+
     setStockPrice(null);
     setCompanyData(null);
     setKeyStats(null);
@@ -209,9 +212,9 @@ function StockDetail() {
       company: true,
       stats: true,
       chart: true,
-      news: true
+      news: true,
     });
-    
+
     fetchStockPrice();
     fetchCompanyData();
     fetchKeyStatistics();
@@ -220,7 +223,7 @@ function StockDetail() {
   }, [symbol]);
 
   const isMainDataLoading = loading.price || loading.company || loading.stats;
-  
+
   if (isMainDataLoading) {
     return (
       <div className="stock-detail-page">
@@ -248,7 +251,6 @@ function StockDetail() {
 
   return (
     <div className="stock-detail-page">
-
       {/* Stock Header with Price and Basic Info */}
       <div className="stock-header">
         <div className="stock-title">
@@ -256,13 +258,12 @@ function StockDetail() {
           <h2>{companyData?.name || 'Loading company name...'}</h2>
         </div>
         <div className="stock-price">
-          <div className="current-price">
-            ${stockPrice?.price?.toFixed(2) || '-.--'}
-          </div>
-          <div className={`price-change ${(stockPrice?.change || 0) >= 0 ? 'positive' : 'negative'}`}>
+          <div className="current-price">${stockPrice?.price?.toFixed(2) || '-.--'}</div>
+          <div
+            className={`price-change ${(stockPrice?.change || 0) >= 0 ? 'positive' : 'negative'}`}
+          >
             {stockPrice?.change > 0 ? '+' : ''}
-            {stockPrice?.change?.toFixed(2) || '0.00'} 
-            ({stockPrice?.change > 0 ? '+' : ''}
+            {stockPrice?.change?.toFixed(2) || '0.00'}({stockPrice?.change > 0 ? '+' : ''}
             {stockPrice?.changePercent?.toFixed(2) || '0.00'}%)
           </div>
         </div>
@@ -270,23 +271,19 @@ function StockDetail() {
 
       <div className="stock-content">
         <div className="chart-section">
-
-        {/* Stock Chart */}
-        <div className="stock-chart-container">
-          <div className="chart-header">
-            <h3>Price Chart</h3>
-            {loading.chart && <div className="small-spinner"></div>}
+          {/* Stock Chart */}
+          <div className="stock-chart-container">
+            <div className="chart-header">
+              <h3>Price Chart</h3>
+              {loading.chart && <div className="small-spinner"></div>}
+            </div>
+            {error && error.includes('chart') ? (
+              <div className="chart-error-message">{error}</div>
+            ) : (
+              <StockChart symbol={symbol} initialPrice={stockPrice?.price} />
+            )}
           </div>
-          {error && error.includes('chart') ? (
-            <div className="chart-error-message">{error}</div>
-          ) : (
-            <StockChart 
-              symbol={symbol} 
-              initialPrice={stockPrice?.price} 
-            />
-          )}
-        </div>
-          
+
           {/* Company Information */}
           <div className="company-info">
             <h3>Company Overview</h3>
@@ -308,7 +305,9 @@ function StockDetail() {
               </div>
               <div className="detail-item">
                 <span className="detail-label">Employees</span>
-                <span className="detail-value">{companyData?.employees?.toLocaleString() || 'N/A'}</span>
+                <span className="detail-value">
+                  {companyData?.employees?.toLocaleString() || 'N/A'}
+                </span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Headquarters</span>
@@ -317,14 +316,19 @@ function StockDetail() {
               {companyData?.website && (
                 <div className="detail-item">
                   <span className="detail-label">Website</span>
-                  <a href={companyData.website} target="_blank" rel="noopener noreferrer" className="detail-link">
+                  <a
+                    href={companyData.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="detail-link"
+                  >
                     {companyData.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                   </a>
                 </div>
               )}
             </div>
           </div>
-          
+
           {/* Key Statistics */}
           <div className="key-stats">
             <h3>Key Statistics</h3>
@@ -337,9 +341,7 @@ function StockDetail() {
               </div>
               <div className="stat-item">
                 <span className="stat-label">Open</span>
-                <span className="stat-value">
-                  ${keyStats?.open?.toFixed(2) || 'N/A'}
-                </span>
+                <span className="stat-value">${keyStats?.open?.toFixed(2) || 'N/A'}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Day's Range</span>
@@ -349,22 +351,19 @@ function StockDetail() {
               </div>
               <div className="stat-item">
                 <span className="stat-label">Volume</span>
-                <span className="stat-value">
-                  {keyStats?.volume?.toLocaleString() || 'N/A'}
-                </span>
+                <span className="stat-value">{keyStats?.volume?.toLocaleString() || 'N/A'}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Market Cap</span>
                 <span className="stat-value">
-                  {companyData?.marketCap ? 
-                    `$${(companyData.marketCap / 1000000000).toFixed(2)}B` : 'N/A'}
+                  {companyData?.marketCap
+                    ? `$${(companyData.marketCap / 1000000000).toFixed(2)}B`
+                    : 'N/A'}
                 </span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">VWAP</span>
-                <span className="stat-value">
-                  ${keyStats?.vwap?.toFixed(2) || 'N/A'}
-                </span>
+                <span className="stat-value">${keyStats?.vwap?.toFixed(2) || 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -375,11 +374,11 @@ function StockDetail() {
               <h3>Latest News</h3>
               <div className="news-list">
                 {newsData.map((news, index) => (
-                  <a 
-                    key={index} 
-                    href={news.article_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    key={index}
+                    href={news.article_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="news-item"
                   >
                     <div className="news-image">
@@ -404,13 +403,10 @@ function StockDetail() {
             </div>
           )}
         </div>
-        
+
         {/* Trade Form Section */}
         <div className="trade-section">
-          <TradeForm 
-            symbol={symbol} 
-            currentPrice={stockPrice?.price} 
-          />
+          <TradeForm symbol={symbol} currentPrice={stockPrice?.price} />
         </div>
       </div>
     </div>
