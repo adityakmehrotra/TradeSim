@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.adityamehrotra</groupId>
-	<artifactId>paper_trader</artifactId>
+	<artifactId>tradesim</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>paper_trader</name>
+	<name>tradesim</name>
 	<description>Project for Paper Trading App</description>
 	<url>http://example.com</url>
 	<licenses>
