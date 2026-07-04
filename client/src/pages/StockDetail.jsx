@@ -23,7 +23,6 @@ function StockDetail() {
   const [error, setError] = useState(null);
   
   useEffect(() => {
-    console.log("Symbol from params:", symbol);
     if (!symbol) {
       console.error("No stock symbol provided in URL");
       navigate("/market", { replace: true });

@@ -30,7 +30,6 @@ function SearchBar() {
   }, []);
 
   const fetchSuggestions = async (input) => {
-    console.log("Fetching suggestions for:", input);
     if (!input || input.length < 2) {
       setSuggestions([]);
       return;
@@ -41,8 +40,7 @@ function SearchBar() {
       setError(null);
       
       const url = `${API_BASE_URL}/paper_trader/security/suggestion/${encodeURIComponent(input)}`;
-      console.log("Fetching from URL:", url);
-      
+
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -51,8 +49,7 @@ function SearchBar() {
       }
       
       const data = await response.json();
-      console.log("API returned data:", data);
-      
+
       if (Array.isArray(data)) {
         setSuggestions(data);
       } else if (data && typeof data === 'object') {
@@ -72,7 +69,6 @@ function SearchBar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Query submitted:", query);
     if (query.trim()) {
       navigate(`/stock/${query.toUpperCase()}`);
       setQuery('');
@@ -81,7 +77,6 @@ function SearchBar() {
   };
 
   const handleChange = (e) => {
-    console.log("Change event triggered");
     const value = e.target.value;
     setQuery(value);
     setSelectedIndex(-1);
@@ -107,7 +102,6 @@ function SearchBar() {
       setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
     }
     else if (e.key === 'Enter' && selectedIndex >= 0) {
-      console.log("KLJDFLKJSD" + selected.symbol);
       e.preventDefault();
       const selected = suggestions[selectedIndex];
       navigate(`/stock/${selected.symbol}`);
@@ -121,7 +115,6 @@ function SearchBar() {
   };
 
   const handleSuggestionClick = (symbol) => {
-    console.log("Suggestion clicked:", query);
     navigate(`/stock/${query.toUpperCase()}`);
     setQuery('');
     setSuggestions([]);

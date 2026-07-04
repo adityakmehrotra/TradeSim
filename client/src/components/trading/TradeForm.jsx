@@ -81,8 +81,6 @@ function TradeForm({ symbol, currentPrice }) {
       }
       
       const data = await response.json();
-      console.log(response);
-      console.log("Fetched cash data:", data);
       setAvailableCash(data || 0);
       
     } catch (err) {
@@ -372,7 +370,6 @@ function TradeForm({ symbol, currentPrice }) {
               <label>Available Cash</label>
               {cashLoading && <span className="mini-spinner"></span>}
             </div>
-            {console.log('Available Cash:', availableCash)}
             <div className={`field-value cash-value ${availableCash < shares * currentPrice ? 'insufficient' : ''}`}>
               ${availableCash.toFixed(2)}
             </div>
