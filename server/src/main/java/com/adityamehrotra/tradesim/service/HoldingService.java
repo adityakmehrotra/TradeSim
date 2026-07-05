@@ -3,7 +3,9 @@ package com.adityamehrotra.tradesim.service;
 import com.adityamehrotra.tradesim.dto.HoldingRequest;
 import com.adityamehrotra.tradesim.dto.UpdateHoldingRequest;
 import com.adityamehrotra.tradesim.model.Holding;
+import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.HoldingRepository;
+import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -15,10 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class HoldingService {
   private final HoldingRepository holdingRepository;
+  private final PortfolioRepository portfolioRepository;
   private final MongoTemplate mongoTemplate;
 
-  public HoldingService(HoldingRepository holdingRepository, MongoTemplate mongoTemplate) {
+  public HoldingService(
+      HoldingRepository holdingRepository,
+      PortfolioRepository portfolioRepository,
+      MongoTemplate mongoTemplate) {
     this.holdingRepository = holdingRepository;
+    this.portfolioRepository = portfolioRepository;
     this.mongoTemplate = mongoTemplate;
   }
 
@@ -62,6 +69,16 @@ public class HoldingService {
       throw new IllegalArgumentException("Price must be greater than 0");
     }
 
+    Portfolio portfolio = portfolioRepository.findByPortfolioID(holding.getPortfolioID());
+    if (portfolio == null) {
+      throw new IllegalArgumentException("Portfolio not found");
+    }
+
+    double cost = holding.getShares() * holding.getPrice();
+    if (portfolio.getCash() < cost) {
+      throw new IllegalArgumentException("Insufficient cash for this purchase");
+    }
+
     List<Integer> transactionList = new ArrayList<>();
     transactionList.add(holding.getTransactionID());
 
@@ -74,6 +91,8 @@ public class HoldingService {
             holding.getPrice(),
             true);
 
+    portfolio.setCash(portfolio.getCash() - cost);
+    portfolioRepository.save(portfolio);
     holdingRepository.save(newHolding);
   }
 
@@ -112,31 +131,55 @@ public class HoldingService {
       throw new IllegalArgumentException("Holding not found");
     }
 
+    Portfolio portfolio = portfolioRepository.findByPortfolioID(holding.getPortfolioID());
+    if (portfolio == null) {
+      throw new IllegalArgumentException("Portfolio not found");
+    }
+
+    double tradeValue = updateHoldingRequest.getShares() * updateHoldingRequest.getPrice();
+
     List<Integer> transactionList = holding.getTransactionList();
     transactionList.add(updateHoldingRequest.getTransactionID());
     holding.setTransactionList(transactionList);
 
     if (updateHoldingRequest.getAction().equalsIgnoreCase("buy")) {
-      holding.setShares(holding.getShares() + updateHoldingRequest.getShares());
+      if (portfolio.getCash() < tradeValue) {
+        throw new IllegalArgumentException("Insufficient cash for this purchase");
+      }
+
       if (holding.getActive()) {
-        holding.setAvgValue(
-            (holding.getAvgValue() * holding.getShares()
-                    + updateHoldingRequest.getPrice() * updateHoldingRequest.getShares())
-                / (holding.getShares() + updateHoldingRequest.getShares()));
+        double currentShares = holding.getShares();
+        double addedShares = updateHoldingRequest.getShares();
+        double newAvgValue =
+            (holding.getAvgValue() * currentShares + updateHoldingRequest.getPrice() * addedShares)
+                / (currentShares + addedShares);
+        holding.setAvgValue(newAvgValue);
       } else {
         holding.setAvgValue(updateHoldingRequest.getPrice());
         holding.setActive(true);
       }
+
+      holding.setShares(holding.getShares() + updateHoldingRequest.getShares());
+      portfolio.setCash(portfolio.getCash() - tradeValue);
     } else if (updateHoldingRequest.getAction().equalsIgnoreCase("sell")) {
       if (holding.getShares() < updateHoldingRequest.getShares()) {
         throw new IllegalArgumentException("Not enough shares to sell");
-      } else if (holding.getShares() == updateHoldingRequest.getShares()) {
-        holding.setActive(false);
       }
+
       holding.setShares(holding.getShares() - updateHoldingRequest.getShares());
+      if (holding.getShares() <= 0) {
+        holding.setShares(0.0);
+        holding.setActive(false);
+        holding.setAvgValue(0.0);
+      }
+
+      portfolio.setCash(portfolio.getCash() + tradeValue);
     } else {
       throw new IllegalArgumentException("Invalid action");
     }
+
+    holdingRepository.save(holding);
+    portfolioRepository.save(portfolio);
   }
 
   @Transactional
