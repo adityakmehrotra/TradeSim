@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useSession } from '../context/SessionContext';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -19,7 +19,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 function Portfolio() {
   const { id } = useParams();
-  const { user } = useContext(AuthContext);
+  const { accountId } = useSession();
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,8 +50,7 @@ function Portfolio() {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
+    if (!accountId) {
       return;
     }
 
@@ -61,7 +60,7 @@ function Portfolio() {
 
         const portfolioData = await api.getPortfolio(id);
 
-        if (portfolioData.accountID !== user.accountId) {
+        if (portfolioData.accountID !== accountId) {
           setError("You don't have permission to view this portfolio");
           setLoading(false);
           return;
@@ -123,7 +122,7 @@ function Portfolio() {
     };
 
     fetchPortfolioDetails();
-  }, [id, user, navigate, performanceData]);
+  }, [id, accountId, navigate, performanceData]);
 
   if (loading) {
     return (

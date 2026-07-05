@@ -40,6 +40,19 @@ public class PortfolioController {
     }
   }
 
+  @GetMapping("/get")
+  @ResponseStatus(HttpStatus.OK)
+  public ResponseEntity<?> getPortfolio(@RequestParam Integer portfolioID) {
+    try {
+      Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
+      return new ResponseEntity<>(portfolio, HttpStatus.OK);
+    } catch (IllegalArgumentException e) {
+      Map<String, String> errorResponse = new HashMap<>();
+      errorResponse.put("error", e.getMessage());
+      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @GetMapping("/name")
   @ResponseStatus(HttpStatus.OK)
   public ResponseEntity<?> getPortfolioName(@RequestParam Integer portfolioID) {
