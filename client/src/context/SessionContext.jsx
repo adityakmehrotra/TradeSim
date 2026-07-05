@@ -43,6 +43,7 @@ export function SessionProvider({ children }) {
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSession() {
   return useContext(SessionContext);
 }
