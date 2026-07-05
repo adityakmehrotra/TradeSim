@@ -72,7 +72,8 @@ public class PortfolioService {
             portfolio.getCash(),
             portfolio.getInitialBalance(),
             transactionList,
-            holdingsList);
+            holdingsList,
+            0.0);
 
     portfolioRepository.save(newPortfolio);
 

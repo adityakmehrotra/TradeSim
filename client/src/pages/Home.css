@@ -1,0 +1,79 @@
+.home {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.home-hero {
+  padding: 24px 0 40px;
+}
+.home-hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+.home-hero p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4b5563;
+  max-width: 640px;
+  margin: 0 0 24px;
+}
+.home-cta {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #0b0e14;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.home-market {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.home-market-head,
+.home-market-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  align-items: center;
+  padding: 12px 18px;
+}
+.home-market-head {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+.home-market-head span:last-child,
+.home-market-row .last {
+  text-align: right;
+}
+.home-market-row {
+  border-bottom: 1px solid #f1f3f5;
+  text-decoration: none;
+  color: #111827;
+}
+.home-market-row:last-child {
+  border-bottom: none;
+}
+.home-market-row:hover {
+  background: #f9fafb;
+}
+.home-market-row .sym {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.home-market-row .nm {
+  color: #4b5563;
+}
+.home-market-row .last {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}

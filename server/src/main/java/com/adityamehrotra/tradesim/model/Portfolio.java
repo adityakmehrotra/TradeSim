@@ -54,4 +54,14 @@ public class Portfolio {
           @NotNull(message = "Holding ID cannot be null")
           @Min(value = 1, message = "Holding ID must be greater than 0") Integer>
       holdingsList;
+
+  @Setter private Double reservedCash;
+
+  public double reservedCashOrZero() {
+    return reservedCash == null ? 0.0 : reservedCash;
+  }
+
+  public double availableCash() {
+    return (cash == null ? 0.0 : cash) - reservedCashOrZero();
+  }
 }

@@ -1,19 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import './SearchBar.css';
 
 function SearchBar() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
   const [query, setQuery] = useState('');
+  const [instruments, setInstruments] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const navigate = useNavigate();
 
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
-  const debounceTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    api
+      .getInstruments()
+      .then(setInstruments)
+      .catch(() => setInstruments([]));
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -26,99 +31,60 @@ function SearchBar() {
         setSuggestions([]);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchSuggestions = async (input) => {
-    if (!input || input.length < 2) {
+  const updateSuggestions = (value) => {
+    const term = value.trim().toLowerCase();
+    if (!term) {
       setSuggestions([]);
       return;
     }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const url = `${API_BASE_URL}/paper_trader/security/suggestion/${encodeURIComponent(input)}`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        console.error('API Error Status:', response.status);
-        throw new Error('Failed to fetch suggestions');
-      }
-
-      const data = await response.json();
-
-      if (Array.isArray(data)) {
-        setSuggestions(data);
-      } else if (data && typeof data === 'object') {
-        const results = data.results || data.suggestions || data.items || [];
-        setSuggestions(Array.isArray(results) ? results : []);
-      } else {
-        setSuggestions([]);
-      }
-    } catch (err) {
-      console.error('Error fetching suggestions:', err);
-      setError('Unable to get stock suggestions. Please try again.');
-      setSuggestions([]);
-    } finally {
-      setIsLoading(false);
-    }
+    setSuggestions(
+      instruments
+        .filter(
+          (instrument) =>
+            instrument.symbol.toLowerCase().includes(term) ||
+            instrument.name.toLowerCase().includes(term)
+        )
+        .slice(0, 6)
+    );
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/stock/${query.toUpperCase()}`);
-      setQuery('');
-      setSuggestions([]);
-    }
-  };
-
-  const handleChange = (e) => {
-    const value = e.target.value;
+  const handleChange = (event) => {
+    const value = event.target.value;
     setQuery(value);
     setSelectedIndex(-1);
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      fetchSuggestions(value);
-    }, 300);
+    updateSuggestions(value);
   };
 
-  const handleKeyDown = (e) => {
-    if (!suggestions.length) return;
+  const go = (symbol) => {
+    navigate(`/stock/${symbol}`);
+    setQuery('');
+    setSuggestions([]);
+  };
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const match = suggestions[selectedIndex] || suggestions[0];
+    if (match) {
+      go(match.symbol);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (!suggestions.length) return;
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
       setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
-    } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      e.preventDefault();
-      const selected = suggestions[selectedIndex];
-      navigate(`/stock/${selected.symbol}`);
-      setQuery('');
-      setSuggestions([]);
-    } else if (e.key === 'Escape') {
+    } else if (event.key === 'Escape') {
       setSuggestions([]);
       setSelectedIndex(-1);
     }
-  };
-
-  const handleSuggestionClick = (symbol) => {
-    navigate(`/stock/${query.toUpperCase()}`);
-    setQuery('');
-    setSuggestions([]);
   };
 
   return (
@@ -140,45 +106,26 @@ function SearchBar() {
             ref={searchInputRef}
             type="text"
             className="search-input"
-            placeholder="Search for stocks or companies..."
+            placeholder="Search symbols..."
             value={query}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            aria-label="Search stocks"
+            aria-label="Search symbols"
             autoComplete="off"
           />
-
-          {isLoading && <div className="search-spinner"></div>}
-
-          {!isLoading && query && (
-            <button
-              type="button"
-              className="clear-button"
-              onClick={() => {
-                setQuery('');
-                setSuggestions([]);
-                searchInputRef.current.focus();
-              }}
-              aria-label="Clear search"
-            >
-              ×
-            </button>
-          )}
         </div>
 
         {suggestions.length > 0 && (
           <div className="suggestions-container" ref={suggestionsRef}>
-            {error && <div className="suggestion-error">{error}</div>}
-            {suggestions.map((item, index) => (
+            {suggestions.map((instrument, index) => (
               <div
-                key={item.symbol || index}
+                key={instrument.symbol}
                 className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
-                onClick={() => handleSuggestionClick(item.symbol)}
+                onClick={() => go(instrument.symbol)}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
-                <div className="suggestion-symbol">{item.symbol}</div>
-                <div className="suggestion-name">{item.name || item.companyName}</div>
-                {item.type && <div className="suggestion-type">{item.type}</div>}
+                <div className="suggestion-symbol">{instrument.symbol}</div>
+                <div className="suggestion-name">{instrument.name}</div>
               </div>
             ))}
           </div>

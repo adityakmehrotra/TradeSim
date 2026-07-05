@@ -31,6 +31,21 @@ export const api = {
     }),
   deletePortfolio: (portfolioID) =>
     request(`/tradesim/api/portfolio/delete?portfolioID=${portfolioID}`, { method: 'DELETE' }),
+
+  // Market data. Prices come back in whole cents.
+  getInstruments: () => request('/tradesim/api/market/instruments'),
+  getQuote: (symbol) => request(`/tradesim/api/market/quote?symbol=${symbol}`),
+  getDepth: (symbol) => request(`/tradesim/api/market/depth?symbol=${symbol}`),
+  getTrades: (symbol) => request(`/tradesim/api/market/trades?symbol=${symbol}`),
+  getCandles: (symbol) => request(`/tradesim/api/market/candles?symbol=${symbol}`),
+
+  // Orders and positions for the current session.
+  placeOrder: (order) =>
+    request('/tradesim/api/order', { method: 'POST', body: JSON.stringify(order) }),
+  cancelOrder: (orderId) => request(`/tradesim/api/order?orderId=${orderId}`, { method: 'DELETE' }),
+  getOpenOrders: () => request('/tradesim/api/order/open'),
+  getPositions: (portfolioID) =>
+    request(`/tradesim/api/order/positions?portfolioID=${portfolioID}`),
 };
 
 export default api;

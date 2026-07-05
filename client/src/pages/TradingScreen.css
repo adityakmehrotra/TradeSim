@@ -1,0 +1,370 @@
+.terminal {
+  --bg: #0b0e14;
+  --panel: #12161f;
+  --panel-2: #0f131b;
+  --border: #1e2430;
+  --text: #c9d1d9;
+  --muted: #6b7280;
+  --up: #1ec8a5;
+  --down: #f6465d;
+  --accent: #4f8cff;
+
+  background: var(--bg);
+  color: var(--text);
+  min-height: calc(100vh - 60px);
+  padding: 12px;
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 13px;
+}
+
+.terminal .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.term-header {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 4px 8px 14px;
+  flex-wrap: wrap;
+}
+.term-symbol {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.term-name {
+  color: var(--muted);
+  font-size: 13px;
+}
+.term-last {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-left: auto;
+}
+.term-change {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+
+.term-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px 300px;
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+.term-chart {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+.term-book {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.term-ticket {
+  grid-column: 3;
+  grid-row: 1;
+}
+.term-tape {
+  grid-column: 3;
+  grid-row: 2;
+}
+.term-lower {
+  grid-column: 1 / span 3;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.panel-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Order book ladder */
+.ladder {
+  padding: 4px 0;
+}
+.ladder-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 1px 10px;
+  position: relative;
+  font-variant-numeric: tabular-nums;
+}
+.ladder-row .depth-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0.12;
+}
+.ladder-row.ask .depth-bar {
+  background: var(--down);
+}
+.ladder-row.bid .depth-bar {
+  background: var(--up);
+}
+.ladder-row .price {
+  z-index: 1;
+}
+.ladder-row.ask .price {
+  color: var(--down);
+}
+.ladder-row.bid .price {
+  color: var(--up);
+}
+.ladder-row .size {
+  z-index: 1;
+  text-align: right;
+  color: var(--text);
+}
+.ladder-mid {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  margin: 3px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+.ladder-mid .spread {
+  color: var(--text);
+}
+
+/* Trade tape */
+.tape {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.tape-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 2px 10px;
+  font-variant-numeric: tabular-nums;
+}
+.tape-row .t-price.buy {
+  color: var(--up);
+}
+.tape-row .t-price.sell {
+  color: var(--down);
+}
+.tape-row .t-size {
+  text-align: right;
+  color: var(--text);
+}
+.tape-row .t-time {
+  text-align: right;
+  color: var(--muted);
+}
+
+/* Order ticket */
+.ticket {
+  padding: 12px;
+}
+.side-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.side-toggle button {
+  padding: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--muted);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+.side-toggle button.active.buy {
+  background: rgba(30, 200, 165, 0.15);
+  border-color: var(--up);
+  color: var(--up);
+}
+.side-toggle button.active.sell {
+  background: rgba(246, 70, 93, 0.15);
+  border-color: var(--down);
+  color: var(--down);
+}
+.type-tabs {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.type-tabs button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 2px 0;
+  border-bottom: 2px solid transparent;
+}
+.type-tabs button.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.ticket-field {
+  margin-bottom: 10px;
+}
+.ticket-field label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.ticket-field input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 4px 0;
+}
+.ticket-row .val {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.ticket-submit {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #05130f;
+}
+.ticket-submit.buy {
+  background: var(--up);
+}
+.ticket-submit.sell {
+  background: var(--down);
+  color: #1a0508;
+}
+.ticket-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ticket-error {
+  color: var(--down);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.ticket-note {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 12px;
+  line-height: 1.5;
+}
+.ticket-note a {
+  color: var(--accent);
+}
+
+/* Data tables (positions, open orders) */
+.dtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.dtable th {
+  text-align: right;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.dtable th:first-child,
+.dtable td:first-child {
+  text-align: left;
+}
+.dtable td {
+  text-align: right;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--panel-2);
+}
+.dtable .empty {
+  color: var(--muted);
+  padding: 14px 10px;
+  text-align: center;
+}
+.cancel-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+.cancel-btn:hover {
+  color: var(--down);
+  border-color: var(--down);
+}
+
+/* Candle chart */
+.candle-chart {
+  width: 100%;
+  height: 340px;
+  display: block;
+}
+.candle-chart text {
+  fill: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 1000px) {
+  .term-grid {
+    grid-template-columns: 1fr;
+  }
+  .term-chart,
+  .term-book,
+  .term-ticket,
+  .term-tape {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .term-lower {
+    grid-template-columns: 1fr;
+  }
+}
