@@ -12,21 +12,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/tradesim/api/portfolio")
 @Validated
 public class PortfolioController {
   private final PortfolioService portfolioService;
   private final PortfolioRepository portfolioRepository;
-  private final UserController userController;
 
   public PortfolioController(
-      PortfolioService portfolioService,
-      PortfolioRepository portfolioRepository,
-      UserController userController) {
+      PortfolioService portfolioService, PortfolioRepository portfolioRepository) {
     this.portfolioService = portfolioService;
     this.portfolioRepository = portfolioRepository;
-    this.userController = userController;
   }
 
   @PostMapping("/create")
@@ -34,9 +29,7 @@ public class PortfolioController {
   public ResponseEntity<?> createPortfolio(@RequestBody PortfolioRequest portfolio) {
     try {
       int portfolioID = portfolioService.createPortfolio(portfolio);
-      userController.addPortfolio(portfolio.getAccountID(), portfolioID);
       Map<String, Object> response = new HashMap<>();
-      response.put("token", "INSERT TOKEN HERE");
       response.put("id", portfolioID);
 
       return new ResponseEntity<>(response, HttpStatus.CREATED);
