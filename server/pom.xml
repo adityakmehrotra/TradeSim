@@ -9,28 +9,27 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.adityamehrotra</groupId>
-	<artifactId>paper_trader</artifactId>
+	<artifactId>tradesim</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>paper_trader</name>
-	<description>Project for Paper Trading App</description>
-	<url>http://example.com</url>
+	<name>tradesim</name>
+	<description>Backend service for TradeSim, an exchange simulator.</description>
+	<url>https://github.com/adityakmehrotra/TradeSim</url>
 	<licenses>
 		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
 		</license>
 	</licenses>
 	<developers>
 		<developer>
 			<id>adityakmehrotra</id>
 			<name>Aditya Mehrotra</name>
-			<email>aditya@example.com</email>
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git://github.com/adityakmehrotra/paper_trader.git</connection>
-		<developerConnection>scm:git:ssh://github.com:adityakmehrotra/paper_trader.git</developerConnection>
-		<url>http://github.com/adityakmehrotra/paper_trader</url>
+		<connection>scm:git:git://github.com/adityakmehrotra/TradeSim.git</connection>
+		<developerConnection>scm:git:ssh://github.com/adityakmehrotra/TradeSim.git</developerConnection>
+		<url>https://github.com/adityakmehrotra/TradeSim</url>
 	</scm>
 	<dependencies>
 		<dependency>
@@ -62,18 +61,18 @@
 			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
-				<version>2.22.3</version>
+				<version>2.43.0</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>apply</goal>
+							<goal>check</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
 					<java>
 						<googleJavaFormat>
-							<version>1.7</version>
+							<version>1.22.0</version>
 						</googleJavaFormat>
 					</java>
 				</configuration>
