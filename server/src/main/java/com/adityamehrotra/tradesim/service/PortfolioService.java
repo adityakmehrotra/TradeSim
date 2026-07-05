@@ -3,7 +3,6 @@ package com.adityamehrotra.tradesim.service;
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
-import com.adityamehrotra.tradesim.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -16,17 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PortfolioService {
 
   private final PortfolioRepository portfolioRepository;
-  private final UserRepository userRepository;
   private final MongoTemplate mongoTemplate;
 
-  public PortfolioService(
-      PortfolioRepository portfolioRepository,
-      UserRepository userRepository,
-      MongoTemplate mongoTemplate,
-      MongoTemplate mongoTemplate1) {
+  public PortfolioService(PortfolioRepository portfolioRepository, MongoTemplate mongoTemplate) {
     this.portfolioRepository = portfolioRepository;
-    this.userRepository = userRepository;
-    this.mongoTemplate = mongoTemplate1;
+    this.mongoTemplate = mongoTemplate;
   }
 
   @Transactional

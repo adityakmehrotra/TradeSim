@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { useSession } from '../../context/SessionContext';
 import CreatePortfolioModal from '../portfolio/CreatePortfolioModal';
 import api from '../../services/api';
 import './TradeForm.css';
@@ -7,7 +7,7 @@ import './TradeForm.css';
 function TradeForm({ symbol, currentPrice }) {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
-  const { user } = useContext(AuthContext);
+  const { accountId } = useSession();
   const [orderType, setOrderType] = useState('buy');
   const [shares, setShares] = useState(1);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -23,7 +23,7 @@ function TradeForm({ symbol, currentPrice }) {
 
   useEffect(() => {
     const fetchPortfolios = async () => {
-      if (!user) {
+      if (!accountId) {
         setLoading(false);
         return;
       }
@@ -34,7 +34,7 @@ function TradeForm({ symbol, currentPrice }) {
         const allPortfolios = await api.getAllPortfolios();
 
         const userPortfolios = allPortfolios.filter(
-          (portfolio) => portfolio.accountID === user.accountId
+          (portfolio) => portfolio.accountID === accountId
         );
 
         const formattedPortfolios = userPortfolios.map((portfolio) => ({
@@ -109,7 +109,7 @@ function TradeForm({ symbol, currentPrice }) {
 
       const newPortfolio = {
         portfolioID: nextId,
-        accountID: user.accountId,
+        accountID: accountId,
         portfolioName: formData.portfolioName,
         cashAmount: formData.initialBalance,
         initialBalance: formData.initialBalance,

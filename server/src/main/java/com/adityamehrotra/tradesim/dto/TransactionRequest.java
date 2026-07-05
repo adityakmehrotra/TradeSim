@@ -1,5 +1,6 @@
 package com.adityamehrotra.tradesim.dto;
 
+import java.time.Instant;
 import lombok.Getter;
 
 @Getter
@@ -15,7 +16,7 @@ public class TransactionRequest {
   private Double price;
   private Double totalAmount;
 
-  public HoldingRequest(
+  public TransactionRequest(
       int portfolioID,
       int holdingID,
       String ticker,
