@@ -1,11 +1,11 @@
 package com.adityamehrotra.tradesim.service;
 
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
-import com.adityamehrotra.tradesim.model.Holding;
+import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.model.Session;
-import com.adityamehrotra.tradesim.repository.HoldingRepository;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
+import com.adityamehrotra.tradesim.repository.PositionRepository;
 import com.adityamehrotra.tradesim.repository.SessionRepository;
 import java.util.List;
 import java.util.UUID;
@@ -20,20 +20,23 @@ public class SessionService {
 
   private final SessionRepository sessionRepository;
   private final PortfolioRepository portfolioRepository;
-  private final HoldingRepository holdingRepository;
+  private final PositionRepository positionRepository;
   private final PortfolioService portfolioService;
+  private final MarketService marketService;
   private final MongoTemplate mongoTemplate;
 
   public SessionService(
       SessionRepository sessionRepository,
       PortfolioRepository portfolioRepository,
-      HoldingRepository holdingRepository,
+      PositionRepository positionRepository,
       PortfolioService portfolioService,
+      MarketService marketService,
       MongoTemplate mongoTemplate) {
     this.sessionRepository = sessionRepository;
     this.portfolioRepository = portfolioRepository;
-    this.holdingRepository = holdingRepository;
+    this.positionRepository = positionRepository;
     this.portfolioService = portfolioService;
+    this.marketService = marketService;
     this.mongoTemplate = mongoTemplate;
   }
 
@@ -58,12 +61,16 @@ public class SessionService {
     return portfolioRepository.findByAccountID(session.getAccountID());
   }
 
-  /** Clears the session's portfolios and holdings, then seeds a fresh starter portfolio. */
+  /**
+   * Wipes the session's trading state and seeds a fresh starter portfolio. Open orders are
+   * cancelled first; portfolio ids can be reused after deletion, so leftover orders or positions
+   * would bleed into the next portfolio.
+   */
   public void reset(Session session) {
+    marketService.cancelAllForAccount(session.getAccountID());
     for (Portfolio portfolio : portfolioRepository.findByAccountID(session.getAccountID())) {
-      for (Holding holding : holdingRepository.findByPortfolioID(portfolio.getPortfolioID())) {
-        holdingRepository.delete(holding);
-      }
+      positionRepository.deleteAll(
+          positionRepository.findByPortfolioID(portfolio.getPortfolioID()));
       portfolioRepository.delete(portfolio);
     }
     seedStarterPortfolio(session.getAccountID());

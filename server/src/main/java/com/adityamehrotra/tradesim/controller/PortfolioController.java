@@ -2,7 +2,6 @@ package com.adityamehrotra.tradesim.controller;
 
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
 import com.adityamehrotra.tradesim.model.Portfolio;
-import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class PortfolioController {
   private final PortfolioService portfolioService;
-  private final PortfolioRepository portfolioRepository;
 
-  public PortfolioController(
-      PortfolioService portfolioService, PortfolioRepository portfolioRepository) {
+  public PortfolioController(PortfolioService portfolioService) {
     this.portfolioService = portfolioService;
-    this.portfolioRepository = portfolioRepository;
   }
 
   @PostMapping("/create")
@@ -34,9 +30,7 @@ public class PortfolioController {
 
       return new ResponseEntity<>(response, HttpStatus.CREATED);
     } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+      return badRequest(e);
     }
   }
 
@@ -47,25 +41,7 @@ public class PortfolioController {
       Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
       return new ResponseEntity<>(portfolio, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/name")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioName(@RequestParam Integer portfolioID) {
-    try {
-      String portfolioName = portfolioService.getPortfolio(portfolioID).getName();
-      Map<String, String> response = new HashMap<>();
-      response.put("name", portfolioName);
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+      return badRequest(e);
     }
   }
 
@@ -80,25 +56,7 @@ public class PortfolioController {
 
       return new ResponseEntity<>(response, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/description")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioDescription(@RequestParam Integer portfolioID) {
-    try {
-      String portfolioDescription = portfolioService.getPortfolio(portfolioID).getDescription();
-      Map<String, String> response = new HashMap<>();
-      response.put("description", portfolioDescription);
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+      return badRequest(e);
     }
   }
 
@@ -113,158 +71,7 @@ public class PortfolioController {
 
       return new ResponseEntity<>(response, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/cash")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioCash(@RequestParam Integer portfolioID) {
-    try {
-      Double portfolioCash = portfolioService.getPortfolio(portfolioID).getCash();
-      Map<String, Double> response = new HashMap<>();
-      response.put("cash", portfolioCash);
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PutMapping("/cash")
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  public ResponseEntity<?> updatePortfolioCash(
-      @RequestParam Integer portfolioID, @RequestParam Double cash) {
-    try {
-      portfolioService.updatePortfolioCash(portfolioID, cash);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio cash updated successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/initialBalance")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioInitialBalance(@RequestParam Integer portfolioID) {
-    try {
-      Double initialBalance = portfolioService.getPortfolio(portfolioID).getInitialBalance();
-      Map<String, Double> response = new HashMap<>();
-      response.put("initialBalance", initialBalance);
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/transactionList")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioTransactionList(@RequestParam Integer portfolioID) {
-    try {
-      Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
-      Map<String, Object> response = new HashMap<>();
-      response.put("transactionList", portfolio.getTransactionList());
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PutMapping("/transactionList")
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  public ResponseEntity<?> updatePortfolioTransactionList(
-      @RequestParam Integer portfolioID, @RequestParam Integer transactionID) {
-    try {
-      portfolioService.addTransaction(portfolioID, transactionID);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio transaction list updated successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @DeleteMapping("/transactionList")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> deletePortfolioTransaction(
-      @RequestParam Integer portfolioID, @RequestParam Integer transactionID) {
-    try {
-      portfolioService.removeTransaction(portfolioID, transactionID);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Transaction deleted successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @GetMapping("/holdingsList")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolioHoldingsList(@RequestParam Integer portfolioID) {
-    try {
-      Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
-      Map<String, Object> response = new HashMap<>();
-      response.put("holdingsList", portfolio.getHoldingsList());
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @PutMapping("/holdingsList")
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  public ResponseEntity<?> updatePortfolioHoldingsList(
-      @RequestParam Integer portfolioID, @RequestParam Integer holdingID) {
-    try {
-      portfolioService.addHolding(portfolioID, holdingID);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio holdings list updated successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @DeleteMapping("/holdingsList")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> deletePortfolioHolding(
-      @RequestParam Integer portfolioID, @RequestParam Integer holdingID) {
-    try {
-      portfolioService.removeHolding(portfolioID, holdingID);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Holding deleted successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+      return badRequest(e);
     }
   }
 
@@ -278,9 +85,13 @@ public class PortfolioController {
 
       return new ResponseEntity<>(response, HttpStatus.OK);
     } catch (IllegalArgumentException e) {
-      Map<String, String> errorResponse = new HashMap<>();
-      errorResponse.put("error", e.getMessage());
-      return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+      return badRequest(e);
     }
+  }
+
+  private ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException e) {
+    Map<String, String> errorResponse = new HashMap<>();
+    errorResponse.put("error", e.getMessage());
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 }

@@ -83,7 +83,6 @@ function PortfolioList() {
 
       {portfolios.length === 0 ? (
         <div className="empty-portfolios">
-          <div className="empty-icon">📊</div>
           <h2>No Portfolios Yet</h2>
           <p>You don't have any portfolios yet. Create one to start trading.</p>
           <button
@@ -101,7 +100,6 @@ function PortfolioList() {
             const initialBalance = portfolio.initialBalance || 0;
             const gainLoss = cash - initialBalance;
             const gainLossPercent = initialBalance ? (gainLoss / initialBalance) * 100 : 0;
-            const holdingsCount = portfolio.holdingsList ? portfolio.holdingsList.length : 0;
 
             return (
               <Link
@@ -121,16 +119,11 @@ function PortfolioList() {
                   </div>
 
                   <div className="portfolio-return">
-                    <span className="label">Return</span>
+                    <span className="label">Cash Return</span>
                     <span className={`value ${gainLoss >= 0 ? 'positive' : 'negative'}`}>
                       {gainLoss >= 0 ? '+' : ''}
                       {gainLoss.toFixed(2)} ({gainLossPercent.toFixed(2)}%)
                     </span>
-                  </div>
-
-                  <div className="portfolio-holdings-count">
-                    <span className="label">Holdings</span>
-                    <span className="value">{holdingsCount}</span>
                   </div>
                 </div>
 

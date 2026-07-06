@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -40,20 +39,6 @@ public class Portfolio {
   @NotNull(message = "Initial balance cannot be null")
   @Min(value = 1, message = "Initial balance must be greater than 0")
   private Double initialBalance;
-
-  @Setter
-  @NotNull(message = "Transaction list cannot be null")
-  private List<
-          @NotNull(message = "Transaction ID cannot be null")
-          @Min(value = 1, message = "Transaction ID must be greater than 0") Integer>
-      transactionList;
-
-  @Setter
-  @NotNull(message = "Holdings list cannot be null")
-  private List<
-          @NotNull(message = "Holding ID cannot be null")
-          @Min(value = 1, message = "Holding ID must be greater than 0") Integer>
-      holdingsList;
 
   @Setter private Double reservedCash;
 

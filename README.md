@@ -2,13 +2,6 @@
 
 TradeSim is a simulated stock exchange you can trade against. Every symbol runs its own live order book with bot market makers, so orders match, fill, and move prices without any external market data.
 
-## Screenshots
-
-_Add your own screenshots here. The trading screen and the portfolio view are the two worth showing._
-
-<!-- ![Trading screen](docs/screenshots/trading-screen.png) -->
-<!-- ![Portfolio](docs/screenshots/portfolio.png) -->
-
 ## How it works
 
 The interesting parts are the matching engine and the accounting, so here is what happens under the hood.

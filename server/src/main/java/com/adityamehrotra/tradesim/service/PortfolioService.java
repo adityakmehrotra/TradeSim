@@ -3,13 +3,10 @@ package com.adityamehrotra.tradesim.service;
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PortfolioService {
@@ -22,7 +19,6 @@ public class PortfolioService {
     this.mongoTemplate = mongoTemplate;
   }
 
-  @Transactional
   public int getNextID() {
     Query query = new Query();
     query.with(Sort.by(Sort.Direction.DESC, "portfolioID"));
@@ -36,7 +32,6 @@ public class PortfolioService {
     }
   }
 
-  @Transactional
   public int createPortfolio(PortfolioRequest portfolio) {
     if (portfolio.getAccountID() == null || portfolio.getAccountID() <= 0) {
       throw new IllegalArgumentException("Account ID cannot be empty or less than 1");
@@ -47,7 +42,7 @@ public class PortfolioService {
     }
 
     if (portfolio.getDescription() == null || portfolio.getDescription().isEmpty()) {
-      throw new IllegalArgumentException("Portfolio name cannot be empty");
+      throw new IllegalArgumentException("Portfolio description cannot be empty");
     }
 
     if (portfolio.getCash() == null || portfolio.getCash() < 0) {
@@ -60,9 +55,6 @@ public class PortfolioService {
 
     int portfolioID = getNextID();
 
-    List<Integer> transactionList = new ArrayList<>();
-    List<Integer> holdingsList = new ArrayList<>();
-
     Portfolio newPortfolio =
         new Portfolio(
             portfolioID,
@@ -71,8 +63,6 @@ public class PortfolioService {
             portfolio.getDescription(),
             portfolio.getCash(),
             portfolio.getInitialBalance(),
-            transactionList,
-            holdingsList,
             0.0);
 
     portfolioRepository.save(newPortfolio);
@@ -80,7 +70,6 @@ public class PortfolioService {
     return portfolioID;
   }
 
-  @Transactional
   public Portfolio getPortfolio(Integer id) {
     if (id == null || id <= 0) {
       throw new IllegalArgumentException("Invalid portfolio ID");
@@ -95,244 +84,27 @@ public class PortfolioService {
     return portfolio;
   }
 
-  @Transactional
   public void updatePortfolioName(Integer portfolioID, String name) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Portfolio name cannot be empty");
     }
 
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
+    Portfolio portfolio = getPortfolio(portfolioID);
     portfolio.setName(name);
     portfolioRepository.save(portfolio);
   }
 
-  @Transactional
   public void updatePortfolioDescription(Integer portfolioID, String description) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
     if (description == null || description.isEmpty()) {
       throw new IllegalArgumentException("Portfolio description cannot be empty");
     }
 
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
+    Portfolio portfolio = getPortfolio(portfolioID);
     portfolio.setDescription(description);
     portfolioRepository.save(portfolio);
   }
 
-  @Transactional
-  public void updatePortfolioCash(Integer portfolioID, Double cash) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    if (cash == null || cash < 0) {
-      throw new IllegalArgumentException("Cash amount cannot be empty or less than 0");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    portfolio.setCash(cash);
-    portfolioRepository.save(portfolio);
-  }
-
-  @Transactional
   public void deletePortfolio(Integer portfolioID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    portfolioRepository.delete(portfolio);
-  }
-
-  @Transactional
-  public void addTransaction(Integer portfolioID, Integer transactionID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    if (transactionID == null || transactionID <= 0) {
-      throw new IllegalArgumentException("Invalid transaction ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    List<Integer> transactionList = portfolio.getTransactionList();
-    if (!transactionList.contains(transactionID)) {
-      transactionList.add(transactionID);
-      portfolio.setTransactionList(transactionList);
-      portfolioRepository.save(portfolio);
-    } else {
-      throw new IllegalArgumentException("Transaction already exists in the portfolio");
-    }
-  }
-
-  @Transactional
-  public void removeTransaction(Integer portfolioID, Integer transactionID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    if (transactionID == null || transactionID <= 0) {
-      throw new IllegalArgumentException("Invalid transaction ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    List<Integer> transactionList = portfolio.getTransactionList();
-    if (transactionList.contains(transactionID)) {
-      transactionList.remove(transactionID);
-      portfolio.setTransactionList(transactionList);
-      portfolioRepository.save(portfolio);
-    } else {
-      throw new IllegalArgumentException("Transaction does not exist in the portfolio");
-    }
-  }
-
-  @Transactional
-  public List<Integer> getTransactionList(Integer portfolioID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    return portfolio.getTransactionList();
-  }
-
-  @Transactional
-  public void clearTransactionList(Integer portfolioID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    portfolio.setTransactionList(new ArrayList<>());
-    portfolioRepository.save(portfolio);
-  }
-
-  @Transactional
-  public void addHolding(Integer portfolioID, Integer holdingID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    if (holdingID == null || holdingID <= 0) {
-      throw new IllegalArgumentException("Invalid holding ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    List<Integer> holdingsList = portfolio.getHoldingsList();
-    if (!holdingsList.contains(holdingID)) {
-      holdingsList.add(holdingID);
-      portfolio.setHoldingsList(holdingsList);
-      portfolioRepository.save(portfolio);
-    } else {
-      throw new IllegalArgumentException("Holding already exists in the portfolio");
-    }
-  }
-
-  @Transactional
-  public void removeHolding(Integer portfolioID, Integer holdingID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    if (holdingID == null || holdingID <= 0) {
-      throw new IllegalArgumentException("Invalid holding ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    List<Integer> holdingsList = portfolio.getHoldingsList();
-    if (holdingsList.contains(holdingID)) {
-      holdingsList.remove(holdingID);
-      portfolio.setHoldingsList(holdingsList);
-      portfolioRepository.save(portfolio);
-    } else {
-      throw new IllegalArgumentException("Holding does not exist in the portfolio");
-    }
-  }
-
-  @Transactional
-  public List<Integer> getHoldingList(Integer portfolioID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    return portfolio.getHoldingsList();
-  }
-
-  @Transactional
-  public void clearHoldingList(Integer portfolioID) {
-    if (portfolioID == null || portfolioID <= 0) {
-      throw new IllegalArgumentException("Invalid portfolio ID");
-    }
-
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioID);
-
-    if (portfolio == null) {
-      throw new IllegalArgumentException("Portfolio not found");
-    }
-
-    portfolio.setHoldingsList(new ArrayList<>());
-    portfolioRepository.save(portfolio);
+    portfolioRepository.delete(getPortfolio(portfolioID));
   }
 }
