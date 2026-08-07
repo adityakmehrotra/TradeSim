@@ -1,25 +1,62 @@
+import { useEffect, useState } from 'react';
 import { priceFromCents, shortTime } from '../../lib/format';
 
 // Candlestick chart with a volume pane, drawn as raw SVG from the sim's candles. No chart library,
 // so the rendering stays exact and light. Prices arrive in cents.
 const WIDTH = 860;
-const HEIGHT = 420;
+const DEFAULT_HEIGHT = 420;
 const PLOT_RIGHT = 792;
 const PRICE_TOP = 10;
-const PRICE_BOTTOM = 294;
-const VOLUME_TOP = 312;
-const VOLUME_BOTTOM = 398;
-const TIME_Y = 414;
+// Bands are fractions of the height so the chart fills whatever the panel gives it.
+const PRICE_BOTTOM_RATIO = 0.7;
+const VOLUME_TOP_RATIO = 0.743;
+const VOLUME_BOTTOM_RATIO = 0.948;
+const TIME_Y_RATIO = 0.986;
 const VISIBLE = 120;
 
+/**
+ * Tracks the panel size so the viewBox keeps the same aspect ratio as the box it is drawn into.
+ * Matching aspects means the scale stays uniform, so candles keep their shape and the labels keep
+ * their size no matter how tall the panel is.
+ */
+function useViewBoxHeight() {
+  const [element, setElement] = useState(null);
+  const [height, setHeight] = useState(DEFAULT_HEIGHT);
+
+  useEffect(() => {
+    if (!element || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height: boxHeight } = entry.contentRect;
+      if (width > 0 && boxHeight > 0) {
+        setHeight(Math.round((WIDTH * boxHeight) / width));
+      }
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [element]);
+
+  // A callback ref, so swapping between the empty and populated chart keeps the observer attached.
+  return [setElement, height];
+}
+
 function CandleChart({ candles, lastCents }) {
+  const [wrapRef, HEIGHT] = useViewBoxHeight();
   const data = candles.slice(-VISIBLE);
+
+  const PRICE_BOTTOM = HEIGHT * PRICE_BOTTOM_RATIO;
+  const VOLUME_TOP = HEIGHT * VOLUME_TOP_RATIO;
+  const VOLUME_BOTTOM = HEIGHT * VOLUME_BOTTOM_RATIO;
+  const TIME_Y = HEIGHT * TIME_Y_RATIO;
 
   if (data.length === 0) {
     return (
-      <svg className="candle-chart" viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
-        <line x1="0" y1={HEIGHT / 2} x2={WIDTH} y2={HEIGHT / 2} stroke="var(--border)" />
-      </svg>
+      <div className="chart-wrap" ref={wrapRef}>
+        <svg className="candle-chart" viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
+          <line x1="0" y1={HEIGHT / 2} x2={WIDTH} y2={HEIGHT / 2} stroke="var(--border)" />
+        </svg>
+      </div>
     );
   }
 
@@ -47,115 +84,117 @@ function CandleChart({ candles, lastCents }) {
   const timeMarks = [0, Math.floor(data.length / 2), data.length - 1];
 
   return (
-    <svg className="candle-chart" viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
-      {gridPrices.map((price) => (
-        <g key={price}>
-          <line
-            x1="0"
-            y1={priceY(price)}
-            x2={PLOT_RIGHT}
-            y2={priceY(price)}
-            stroke="var(--border)"
-            strokeWidth="1"
-          />
-          <text x={PLOT_RIGHT + 8} y={priceY(price) + 3.5} fontSize="11" fill="var(--muted)">
-            {priceFromCents(Math.round(price))}
-          </text>
-        </g>
-      ))}
-
-      {data.map((candle, index) => {
-        const x = xOf(index);
-        const up = candle.closeCents >= candle.openCents;
-        const color = up ? 'var(--up)' : 'var(--down)';
-        const bodyTop = priceY(Math.max(candle.openCents, candle.closeCents));
-        const bodyHeight = Math.max(
-          1,
-          Math.abs(priceY(candle.openCents) - priceY(candle.closeCents))
-        );
-        return (
-          <g key={candle.epochMillis}>
+    <div className="chart-wrap" ref={wrapRef}>
+      <svg className="candle-chart" viewBox={`0 0 ${WIDTH} ${HEIGHT}`}>
+        {gridPrices.map((price) => (
+          <g key={price}>
             <line
-              x1={x}
-              y1={priceY(candle.highCents)}
-              x2={x}
-              y2={priceY(candle.lowCents)}
-              stroke={color}
+              x1="0"
+              y1={priceY(price)}
+              x2={PLOT_RIGHT}
+              y2={priceY(price)}
+              stroke="var(--border)"
               strokeWidth="1"
             />
-            <rect
-              x={x - bodyWidth / 2}
-              y={bodyTop}
-              width={bodyWidth}
-              height={bodyHeight}
-              fill={color}
-            />
-            <rect
-              x={x - bodyWidth / 2}
-              y={VOLUME_BOTTOM - volumeHeight(candle.volume)}
-              width={bodyWidth}
-              height={volumeHeight(candle.volume)}
-              fill={color}
-              opacity="0.45"
-            />
+            <text x={PLOT_RIGHT + 8} y={priceY(price) + 3.5} fontSize="11" fill="var(--muted)">
+              {priceFromCents(Math.round(price))}
+            </text>
           </g>
-        );
-      })}
+        ))}
 
-      {lastY > PRICE_TOP && lastY < PRICE_BOTTOM && (
-        <g>
-          <line
-            x1="0"
-            y1={lastY}
-            x2={PLOT_RIGHT}
-            y2={lastY}
-            stroke={rising ? 'var(--up)' : 'var(--down)'}
-            strokeWidth="1"
-            strokeDasharray="4 4"
-            opacity="0.9"
-          />
-          <rect
-            x={PLOT_RIGHT + 2}
-            y={lastY - 9}
-            width={62}
-            height={18}
-            rx="3"
-            fill={rising ? 'var(--up)' : 'var(--down)'}
-          />
+        {data.map((candle, index) => {
+          const x = xOf(index);
+          const up = candle.closeCents >= candle.openCents;
+          const color = up ? 'var(--up)' : 'var(--down)';
+          const bodyTop = priceY(Math.max(candle.openCents, candle.closeCents));
+          const bodyHeight = Math.max(
+            1,
+            Math.abs(priceY(candle.openCents) - priceY(candle.closeCents))
+          );
+          return (
+            <g key={candle.epochMillis}>
+              <line
+                x1={x}
+                y1={priceY(candle.highCents)}
+                x2={x}
+                y2={priceY(candle.lowCents)}
+                stroke={color}
+                strokeWidth="1"
+              />
+              <rect
+                x={x - bodyWidth / 2}
+                y={bodyTop}
+                width={bodyWidth}
+                height={bodyHeight}
+                fill={color}
+              />
+              <rect
+                x={x - bodyWidth / 2}
+                y={VOLUME_BOTTOM - volumeHeight(candle.volume)}
+                width={bodyWidth}
+                height={volumeHeight(candle.volume)}
+                fill={color}
+                opacity="0.45"
+              />
+            </g>
+          );
+        })}
+
+        {lastY > PRICE_TOP && lastY < PRICE_BOTTOM && (
+          <g>
+            <line
+              x1="0"
+              y1={lastY}
+              x2={PLOT_RIGHT}
+              y2={lastY}
+              stroke={rising ? 'var(--up)' : 'var(--down)'}
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              opacity="0.9"
+            />
+            <rect
+              x={PLOT_RIGHT + 2}
+              y={lastY - 9}
+              width={62}
+              height={18}
+              rx="3"
+              fill={rising ? 'var(--up)' : 'var(--down)'}
+            />
+            <text
+              x={PLOT_RIGHT + 33}
+              y={lastY + 3.5}
+              fontSize="11"
+              fontWeight="700"
+              fill="#0b0e14"
+              textAnchor="middle"
+            >
+              {priceFromCents(last)}
+            </text>
+          </g>
+        )}
+
+        <line
+          x1="0"
+          y1={VOLUME_BOTTOM + 0.5}
+          x2={PLOT_RIGHT}
+          y2={VOLUME_BOTTOM + 0.5}
+          stroke="var(--border)"
+        />
+
+        {timeMarks.map((index, i) => (
           <text
-            x={PLOT_RIGHT + 33}
-            y={lastY + 3.5}
-            fontSize="11"
-            fontWeight="700"
-            fill="#0b0e14"
-            textAnchor="middle"
+            key={index}
+            x={xOf(index)}
+            y={TIME_Y}
+            fontSize="10"
+            fill="var(--muted)"
+            textAnchor={i === 0 ? 'start' : i === timeMarks.length - 1 ? 'end' : 'middle'}
           >
-            {priceFromCents(last)}
+            {shortTime(data[index].epochMillis)}
           </text>
-        </g>
-      )}
-
-      <line
-        x1="0"
-        y1={VOLUME_BOTTOM + 0.5}
-        x2={PLOT_RIGHT}
-        y2={VOLUME_BOTTOM + 0.5}
-        stroke="var(--border)"
-      />
-
-      {timeMarks.map((index, i) => (
-        <text
-          key={index}
-          x={xOf(index)}
-          y={TIME_Y}
-          fontSize="10"
-          fill="var(--muted)"
-          textAnchor={i === 0 ? 'start' : i === timeMarks.length - 1 ? 'end' : 'middle'}
-        >
-          {shortTime(data[index].epochMillis)}
-        </text>
-      ))}
-    </svg>
+        ))}
+      </svg>
+    </div>
   );
 }
 
