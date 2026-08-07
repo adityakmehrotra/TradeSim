@@ -1,20 +1,9 @@
 .terminal {
-  --bg: #0b0e14;
-  --panel: #12161f;
-  --panel-2: #0f131b;
-  --border: #1e2430;
-  --text: #c9d1d9;
-  --muted: #6b7280;
-  --up: #1ec8a5;
-  --down: #f6465d;
-  --accent: #4f8cff;
-
   background: var(--bg);
   color: var(--text);
   min-height: calc(100vh - 60px);
   padding: 12px;
-  font-family:
-    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
 }
 
