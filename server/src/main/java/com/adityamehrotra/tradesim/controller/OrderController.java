@@ -12,6 +12,7 @@ import com.adityamehrotra.tradesim.service.SessionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +46,10 @@ public class OrderController {
       @RequestBody OrderRequest request) {
     try {
       Session session = sessionService.getOrCreate(token);
+      if (!positionService.ownedBy(request.getPortfolioID(), session.getAccountID())) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(Map.of("error", "That portfolio does not belong to this session"));
+      }
       Side side = Side.valueOf(request.getSide().toUpperCase());
       OrderType type = OrderType.valueOf(request.getType().toUpperCase());
       MarketService.PlaceResult result =
@@ -78,7 +83,14 @@ public class OrderController {
   }
 
   @GetMapping("/positions")
-  public ResponseEntity<?> positions(@RequestParam Integer portfolioID) {
+  public ResponseEntity<?> positions(
+      @CookieValue(name = COOKIE_NAME, required = false) String token,
+      @RequestParam Integer portfolioID) {
+    Session session = sessionService.getOrCreate(token);
+    if (!positionService.ownedBy(portfolioID, session.getAccountID())) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN)
+          .body(Map.of("error", "That portfolio does not belong to this session"));
+    }
     List<Map<String, Object>> views = new ArrayList<>();
     for (Position position : positionService.positionsFor(portfolioID)) {
       if (position.getQuantity() <= 0) {
