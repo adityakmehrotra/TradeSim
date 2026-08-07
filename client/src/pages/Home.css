@@ -1,79 +1,91 @@
 .home {
-  max-width: 920px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: 40px 20px 80px;
+  padding: 44px 20px 80px;
 }
 
 .home-hero {
-  padding: 24px 0 40px;
+  padding: 12px 0 40px;
 }
+
 .home-hero h1 {
-  font-size: 32px;
-  line-height: 1.2;
+  font-size: 30px;
   letter-spacing: -0.02em;
-  margin: 0 0 16px;
+  margin-bottom: 14px;
 }
+
 .home-hero p {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #4b5563;
-  max-width: 640px;
-  margin: 0 0 24px;
-}
-.home-cta {
-  display: inline-block;
-  padding: 10px 20px;
-  background: #0b0e14;
-  color: #fff;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 620px;
+  margin-bottom: 22px;
 }
 
 .home-market {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+  background: var(--panel);
 }
+
 .home-market-head,
 .home-market-row {
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
+  grid-template-columns: 110px 1fr 120px 110px;
   align-items: center;
-  padding: 12px 18px;
+  padding: 11px 18px;
 }
+
 .home-market-head {
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6b7280;
+  color: var(--muted);
 }
-.home-market-head span:last-child,
-.home-market-row .last {
+
+.home-market-head span:nth-child(3),
+.home-market-head span:nth-child(4),
+.home-market-row .last,
+.home-market-row .chg {
   text-align: right;
 }
+
 .home-market-row {
-  border-bottom: 1px solid #f1f3f5;
-  text-decoration: none;
-  color: #111827;
+  border-bottom: 1px solid var(--panel-2);
+  color: var(--text);
+  transition: background-color 120ms ease;
 }
+
 .home-market-row:last-child {
   border-bottom: none;
 }
+
 .home-market-row:hover {
-  background: #f9fafb;
+  background: var(--panel-2);
 }
+
 .home-market-row .sym {
+  font-family: var(--font-mono);
   font-weight: 700;
-  letter-spacing: 0.03em;
+  color: var(--text-bright);
 }
+
 .home-market-row .nm {
-  color: #4b5563;
+  color: var(--muted);
+  font-size: 14px;
 }
-.home-market-row .last {
-  font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+@media (max-width: 620px) {
+  .home-market-head,
+  .home-market-row {
+    grid-template-columns: 80px 1fr 90px;
+  }
+
+  .home-market-head span:nth-child(4),
+  .home-market-row .chg {
+    display: none;
+  }
 }
