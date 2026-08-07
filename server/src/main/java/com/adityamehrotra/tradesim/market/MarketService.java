@@ -207,6 +207,21 @@ public class MarketService {
     }
   }
 
+  /** Cancels every resting order the account has, releasing its reservations. Used by reset. */
+  public void cancelAllForAccount(int accountId) {
+    synchronized (lock) {
+      List<Long> orderIds = new ArrayList<>();
+      for (OrderContext context : contexts.values()) {
+        if (context.accountId == accountId) {
+          orderIds.add(context.orderId);
+        }
+      }
+      for (long orderId : orderIds) {
+        cancelOrder(accountId, orderId);
+      }
+    }
+  }
+
   private void applyTrades(String symbol, List<Trade> trades) {
     MarketState state = states.get(symbol);
     for (Trade trade : trades) {
