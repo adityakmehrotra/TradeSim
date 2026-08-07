@@ -30,3 +30,8 @@ export function clockTime(epochMillis) {
   const date = new Date(epochMillis);
   return date.toLocaleTimeString('en-US', { hour12: false });
 }
+
+export function shortTime(epochMillis) {
+  const date = new Date(epochMillis);
+  return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+}

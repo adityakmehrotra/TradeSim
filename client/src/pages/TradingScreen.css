@@ -13,29 +13,42 @@
 
 .term-header {
   display: flex;
-  align-items: baseline;
-  gap: 18px;
+  align-items: center;
+  gap: 14px;
   padding: 4px 8px 14px;
   flex-wrap: wrap;
 }
 .term-symbol {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  color: var(--text-bright);
 }
 .term-name {
   color: var(--muted);
   font-size: 13px;
 }
-.term-last {
-  font-size: 22px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.term-stats {
+  display: flex;
+  align-items: center;
+  gap: 26px;
   margin-left: auto;
+  flex-wrap: wrap;
 }
-.term-change {
+.term-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.term-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+.term-stat-value {
   font-size: 14px;
-  font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 .up {
   color: var(--up);
@@ -87,6 +100,12 @@
   color: var(--muted);
   padding: 8px 10px;
   border-bottom: 1px solid var(--border);
+}
+.panel-subtitle {
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: 0.75;
+  margin-left: 6px;
 }
 
 /* Order book ladder */
@@ -334,12 +353,9 @@
 /* Candle chart */
 .candle-chart {
   width: 100%;
-  height: 340px;
+  height: auto;
   display: block;
-}
-.candle-chart text {
-  fill: var(--muted);
-  font-size: 10px;
+  padding: 4px 4px 0;
 }
 
 @media (max-width: 1000px) {
