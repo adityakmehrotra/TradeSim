@@ -44,6 +44,25 @@ public class PositionService {
         && portfolio.getAccountID() == accountId;
   }
 
+  /**
+   * Order books live in memory and rebuild empty on startup, so any reservation persisted from a
+   * previous run no longer has an order behind it. Called once at boot.
+   */
+  public void clearAllReservations() {
+    for (Portfolio portfolio : portfolioRepository.findAll()) {
+      if (portfolio.reservedCashOrZero() != 0.0) {
+        portfolio.setReservedCash(0.0);
+        portfolioRepository.save(portfolio);
+      }
+    }
+    for (Position position : positionRepository.findAll()) {
+      if (position.getReservedQuantity() != 0) {
+        position.setReservedQuantity(0);
+        positionRepository.save(position);
+      }
+    }
+  }
+
   private static double dollars(long priceCents, long quantity) {
     return (priceCents * quantity) / 100.0;
   }
