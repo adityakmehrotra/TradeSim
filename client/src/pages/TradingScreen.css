@@ -1,7 +1,7 @@
 .terminal {
   background: var(--bg);
   color: var(--text);
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 52px);
   padding: 12px;
   font-family: var(--font-mono);
   font-size: 13px;
