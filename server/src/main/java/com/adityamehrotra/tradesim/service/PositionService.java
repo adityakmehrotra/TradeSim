@@ -34,6 +34,16 @@ public class PositionService {
     return portfolio == null ? 0.0 : portfolio.availableCash();
   }
 
+  public boolean ownedBy(Integer portfolioId, int accountId) {
+    if (portfolioId == null) {
+      return false;
+    }
+    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
+    return portfolio != null
+        && portfolio.getAccountID() != null
+        && portfolio.getAccountID() == accountId;
+  }
+
   private static double dollars(long priceCents, long quantity) {
     return (priceCents * quantity) / 100.0;
   }
