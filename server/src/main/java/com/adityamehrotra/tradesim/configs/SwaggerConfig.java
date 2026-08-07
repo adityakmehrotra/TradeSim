@@ -4,26 +4,38 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
+  static final String UNBUILT_VERSION = "development";
 
   @Bean
-  public OpenAPI openApi() {
+  public OpenAPI openApi(ObjectProvider<BuildProperties> buildProperties) {
     return new OpenAPI()
         .info(
             new Info()
-                .title("Paper Trader Backend - Used by Paper Trader UI")
-                .version("1.4.7")
+                .title("TradeSim API")
+                .version(version(buildProperties.getIfAvailable()))
                 .description(
                     """
-                    ### API Documentation for TradeSim Backend. Read more about TradeSim in the GitHub Repository:
+                    ### API documentation for the TradeSim backend. Read more in the GitHub repository:
 
-                    #### https://github.com/adityakmehrotra/tradesim
+                    #### https://github.com/adityakmehrotra/TradeSim
                     """)
-                .license(new License().name("Copyright 2024 Aditya Mehrotra"))
+                .license(new License().name("MIT License"))
                 .contact(new Contact().name("Aditya Mehrotra")));
+  }
+
+  /**
+   * Maven generates the build info, so the documented version tracks the project version. Starting
+   * the application straight from an IDE skips that step, which is why this falls back instead of
+   * failing.
+   */
+  static String version(BuildProperties buildProperties) {
+    return buildProperties == null ? UNBUILT_VERSION : buildProperties.getVersion();
   }
 }

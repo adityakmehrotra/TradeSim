@@ -77,21 +77,49 @@ function TradingScreen() {
   const changePercent = last != null && open ? ((last - open) / open) * 100 : null;
   const rising = (change ?? 0) >= 0;
 
+  const sessionHigh = candles.length ? Math.max(...candles.map((c) => c.highCents)) : null;
+  const sessionLow = candles.length ? Math.min(...candles.map((c) => c.lowCents)) : null;
+  const sessionVolume = candles.reduce((total, c) => total + c.volume, 0);
+
   return (
     <div className="terminal">
       <div className="term-header">
         <span className="term-symbol">{symbol}</span>
         <span className="term-name">{quote?.name || ''}</span>
-        <span className={`term-last num ${rising ? 'up' : 'down'}`}>{priceFromCents(last)}</span>
-        <span className={`term-change num ${rising ? 'up' : 'down'}`}>
-          {signedUsd(change)} ({signedPercent(changePercent)})
-        </span>
+        <div className="term-stats">
+          <div className="term-stat">
+            <span className="term-stat-label">Last</span>
+            <span className={`term-stat-value num ${rising ? 'up' : 'down'}`}>
+              {priceFromCents(last)}
+            </span>
+          </div>
+          <div className="term-stat">
+            <span className="term-stat-label">Change</span>
+            <span className={`term-stat-value num ${rising ? 'up' : 'down'}`}>
+              {signedUsd(change)} ({signedPercent(changePercent)})
+            </span>
+          </div>
+          <div className="term-stat">
+            <span className="term-stat-label">High</span>
+            <span className="term-stat-value num">{priceFromCents(sessionHigh)}</span>
+          </div>
+          <div className="term-stat">
+            <span className="term-stat-label">Low</span>
+            <span className="term-stat-value num">{priceFromCents(sessionLow)}</span>
+          </div>
+          <div className="term-stat">
+            <span className="term-stat-label">Volume</span>
+            <span className="term-stat-value num">{shares(sessionVolume)}</span>
+          </div>
+        </div>
       </div>
 
       <div className="term-grid">
         <div className="panel term-chart">
-          <div className="panel-title">Price</div>
-          <CandleChart candles={candles} />
+          <div className="panel-title">
+            {symbol} <span className="panel-subtitle">5s candles</span>
+          </div>
+          <CandleChart candles={candles} lastCents={last} />
         </div>
 
         <OrderBookLadder bids={depth.bids} asks={depth.asks} />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
-import { priceFromCents } from '../lib/format';
+import { priceFromCents, signedPercent } from '../lib/format';
 import './Home.css';
 
 function Home() {
@@ -29,7 +29,7 @@ function Home() {
           market and limit orders, watch them fill against the book, and track your positions and
           profit. No account needed.
         </p>
-        <Link to="/portfolios" className="home-cta">
+        <Link to="/portfolios" className="btn btn-primary">
           Open a portfolio
         </Link>
       </section>
@@ -39,6 +39,7 @@ function Home() {
           <span>Symbol</span>
           <span>Name</span>
           <span>Last</span>
+          <span>Change</span>
         </div>
         {instruments.map((instrument) => (
           <Link
@@ -49,6 +50,9 @@ function Home() {
             <span className="sym">{instrument.symbol}</span>
             <span className="nm">{instrument.name}</span>
             <span className="last num">{priceFromCents(instrument.lastCents)}</span>
+            <span className={`chg num ${instrument.changePercent >= 0 ? 'positive' : 'negative'}`}>
+              {signedPercent(instrument.changePercent)}
+            </span>
           </Link>
         ))}
       </section>

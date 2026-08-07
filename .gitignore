@@ -18,6 +18,7 @@ dist/
 
 # Planning notes, kept out of version control
 PLAN.html
+SPEC.html
 
 # Local preview and tooling config
 .claude/

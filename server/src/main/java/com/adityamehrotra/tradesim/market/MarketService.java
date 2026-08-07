@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +30,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MarketService {
+  private static final Logger log = LoggerFactory.getLogger(MarketService.class);
+
   private static final long BOT_OWNER = -1;
   private static final int DEPTH = 12;
   private static final int MAX_RECENT_TRADES = 50;
-  private static final int MAX_CANDLES = 120;
+  private static final int MAX_CANDLES = 240;
+  private static final int BACKFILL_CANDLES = 180;
+  private static final int CANDLE_SECONDS = 5;
   private static final int MM_LEVELS = 5;
 
   private final PositionService positionService;
@@ -47,24 +54,68 @@ public class MarketService {
 
   @PostConstruct
   void seed() {
+    try {
+      positionService.clearAllReservations();
+    } catch (DataAccessException e) {
+      log.warn("Could not sweep stale reservations at startup: {}", e.getMessage());
+    }
+
     synchronized (lock) {
       for (Instrument instrument : Instruments.ALL) {
         OrderBook book = new OrderBook(instrument.symbol());
         MarketState state = new MarketState(instrument.referencePriceCents());
         books.put(instrument.symbol(), book);
         states.put(instrument.symbol(), state);
+        backfillHistory(instrument, state);
         requote(instrument, book, state);
       }
     }
+  }
+
+  /**
+   * Walks the reference price through a stretch of pretend past so the chart opens with a full pane
+   * of candles instead of building up from nothing.
+   */
+  private void backfillHistory(Instrument instrument, MarketState state) {
+    long price = instrument.referencePriceCents();
+    long now = System.currentTimeMillis();
+
+    for (int i = BACKFILL_CANDLES; i > 0; i--) {
+      long open = price;
+      long high = open;
+      long low = open;
+      for (int step = 0; step < CANDLE_SECONDS; step++) {
+        double shockBps =
+            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBps();
+        price = Math.max(1, Math.round(price * (1 + shockBps / 10000.0)));
+        high = Math.max(high, price);
+        low = Math.min(low, price);
+      }
+      long volume = 200 + random.nextInt(1800);
+      state.candles.addLast(
+          new Candle(open, high, low, price, volume, now - (long) i * CANDLE_SECONDS * 1000));
+    }
+
+    state.reference = price;
+    state.lastPrice = price;
+    state.candleOpen = price;
+    state.candleHigh = price;
+    state.candleLow = price;
   }
 
   public List<InstrumentView> instruments() {
     synchronized (lock) {
       List<InstrumentView> views = new ArrayList<>();
       for (Instrument instrument : Instruments.ALL) {
+        MarketState state = states.get(instrument.symbol());
+        Candle earliest = state.candles.peekFirst();
+        double changePercent =
+            earliest == null || earliest.openCents() == 0
+                ? 0.0
+                : (state.lastPrice - earliest.openCents()) * 100.0 / earliest.openCents();
         views.add(
             new InstrumentView(
-                instrument.symbol(), instrument.name(), states.get(instrument.symbol()).lastPrice));
+                instrument.symbol(), instrument.name(), state.lastPrice, changePercent));
       }
       return views;
     }
@@ -466,7 +517,7 @@ public class MarketService {
     }
   }
 
-  public record InstrumentView(String symbol, String name, long lastCents) {}
+  public record InstrumentView(String symbol, String name, long lastCents, double changePercent) {}
 
   public record Quote(String symbol, String name, long lastCents, Long bidCents, Long askCents) {}
 
