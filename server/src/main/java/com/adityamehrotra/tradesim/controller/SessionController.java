@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tradesim/api/session")
 public class SessionController {
-  private static final String COOKIE_NAME = "tradesim_session";
+  private static final String COOKIE_NAME = SessionService.COOKIE_NAME;
 
   private final SessionService sessionService;
 

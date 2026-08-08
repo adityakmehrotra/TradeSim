@@ -2,6 +2,7 @@ package com.adityamehrotra.tradesim.controller;
 
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
 import com.adityamehrotra.tradesim.model.Portfolio;
+import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,76 +23,39 @@ public class PortfolioController {
 
   @PostMapping("/create")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<?> createPortfolio(@RequestBody PortfolioRequest portfolio) {
-    try {
-      int portfolioID = portfolioService.createPortfolio(portfolio);
-      Map<String, Object> response = new HashMap<>();
-      response.put("id", portfolioID);
+  public ResponseEntity<?> createPortfolio(Session session, @RequestBody PortfolioRequest request) {
+    // Whatever account the body claims is ignored. A session only ever creates its own portfolios.
+    request.setAccountID(session.getAccountID());
+    int portfolioID = portfolioService.createPortfolio(request);
 
-      return new ResponseEntity<>(response, HttpStatus.CREATED);
-    } catch (IllegalArgumentException e) {
-      return badRequest(e);
-    }
+    Map<String, Object> response = new HashMap<>();
+    response.put("id", portfolioID);
+    return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
   @GetMapping("/get")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> getPortfolio(@RequestParam Integer portfolioID) {
-    try {
-      Portfolio portfolio = portfolioService.getPortfolio(portfolioID);
-      return new ResponseEntity<>(portfolio, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      return badRequest(e);
-    }
+  public ResponseEntity<?> getPortfolio(Session session, @RequestParam Integer portfolioID) {
+    Portfolio portfolio = portfolioService.requireOwned(portfolioID, session.getAccountID());
+    return new ResponseEntity<>(portfolio, HttpStatus.OK);
   }
 
   @PutMapping("/name")
-  @ResponseStatus(HttpStatus.ACCEPTED)
   public ResponseEntity<?> updatePortfolioName(
-      @RequestParam Integer portfolioID, @RequestParam String name) {
-    try {
-      portfolioService.updatePortfolioName(portfolioID, name);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio name updated successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      return badRequest(e);
-    }
+      Session session, @RequestParam Integer portfolioID, @RequestParam String name) {
+    portfolioService.updatePortfolioName(portfolioID, session.getAccountID(), name);
+    return ResponseEntity.ok(Map.of("message", "Portfolio name updated successfully"));
   }
 
   @PutMapping("/description")
-  @ResponseStatus(HttpStatus.ACCEPTED)
   public ResponseEntity<?> updatePortfolioDescription(
-      @RequestParam Integer portfolioID, @RequestParam String description) {
-    try {
-      portfolioService.updatePortfolioDescription(portfolioID, description);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio description updated successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      return badRequest(e);
-    }
+      Session session, @RequestParam Integer portfolioID, @RequestParam String description) {
+    portfolioService.updatePortfolioDescription(portfolioID, session.getAccountID(), description);
+    return ResponseEntity.ok(Map.of("message", "Portfolio description updated successfully"));
   }
 
   @DeleteMapping("/delete")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<?> deletePortfolio(@RequestParam Integer portfolioID) {
-    try {
-      portfolioService.deletePortfolio(portfolioID);
-      Map<String, String> response = new HashMap<>();
-      response.put("message", "Portfolio deleted successfully");
-
-      return new ResponseEntity<>(response, HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      return badRequest(e);
-    }
-  }
-
-  private ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException e) {
-    Map<String, String> errorResponse = new HashMap<>();
-    errorResponse.put("error", e.getMessage());
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  public ResponseEntity<?> deletePortfolio(Session session, @RequestParam Integer portfolioID) {
+    portfolioService.deletePortfolio(portfolioID, session.getAccountID());
+    return ResponseEntity.ok(Map.of("message", "Portfolio deleted successfully"));
   }
 }

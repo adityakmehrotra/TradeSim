@@ -34,16 +34,6 @@ public class PositionService {
     return portfolio == null ? 0.0 : portfolio.availableCash();
   }
 
-  public boolean ownedBy(Integer portfolioId, int accountId) {
-    if (portfolioId == null) {
-      return false;
-    }
-    Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
-    return portfolio != null
-        && portfolio.getAccountID() != null
-        && portfolio.getAccountID() == accountId;
-  }
-
   /**
    * Order books live in memory and rebuild empty on startup, so any reservation persisted from a
    * previous run no longer has an order behind it. Called once at boot.

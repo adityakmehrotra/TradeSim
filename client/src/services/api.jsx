@@ -1,6 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
-async function request(path, options = {}) {
+const SESSION_PATH = '/tradesim/api/session';
+
+async function send(path, options) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
@@ -8,11 +10,35 @@ async function request(path, options = {}) {
   });
 
   const text = await response.text();
-  const body = text ? JSON.parse(text) : null;
+  return { response, body: text ? JSON.parse(text) : null };
+}
+
+// Only the session endpoint creates sessions, so the first call from a new browser can land before
+// the cookie exists. One shared claim keeps a burst of parallel calls from opening several sessions.
+let sessionClaim = null;
+
+function claimSession() {
+  if (!sessionClaim) {
+    sessionClaim = send(SESSION_PATH, {}).finally(() => {
+      sessionClaim = null;
+    });
+  }
+  return sessionClaim;
+}
+
+async function request(path, options = {}) {
+  let { response, body } = await send(path, options);
+
+  if (response.status === 401 && path !== SESSION_PATH) {
+    await claimSession();
+    ({ response, body } = await send(path, options));
+  }
 
   if (!response.ok) {
     const message = body?.error || body?.message || `Request failed with status ${response.status}`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
 
   return body;

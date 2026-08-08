@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -39,6 +40,8 @@ public class MarketService {
   private static final int BACKFILL_CANDLES = 180;
   private static final int CANDLE_SECONDS = 5;
   private static final int MM_LEVELS = 5;
+  private static final long MAX_ORDER_QUANTITY = 1_000_000;
+  private static final long MAX_LIMIT_PRICE_CENTS = 100_000_000;
 
   private final PositionService positionService;
   private final Map<String, OrderBook> books = new LinkedHashMap<>();
@@ -189,6 +192,12 @@ public class MarketService {
       if (quantity <= 0) {
         throw new IllegalArgumentException("Quantity must be positive");
       }
+      if (quantity > MAX_ORDER_QUANTITY) {
+        throw new IllegalArgumentException("Quantity cannot be above " + MAX_ORDER_QUANTITY);
+      }
+      if (type == OrderType.LIMIT) {
+        requireLimitPrice(limitPriceCents);
+      }
       OrderBook book = books.get(instrument.symbol());
 
       long reserveRate = 0;
@@ -196,11 +205,9 @@ public class MarketService {
 
       if (side == Side.BUY) {
         if (type == OrderType.LIMIT) {
-          if (limitPriceCents == null || limitPriceCents <= 0) {
-            throw new IllegalArgumentException("A limit order needs a positive price");
-          }
           reserveRate = limitPriceCents;
-          if (!positionService.reserveCash(portfolioId, reserveRate * quantity)) {
+          if (!positionService.reserveCash(
+              portfolioId, Math.multiplyExact(reserveRate, quantity))) {
             throw new IllegalArgumentException("Not enough cash for this order");
           }
         } else {
@@ -213,9 +220,6 @@ public class MarketService {
           positionService.reserveCash(portfolioId, affordable[1]);
         }
       } else {
-        if (type == OrderType.LIMIT && (limitPriceCents == null || limitPriceCents <= 0)) {
-          throw new IllegalArgumentException("A limit order needs a positive price");
-        }
         if (!positionService.reserveShares(portfolioId, symbol, quantity)) {
           throw new IllegalArgumentException("Not enough shares for this order");
         }
@@ -225,7 +229,15 @@ public class MarketService {
       long priceForOrder = type == OrderType.LIMIT ? limitPriceCents : 0;
       OrderContext context =
           new OrderContext(
-              orderId, portfolioId, accountId, symbol, side, type, reserveRate, orderQuantity);
+              orderId,
+              portfolioId,
+              accountId,
+              symbol,
+              side,
+              type,
+              reserveRate,
+              priceForOrder,
+              orderQuantity);
       contexts.put(orderId, context);
 
       Order order = new Order(orderId, accountId, side, type, priceForOrder, orderQuantity);
@@ -261,16 +273,43 @@ public class MarketService {
   /** Cancels every resting order the account has, releasing its reservations. Used by reset. */
   public void cancelAllForAccount(int accountId) {
     synchronized (lock) {
-      List<Long> orderIds = new ArrayList<>();
-      for (OrderContext context : contexts.values()) {
-        if (context.accountId == accountId) {
-          orderIds.add(context.orderId);
-        }
-      }
-      for (long orderId : orderIds) {
-        cancelOrder(accountId, orderId);
+      for (OrderContext context : matching(c -> c.accountId == accountId)) {
+        cancelOrder(context.accountId, context.orderId);
       }
     }
+  }
+
+  /**
+   * Cancels every resting order the portfolio has, releasing its reservations. Used before a
+   * portfolio is deleted, so nothing is left in the book pointing at a portfolio that is gone.
+   */
+  public void cancelAllForPortfolio(int portfolioId) {
+    synchronized (lock) {
+      for (OrderContext context : matching(c -> c.portfolioId == portfolioId)) {
+        cancelOrder(context.accountId, context.orderId);
+      }
+    }
+  }
+
+  private static void requireLimitPrice(Long limitPriceCents) {
+    if (limitPriceCents == null || limitPriceCents <= 0) {
+      throw new IllegalArgumentException("A limit order needs a positive price");
+    }
+    if (limitPriceCents > MAX_LIMIT_PRICE_CENTS) {
+      throw new IllegalArgumentException(
+          "A limit price cannot be above " + (MAX_LIMIT_PRICE_CENTS / 100) + " per share");
+    }
+  }
+
+  /** Copies the matching contexts out first, since cancelling mutates the context map. */
+  private List<OrderContext> matching(Predicate<OrderContext> predicate) {
+    List<OrderContext> matches = new ArrayList<>();
+    for (OrderContext context : contexts.values()) {
+      if (predicate.test(context)) {
+        matches.add(context);
+      }
+    }
+    return matches;
   }
 
   private void applyTrades(String symbol, List<Trade> trades) {
@@ -504,6 +543,7 @@ public class MarketService {
         Side side,
         OrderType type,
         long reserveRate,
+        long limitPriceCents,
         long quantity) {
       this.orderId = orderId;
       this.portfolioId = portfolioId;
@@ -511,8 +551,10 @@ public class MarketService {
       this.symbol = symbol;
       this.side = side;
       this.type = type;
+      // Only a buy reserves at a rate. A sell reserves shares, so its rate is zero and the limit
+      // price has to be carried separately or open sell orders report a price of zero.
       this.reserveRate = reserveRate;
-      this.limitPriceCents = reserveRate;
+      this.limitPriceCents = limitPriceCents;
       this.remaining = quantity;
     }
   }
