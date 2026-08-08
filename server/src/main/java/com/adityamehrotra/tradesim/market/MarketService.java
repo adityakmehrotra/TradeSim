@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -261,16 +262,33 @@ public class MarketService {
   /** Cancels every resting order the account has, releasing its reservations. Used by reset. */
   public void cancelAllForAccount(int accountId) {
     synchronized (lock) {
-      List<Long> orderIds = new ArrayList<>();
-      for (OrderContext context : contexts.values()) {
-        if (context.accountId == accountId) {
-          orderIds.add(context.orderId);
-        }
-      }
-      for (long orderId : orderIds) {
-        cancelOrder(accountId, orderId);
+      for (OrderContext context : matching(c -> c.accountId == accountId)) {
+        cancelOrder(context.accountId, context.orderId);
       }
     }
+  }
+
+  /**
+   * Cancels every resting order the portfolio has, releasing its reservations. Used before a
+   * portfolio is deleted, so nothing is left in the book pointing at a portfolio that is gone.
+   */
+  public void cancelAllForPortfolio(int portfolioId) {
+    synchronized (lock) {
+      for (OrderContext context : matching(c -> c.portfolioId == portfolioId)) {
+        cancelOrder(context.accountId, context.orderId);
+      }
+    }
+  }
+
+  /** Copies the matching contexts out first, since cancelling mutates the context map. */
+  private List<OrderContext> matching(Predicate<OrderContext> predicate) {
+    List<OrderContext> matches = new ArrayList<>();
+    for (OrderContext context : contexts.values()) {
+      if (predicate.test(context)) {
+        matches.add(context);
+      }
+    }
+    return matches;
   }
 
   private void applyTrades(String symbol, List<Trade> trades) {

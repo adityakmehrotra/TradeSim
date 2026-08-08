@@ -2,8 +2,10 @@ package com.adityamehrotra.tradesim.service;
 
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
 import com.adityamehrotra.tradesim.exception.PortfolioNotFoundException;
+import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
+import com.adityamehrotra.tradesim.repository.PositionRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -13,10 +15,18 @@ import org.springframework.stereotype.Service;
 public class PortfolioService {
 
   private final PortfolioRepository portfolioRepository;
+  private final PositionRepository positionRepository;
+  private final MarketService marketService;
   private final MongoTemplate mongoTemplate;
 
-  public PortfolioService(PortfolioRepository portfolioRepository, MongoTemplate mongoTemplate) {
+  public PortfolioService(
+      PortfolioRepository portfolioRepository,
+      PositionRepository positionRepository,
+      MarketService marketService,
+      MongoTemplate mongoTemplate) {
     this.portfolioRepository = portfolioRepository;
+    this.positionRepository = positionRepository;
+    this.marketService = marketService;
     this.mongoTemplate = mongoTemplate;
   }
 
@@ -124,6 +134,19 @@ public class PortfolioService {
   }
 
   public void deletePortfolio(Integer portfolioID, int accountID) {
-    portfolioRepository.delete(requireOwned(portfolioID, accountID));
+    deleteOwned(requireOwned(portfolioID, accountID));
+  }
+
+  /**
+   * Clears everything that hangs off a portfolio before removing it. Resting orders go first so
+   * their reserved cash and shares are released while the portfolio still exists, and the portfolio
+   * document is deleted last, so a failure part way through leaves a portfolio to retry against
+   * rather than orphaned positions and orders pointing at nothing.
+   */
+  public void deleteOwned(Portfolio portfolio) {
+    int portfolioID = portfolio.getPortfolioID();
+    marketService.cancelAllForPortfolio(portfolioID);
+    positionRepository.deleteAll(positionRepository.findByPortfolioID(portfolioID));
+    portfolioRepository.delete(portfolio);
   }
 }
