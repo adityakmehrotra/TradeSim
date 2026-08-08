@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PortfolioService {
+  static final int MAX_NAME_LENGTH = 60;
+  static final int MAX_DESCRIPTION_LENGTH = 200;
+  static final int MAX_PORTFOLIOS_PER_ACCOUNT = 10;
+  static final double MIN_INITIAL_BALANCE = 1000.0;
+  static final double MAX_INITIAL_BALANCE = 1000000.0;
 
   private final PortfolioRepository portfolioRepository;
   private final PositionRepository positionRepository;
@@ -48,20 +53,27 @@ public class PortfolioService {
       throw new IllegalArgumentException("Account ID cannot be empty or less than 1");
     }
 
-    if (portfolio.getName() == null || portfolio.getName().isEmpty()) {
-      throw new IllegalArgumentException("Portfolio name cannot be empty");
-    }
+    String name = requireName(portfolio.getName());
+    String description = requireDescription(portfolio.getDescription());
 
-    if (portfolio.getDescription() == null || portfolio.getDescription().isEmpty()) {
-      throw new IllegalArgumentException("Portfolio description cannot be empty");
+    if (portfolio.getInitialBalance() == null
+        || portfolio.getInitialBalance() < MIN_INITIAL_BALANCE
+        || portfolio.getInitialBalance() > MAX_INITIAL_BALANCE) {
+      throw new IllegalArgumentException(
+          "Initial balance must be between "
+              + (long) MIN_INITIAL_BALANCE
+              + " and "
+              + (long) MAX_INITIAL_BALANCE);
     }
 
     if (portfolio.getCash() == null || portfolio.getCash() < 0) {
       throw new IllegalArgumentException("Cash amount cannot be empty or less than 0");
     }
 
-    if (portfolio.getInitialBalance() == null || portfolio.getInitialBalance() <= 0) {
-      throw new IllegalArgumentException("Initial balance cannot be empty or less than 1");
+    if (portfolioRepository.countByAccountID(portfolio.getAccountID())
+        >= MAX_PORTFOLIOS_PER_ACCOUNT) {
+      throw new IllegalArgumentException(
+          "An account can hold at most " + MAX_PORTFOLIOS_PER_ACCOUNT + " portfolios");
     }
 
     int portfolioID = getNextID();
@@ -70,8 +82,8 @@ public class PortfolioService {
         new Portfolio(
             portfolioID,
             portfolio.getAccountID(),
-            portfolio.getName(),
-            portfolio.getDescription(),
+            name,
+            description,
             portfolio.getCash(),
             portfolio.getInitialBalance(),
             0.0);
@@ -114,22 +126,14 @@ public class PortfolioService {
   }
 
   public void updatePortfolioName(Integer portfolioID, int accountID, String name) {
-    if (name == null || name.isEmpty()) {
-      throw new IllegalArgumentException("Portfolio name cannot be empty");
-    }
-
     Portfolio portfolio = requireOwned(portfolioID, accountID);
-    portfolio.setName(name);
+    portfolio.setName(requireName(name));
     portfolioRepository.save(portfolio);
   }
 
   public void updatePortfolioDescription(Integer portfolioID, int accountID, String description) {
-    if (description == null || description.isEmpty()) {
-      throw new IllegalArgumentException("Portfolio description cannot be empty");
-    }
-
     Portfolio portfolio = requireOwned(portfolioID, accountID);
-    portfolio.setDescription(description);
+    portfolio.setDescription(requireDescription(description));
     portfolioRepository.save(portfolio);
   }
 
@@ -148,5 +152,27 @@ public class PortfolioService {
     marketService.cancelAllForPortfolio(portfolioID);
     positionRepository.deleteAll(positionRepository.findByPortfolioID(portfolioID));
     portfolioRepository.delete(portfolio);
+  }
+
+  private static String requireName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Portfolio name cannot be empty");
+    }
+    if (name.length() > MAX_NAME_LENGTH) {
+      throw new IllegalArgumentException(
+          "Portfolio name cannot be longer than " + MAX_NAME_LENGTH + " characters");
+    }
+    return name;
+  }
+
+  private static String requireDescription(String description) {
+    if (description == null || description.isBlank()) {
+      throw new IllegalArgumentException("Portfolio description cannot be empty");
+    }
+    if (description.length() > MAX_DESCRIPTION_LENGTH) {
+      throw new IllegalArgumentException(
+          "Portfolio description cannot be longer than " + MAX_DESCRIPTION_LENGTH + " characters");
+    }
+    return description;
   }
 }

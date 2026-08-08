@@ -40,6 +40,8 @@ public class MarketService {
   private static final int BACKFILL_CANDLES = 180;
   private static final int CANDLE_SECONDS = 5;
   private static final int MM_LEVELS = 5;
+  private static final long MAX_ORDER_QUANTITY = 1_000_000;
+  private static final long MAX_LIMIT_PRICE_CENTS = 100_000_000;
 
   private final PositionService positionService;
   private final Map<String, OrderBook> books = new LinkedHashMap<>();
@@ -190,6 +192,12 @@ public class MarketService {
       if (quantity <= 0) {
         throw new IllegalArgumentException("Quantity must be positive");
       }
+      if (quantity > MAX_ORDER_QUANTITY) {
+        throw new IllegalArgumentException("Quantity cannot be above " + MAX_ORDER_QUANTITY);
+      }
+      if (type == OrderType.LIMIT) {
+        requireLimitPrice(limitPriceCents);
+      }
       OrderBook book = books.get(instrument.symbol());
 
       long reserveRate = 0;
@@ -197,11 +205,9 @@ public class MarketService {
 
       if (side == Side.BUY) {
         if (type == OrderType.LIMIT) {
-          if (limitPriceCents == null || limitPriceCents <= 0) {
-            throw new IllegalArgumentException("A limit order needs a positive price");
-          }
           reserveRate = limitPriceCents;
-          if (!positionService.reserveCash(portfolioId, reserveRate * quantity)) {
+          if (!positionService.reserveCash(
+              portfolioId, Math.multiplyExact(reserveRate, quantity))) {
             throw new IllegalArgumentException("Not enough cash for this order");
           }
         } else {
@@ -214,9 +220,6 @@ public class MarketService {
           positionService.reserveCash(portfolioId, affordable[1]);
         }
       } else {
-        if (type == OrderType.LIMIT && (limitPriceCents == null || limitPriceCents <= 0)) {
-          throw new IllegalArgumentException("A limit order needs a positive price");
-        }
         if (!positionService.reserveShares(portfolioId, symbol, quantity)) {
           throw new IllegalArgumentException("Not enough shares for this order");
         }
@@ -285,6 +288,16 @@ public class MarketService {
       for (OrderContext context : matching(c -> c.portfolioId == portfolioId)) {
         cancelOrder(context.accountId, context.orderId);
       }
+    }
+  }
+
+  private static void requireLimitPrice(Long limitPriceCents) {
+    if (limitPriceCents == null || limitPriceCents <= 0) {
+      throw new IllegalArgumentException("A limit order needs a positive price");
+    }
+    if (limitPriceCents > MAX_LIMIT_PRICE_CENTS) {
+      throw new IllegalArgumentException(
+          "A limit price cannot be above " + (MAX_LIMIT_PRICE_CENTS / 100) + " per share");
     }
   }
 
