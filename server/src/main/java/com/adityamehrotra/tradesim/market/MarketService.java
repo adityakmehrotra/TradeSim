@@ -226,7 +226,15 @@ public class MarketService {
       long priceForOrder = type == OrderType.LIMIT ? limitPriceCents : 0;
       OrderContext context =
           new OrderContext(
-              orderId, portfolioId, accountId, symbol, side, type, reserveRate, orderQuantity);
+              orderId,
+              portfolioId,
+              accountId,
+              symbol,
+              side,
+              type,
+              reserveRate,
+              priceForOrder,
+              orderQuantity);
       contexts.put(orderId, context);
 
       Order order = new Order(orderId, accountId, side, type, priceForOrder, orderQuantity);
@@ -522,6 +530,7 @@ public class MarketService {
         Side side,
         OrderType type,
         long reserveRate,
+        long limitPriceCents,
         long quantity) {
       this.orderId = orderId;
       this.portfolioId = portfolioId;
@@ -529,8 +538,10 @@ public class MarketService {
       this.symbol = symbol;
       this.side = side;
       this.type = type;
+      // Only a buy reserves at a rate. A sell reserves shares, so its rate is zero and the limit
+      // price has to be carried separately or open sell orders report a price of zero.
       this.reserveRate = reserveRate;
-      this.limitPriceCents = reserveRate;
+      this.limitPriceCents = limitPriceCents;
       this.remaining = quantity;
     }
   }
