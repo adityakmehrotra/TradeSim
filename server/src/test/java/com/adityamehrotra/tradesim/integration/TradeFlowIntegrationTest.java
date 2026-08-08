@@ -10,14 +10,14 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 
-/** Session to fill to settled position, over real HTTP against a real database. */
+/** TestSession to fill to settled position, over real HTTP against a real database. */
 class TradeFlowIntegrationTest extends IntegrationTestBase {
   private static final String SYMBOL = Instruments.ALL.get(0).symbol();
   private static final double STARTER_CASH = 100000.0;
 
   @Test
   void seedsAStarterPortfolioForANewSession() {
-    Session session = openSession();
+    TestSession session = openSession();
 
     assertTrue(session.accountId() > 0);
     Map<String, Object> portfolio =
@@ -28,7 +28,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
 
   @Test
   void marketBuyFillsAgainstTheBotQuotesAndSettles() {
-    Session session = openSession();
+    TestSession session = openSession();
     int portfolioId = session.firstPortfolioId();
 
     Map<String, Object> result = placeOrder(session, marketBuy(portfolioId, SYMBOL, 10));
@@ -51,7 +51,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
 
   @Test
   void limitSellRestsReportsItsPriceAndCancelsBack() {
-    Session session = openSession();
+    TestSession session = openSession();
     int portfolioId = session.firstPortfolioId();
     placeOrder(session, marketBuy(portfolioId, SYMBOL, 10));
 
@@ -75,7 +75,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
 
   @Test
   void sellingBackRealisesProfitAgainstTheFifoCostBasis() {
-    Session session = openSession();
+    TestSession session = openSession();
     int portfolioId = session.firstPortfolioId();
 
     placeOrder(session, marketBuy(portfolioId, SYMBOL, 10));
@@ -92,7 +92,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
   @Test
   @SuppressWarnings("unchecked")
   void resetClearsPositionsAndRestingOrdersAndSeedsAgain() {
-    Session session = openSession();
+    TestSession session = openSession();
     int portfolioId = session.firstPortfolioId();
     placeOrder(session, marketBuy(portfolioId, SYMBOL, 10));
     placeOrder(session, limitOrder(portfolioId, SYMBOL, "SELL", 9_000_000, 10));

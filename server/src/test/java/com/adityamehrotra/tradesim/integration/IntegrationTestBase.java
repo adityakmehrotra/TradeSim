@@ -48,7 +48,7 @@ abstract class IntegrationTestBase {
   @Autowired protected TestRestTemplate rest;
   @Autowired private MongoTemplate mongoTemplate;
 
-  private final List<Session> opened = new ArrayList<>();
+  private final List<TestSession> opened = new ArrayList<>();
 
   /**
    * The order books live in memory and outlive any one test, so resting orders are cleared through
@@ -57,7 +57,7 @@ abstract class IntegrationTestBase {
    */
   @AfterEach
   void clearState() {
-    for (Session session : opened) {
+    for (TestSession session : opened) {
       rest.exchange(
           "/tradesim/api/session/reset",
           HttpMethod.POST,
@@ -71,7 +71,7 @@ abstract class IntegrationTestBase {
   }
 
   /** Opens a session and remembers it, so its orders are cleared when the test finishes. */
-  protected Session openSession() {
+  protected TestSession openSession() {
     ResponseEntity<Map<String, Object>> response =
         rest.exchange(
             "/tradesim/api/session",
@@ -79,12 +79,12 @@ abstract class IntegrationTestBase {
             null,
             new ParameterizedTypeReference<Map<String, Object>>() {});
     String setCookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-    Session session = new Session(setCookie.split(";")[0], response.getBody());
+    TestSession session = new TestSession(setCookie.split(";")[0], response.getBody());
     opened.add(session);
     return session;
   }
 
-  protected HttpHeaders headers(Session session) {
+  protected HttpHeaders headers(TestSession session) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.add(HttpHeaders.COOKIE, session.cookie());
@@ -92,15 +92,15 @@ abstract class IntegrationTestBase {
   }
 
   protected ResponseEntity<String> send(
-      Session session, HttpMethod method, String path, String body) {
+      TestSession session, HttpMethod method, String path, String body) {
     return rest.exchange(path, method, new HttpEntity<>(body, headers(session)), String.class);
   }
 
-  protected ResponseEntity<String> get(Session session, String path) {
+  protected ResponseEntity<String> get(TestSession session, String path) {
     return rest.exchange(path, HttpMethod.GET, new HttpEntity<>(headers(session)), String.class);
   }
 
-  protected Map<String, Object> getMap(Session session, String path) {
+  protected Map<String, Object> getMap(TestSession session, String path) {
     return rest.exchange(
             path,
             HttpMethod.GET,
@@ -109,7 +109,7 @@ abstract class IntegrationTestBase {
         .getBody();
   }
 
-  protected List<Map<String, Object>> getList(Session session, String path) {
+  protected List<Map<String, Object>> getList(TestSession session, String path) {
     return rest.exchange(
             path,
             HttpMethod.GET,
@@ -118,7 +118,7 @@ abstract class IntegrationTestBase {
         .getBody();
   }
 
-  protected Map<String, Object> exchangeMap(Session session, HttpMethod method, String path) {
+  protected Map<String, Object> exchangeMap(TestSession session, HttpMethod method, String path) {
     return rest.exchange(
             path,
             method,
@@ -127,7 +127,7 @@ abstract class IntegrationTestBase {
         .getBody();
   }
 
-  protected Map<String, Object> placeOrder(Session session, String body) {
+  protected Map<String, Object> placeOrder(TestSession session, String body) {
     return rest.exchange(
             "/tradesim/api/order",
             HttpMethod.POST,
@@ -155,7 +155,7 @@ abstract class IntegrationTestBase {
   }
 
   /** A session cookie plus the body the session endpoint returned when it was created. */
-  protected record Session(String cookie, Map<String, Object> body) {
+  protected record TestSession(String cookie, Map<String, Object> body) {
     @SuppressWarnings("unchecked")
     int firstPortfolioId() {
       return (int) ((List<Map<String, Object>>) body.get("portfolios")).get(0).get("portfolioID");

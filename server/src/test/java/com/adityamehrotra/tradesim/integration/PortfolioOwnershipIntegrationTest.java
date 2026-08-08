@@ -18,8 +18,8 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
 
   @Test
   void oneSessionCannotReachAnotherSessionsPortfolio() {
-    Session owner = openSession();
-    Session other = openSession();
+    TestSession owner = openSession();
+    TestSession other = openSession();
     int target = owner.firstPortfolioId();
     assertNotEquals(target, other.firstPortfolioId());
 
@@ -43,8 +43,8 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
 
   @Test
   void aForeignPortfolioIsIndistinguishableFromOneThatNeverExisted() {
-    Session owner = openSession();
-    Session other = openSession();
+    TestSession owner = openSession();
+    TestSession other = openSession();
 
     ResponseEntity<String> foreign = get(other, path(owner.firstPortfolioId()));
     ResponseEntity<String> missing = get(other, path(999_999));
@@ -55,8 +55,8 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
 
   @Test
   void anOrderCannotBePlacedAgainstAnotherSessionsPortfolio() {
-    Session owner = openSession();
-    Session other = openSession();
+    TestSession owner = openSession();
+    TestSession other = openSession();
 
     ResponseEntity<String> response =
         send(
@@ -74,8 +74,8 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
 
   @Test
   void creatingAPortfolioIgnoresTheAccountInTheBody() {
-    Session owner = openSession();
-    Session other = openSession();
+    TestSession owner = openSession();
+    TestSession other = openSession();
 
     send(
         other,
@@ -93,7 +93,7 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
 
   @Test
   void deletingAPortfolioClearsItsRestingOrdersAndPositions() {
-    Session session = openSession();
+    TestSession session = openSession();
     int portfolioId = session.firstPortfolioId();
     placeOrder(session, marketBuy(portfolioId, SYMBOL, 10));
     placeOrder(session, limitOrder(portfolioId, SYMBOL, "SELL", 9_000_000, 10));
@@ -122,7 +122,7 @@ class PortfolioOwnershipIntegrationTest extends IntegrationTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Map<String, Object>> portfoliosOf(Session session) {
+  private List<Map<String, Object>> portfoliosOf(TestSession session) {
     return (List<Map<String, Object>>) getMap(session, "/tradesim/api/session").get("portfolios");
   }
 
