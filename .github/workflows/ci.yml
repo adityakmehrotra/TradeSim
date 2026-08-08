@@ -43,3 +43,14 @@ jobs:
         run: npm run format:check
       - name: Build
         run: npm run build
+
+  images:
+    name: Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Builds from a clean checkout, so a source file that was never committed fails here.
+      - name: Build the server image
+        run: docker build ./server
+      - name: Build the client image
+        run: docker build ./client
