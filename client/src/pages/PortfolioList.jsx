@@ -98,8 +98,6 @@ function PortfolioList() {
           {portfolios.map((portfolio) => {
             const cash = portfolio.cash || 0;
             const initialBalance = portfolio.initialBalance || 0;
-            const gainLoss = cash - initialBalance;
-            const gainLossPercent = initialBalance ? (gainLoss / initialBalance) * 100 : 0;
 
             return (
               <Link
@@ -118,12 +116,11 @@ function PortfolioList() {
                     <span className="value">${cash.toFixed(2)}</span>
                   </div>
 
+                  {/* Cash alone is not a return: buying shares moves cash into positions. Total
+                      equity needs the position values, which this list does not load yet. */}
                   <div className="portfolio-return">
-                    <span className="label">Cash Return</span>
-                    <span className={`value ${gainLoss >= 0 ? 'positive' : 'negative'}`}>
-                      {gainLoss >= 0 ? '+' : ''}
-                      {gainLoss.toFixed(2)} ({gainLossPercent.toFixed(2)}%)
-                    </span>
+                    <span className="label">Started With</span>
+                    <span className="value">${initialBalance.toFixed(2)}</span>
                   </div>
                 </div>
 
