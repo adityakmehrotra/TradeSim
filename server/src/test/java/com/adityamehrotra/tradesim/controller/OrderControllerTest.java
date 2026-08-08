@@ -15,6 +15,7 @@ import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PositionService;
 import com.adityamehrotra.tradesim.service.SessionService;
+import com.adityamehrotra.tradesim.web.SessionArgumentResolver;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +23,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** Covers the ownership checks that keep one session out of another session's portfolio. */
 @WebMvcTest(OrderController.class)
+@Import(SessionArgumentResolver.class)
 class OrderControllerTest {
   private static final int ACCOUNT_ID = 1;
   private static final int FOREIGN_PORTFOLIO = 7;
@@ -41,11 +44,20 @@ class OrderControllerTest {
 
   @BeforeEach
   void resolveSession() {
-    when(sessionService.getOrCreate(any())).thenReturn(new Session("token", ACCOUNT_ID));
+    when(sessionService.find("token")).thenReturn(new Session("token", ACCOUNT_ID));
   }
 
   private Cookie cookie() {
-    return new Cookie("tradesim_session", "token");
+    return new Cookie(SessionService.COOKIE_NAME, "token");
+  }
+
+  @Test
+  void refusesRequestsThatCarryNoSession() throws Exception {
+    mockMvc
+        .perform(get("/tradesim/api/order/positions").param("portfolioID", "7"))
+        .andExpect(status().isUnauthorized());
+
+    verify(positionService, never()).ownedBy(anyInt(), anyInt());
   }
 
   @Test

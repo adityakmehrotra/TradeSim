@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SessionService {
+  public static final String COOKIE_NAME = "tradesim_session";
+
   static final double STARTER_CASH = 100000.0;
 
   private final SessionRepository sessionRepository;
@@ -38,6 +40,14 @@ public class SessionService {
     this.portfolioService = portfolioService;
     this.marketService = marketService;
     this.mongoTemplate = mongoTemplate;
+  }
+
+  /**
+   * Looks up an established session, returning null when the caller has no usable cookie. Only the
+   * session endpoint creates sessions, because only it can hand the new cookie back.
+   */
+  public Session find(String token) {
+    return token == null ? null : sessionRepository.findById(token).orElse(null);
   }
 
   /**

@@ -8,13 +8,11 @@ import com.adityamehrotra.tradesim.model.Lot;
 import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PositionService;
-import com.adityamehrotra.tradesim.service.SessionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,25 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tradesim/api/order")
 public class OrderController {
-  private static final String COOKIE_NAME = "tradesim_session";
-
   private final MarketService marketService;
   private final PositionService positionService;
-  private final SessionService sessionService;
 
-  public OrderController(
-      MarketService marketService, PositionService positionService, SessionService sessionService) {
+  public OrderController(MarketService marketService, PositionService positionService) {
     this.marketService = marketService;
     this.positionService = positionService;
-    this.sessionService = sessionService;
   }
 
   @PostMapping
-  public ResponseEntity<?> place(
-      @CookieValue(name = COOKIE_NAME, required = false) String token,
-      @RequestBody OrderRequest request) {
+  public ResponseEntity<?> place(Session session, @RequestBody OrderRequest request) {
     try {
-      Session session = sessionService.getOrCreate(token);
       if (!positionService.ownedBy(request.getPortfolioID(), session.getAccountID())) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(Map.of("error", "That portfolio does not belong to this session"));
@@ -68,25 +58,18 @@ public class OrderController {
   }
 
   @DeleteMapping
-  public ResponseEntity<?> cancel(
-      @CookieValue(name = COOKIE_NAME, required = false) String token, @RequestParam long orderId) {
-    Session session = sessionService.getOrCreate(token);
+  public ResponseEntity<?> cancel(Session session, @RequestParam long orderId) {
     boolean cancelled = marketService.cancelOrder(session.getAccountID(), orderId);
     return ResponseEntity.ok(Map.of("cancelled", cancelled));
   }
 
   @GetMapping("/open")
-  public ResponseEntity<?> openOrders(
-      @CookieValue(name = COOKIE_NAME, required = false) String token) {
-    Session session = sessionService.getOrCreate(token);
+  public ResponseEntity<?> openOrders(Session session) {
     return ResponseEntity.ok(marketService.openOrders(session.getAccountID()));
   }
 
   @GetMapping("/positions")
-  public ResponseEntity<?> positions(
-      @CookieValue(name = COOKIE_NAME, required = false) String token,
-      @RequestParam Integer portfolioID) {
-    Session session = sessionService.getOrCreate(token);
+  public ResponseEntity<?> positions(Session session, @RequestParam Integer portfolioID) {
     if (!positionService.ownedBy(portfolioID, session.getAccountID())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN)
           .body(Map.of("error", "That portfolio does not belong to this session"));
