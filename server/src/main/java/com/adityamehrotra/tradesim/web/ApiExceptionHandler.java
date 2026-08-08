@@ -1,5 +1,6 @@
 package com.adityamehrotra.tradesim.web;
 
+import com.adityamehrotra.tradesim.exception.PortfolioNotFoundException;
 import com.adityamehrotra.tradesim.exception.SessionRequiredException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,11 @@ public class ApiExceptionHandler {
   @ExceptionHandler(SessionRequiredException.class)
   public ResponseEntity<Map<String, String>> sessionRequired(SessionRequiredException e) {
     return body(HttpStatus.UNAUTHORIZED, e.getMessage());
+  }
+
+  @ExceptionHandler(PortfolioNotFoundException.class)
+  public ResponseEntity<Map<String, String>> portfolioNotFound(PortfolioNotFoundException e) {
+    return body(HttpStatus.NOT_FOUND, e.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

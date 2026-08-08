@@ -1,6 +1,7 @@
 package com.adityamehrotra.tradesim.service;
 
 import com.adityamehrotra.tradesim.dto.PortfolioRequest;
+import com.adityamehrotra.tradesim.exception.PortfolioNotFoundException;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import org.springframework.data.domain.Sort;
@@ -84,27 +85,45 @@ public class PortfolioService {
     return portfolio;
   }
 
-  public void updatePortfolioName(Integer portfolioID, String name) {
+  /**
+   * Returns the portfolio only when it belongs to the given account. A portfolio owned by someone
+   * else is reported exactly like one that does not exist, so ids cannot be enumerated.
+   */
+  public Portfolio requireOwned(Integer portfolioID, int accountID) {
+    if (portfolioID == null || portfolioID <= 0) {
+      throw new PortfolioNotFoundException();
+    }
+
+    Portfolio portfolio = portfolioRepository.findByPortfolioIDAndAccountID(portfolioID, accountID);
+
+    if (portfolio == null) {
+      throw new PortfolioNotFoundException();
+    }
+
+    return portfolio;
+  }
+
+  public void updatePortfolioName(Integer portfolioID, int accountID, String name) {
     if (name == null || name.isEmpty()) {
       throw new IllegalArgumentException("Portfolio name cannot be empty");
     }
 
-    Portfolio portfolio = getPortfolio(portfolioID);
+    Portfolio portfolio = requireOwned(portfolioID, accountID);
     portfolio.setName(name);
     portfolioRepository.save(portfolio);
   }
 
-  public void updatePortfolioDescription(Integer portfolioID, String description) {
+  public void updatePortfolioDescription(Integer portfolioID, int accountID, String description) {
     if (description == null || description.isEmpty()) {
       throw new IllegalArgumentException("Portfolio description cannot be empty");
     }
 
-    Portfolio portfolio = getPortfolio(portfolioID);
+    Portfolio portfolio = requireOwned(portfolioID, accountID);
     portfolio.setDescription(description);
     portfolioRepository.save(portfolio);
   }
 
-  public void deletePortfolio(Integer portfolioID) {
-    portfolioRepository.delete(getPortfolio(portfolioID));
+  public void deletePortfolio(Integer portfolioID, int accountID) {
+    portfolioRepository.delete(requireOwned(portfolioID, accountID));
   }
 }

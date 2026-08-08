@@ -7,11 +7,11 @@ import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Lot;
 import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.model.Session;
+import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.PositionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,19 +27,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
   private final MarketService marketService;
   private final PositionService positionService;
+  private final PortfolioService portfolioService;
 
-  public OrderController(MarketService marketService, PositionService positionService) {
+  public OrderController(
+      MarketService marketService,
+      PositionService positionService,
+      PortfolioService portfolioService) {
     this.marketService = marketService;
     this.positionService = positionService;
+    this.portfolioService = portfolioService;
   }
 
   @PostMapping
   public ResponseEntity<?> place(Session session, @RequestBody OrderRequest request) {
     try {
-      if (!positionService.ownedBy(request.getPortfolioID(), session.getAccountID())) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(Map.of("error", "That portfolio does not belong to this session"));
-      }
+      portfolioService.requireOwned(request.getPortfolioID(), session.getAccountID());
       Side side = Side.valueOf(request.getSide().toUpperCase());
       OrderType type = OrderType.valueOf(request.getType().toUpperCase());
       MarketService.PlaceResult result =
@@ -70,10 +72,7 @@ public class OrderController {
 
   @GetMapping("/positions")
   public ResponseEntity<?> positions(Session session, @RequestParam Integer portfolioID) {
-    if (!positionService.ownedBy(portfolioID, session.getAccountID())) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN)
-          .body(Map.of("error", "That portfolio does not belong to this session"));
-    }
+    portfolioService.requireOwned(portfolioID, session.getAccountID());
     List<Map<String, Object>> views = new ArrayList<>();
     for (Position position : positionService.positionsFor(portfolioID)) {
       if (position.getQuantity() <= 0) {

@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,8 +12,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.adityamehrotra.tradesim.exception.PortfolioNotFoundException;
 import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Session;
+import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.PositionService;
 import com.adityamehrotra.tradesim.service.SessionService;
 import com.adityamehrotra.tradesim.web.SessionArgumentResolver;
@@ -40,6 +43,7 @@ class OrderControllerTest {
 
   @MockBean private MarketService marketService;
   @MockBean private PositionService positionService;
+  @MockBean private PortfolioService portfolioService;
   @MockBean private SessionService sessionService;
 
   @BeforeEach
@@ -51,18 +55,14 @@ class OrderControllerTest {
     return new Cookie(SessionService.COOKIE_NAME, "token");
   }
 
-  @Test
-  void refusesRequestsThatCarryNoSession() throws Exception {
-    mockMvc
-        .perform(get("/tradesim/api/order/positions").param("portfolioID", "7"))
-        .andExpect(status().isUnauthorized());
-
-    verify(positionService, never()).ownedBy(anyInt(), anyInt());
+  private void foreignPortfolio() {
+    when(portfolioService.requireOwned(FOREIGN_PORTFOLIO, ACCOUNT_ID))
+        .thenThrow(new PortfolioNotFoundException());
   }
 
   @Test
   void refusesToPlaceAnOrderAgainstAnotherSessionsPortfolio() throws Exception {
-    when(positionService.ownedBy(FOREIGN_PORTFOLIO, ACCOUNT_ID)).thenReturn(false);
+    foreignPortfolio();
 
     mockMvc
         .perform(
@@ -70,7 +70,7 @@ class OrderControllerTest {
                 .cookie(cookie())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(ORDER_BODY))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isNotFound());
 
     verify(marketService, never())
         .placeOrder(anyInt(), anyInt(), anyString(), any(), any(), any(), anyLong());
@@ -78,7 +78,6 @@ class OrderControllerTest {
 
   @Test
   void placesAnOrderAgainstAnOwnedPortfolio() throws Exception {
-    when(positionService.ownedBy(FOREIGN_PORTFOLIO, ACCOUNT_ID)).thenReturn(true);
     when(marketService.placeOrder(anyInt(), anyInt(), anyString(), any(), any(), any(), anyLong()))
         .thenReturn(new MarketService.PlaceResult(1, 5, 0, false));
 
@@ -96,18 +95,17 @@ class OrderControllerTest {
 
   @Test
   void refusesToReadAnotherSessionsPositions() throws Exception {
-    when(positionService.ownedBy(FOREIGN_PORTFOLIO, ACCOUNT_ID)).thenReturn(false);
+    foreignPortfolio();
 
     mockMvc
         .perform(get("/tradesim/api/order/positions").cookie(cookie()).param("portfolioID", "7"))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isNotFound());
 
     verify(positionService, never()).positionsFor(anyInt());
   }
 
   @Test
   void readsPositionsForAnOwnedPortfolio() throws Exception {
-    when(positionService.ownedBy(FOREIGN_PORTFOLIO, ACCOUNT_ID)).thenReturn(true);
     when(positionService.positionsFor(FOREIGN_PORTFOLIO)).thenReturn(List.of());
 
     mockMvc
@@ -115,5 +113,26 @@ class OrderControllerTest {
         .andExpect(status().isOk());
 
     verify(positionService).positionsFor(FOREIGN_PORTFOLIO);
+  }
+
+  @Test
+  void refusesRequestsThatCarryNoSession() throws Exception {
+    mockMvc
+        .perform(get("/tradesim/api/order/positions").param("portfolioID", "7"))
+        .andExpect(status().isUnauthorized());
+
+    verify(portfolioService, never()).requireOwned(anyInt(), anyInt());
+  }
+
+  @Test
+  void refusesRequestsWhoseCookieIsNotAKnownSession() throws Exception {
+    mockMvc
+        .perform(
+            get("/tradesim/api/order/positions")
+                .cookie(new Cookie(SessionService.COOKIE_NAME, "stale"))
+                .param("portfolioID", "7"))
+        .andExpect(status().isUnauthorized());
+
+    verify(sessionService, never()).getOrCreate(eq("stale"));
   }
 }

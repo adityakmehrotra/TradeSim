@@ -11,5 +11,9 @@ public interface PortfolioRepository extends MongoRepository<Portfolio, Integer>
   Portfolio findByPortfolioID(
       @NotEmpty(message = "Portfolio ID cannot be empty") Integer portfolioID);
 
+  Portfolio findByPortfolioIDAndAccountID(Integer portfolioID, Integer accountID);
+
   List<Portfolio> findByAccountID(Integer accountID);
+
+  long countByAccountID(Integer accountID);
 }
