@@ -6,9 +6,6 @@ import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import com.adityamehrotra.tradesim.repository.PositionRepository;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,30 +19,21 @@ public class PortfolioService {
   private final PortfolioRepository portfolioRepository;
   private final PositionRepository positionRepository;
   private final MarketService marketService;
-  private final MongoTemplate mongoTemplate;
+  private final SequenceService sequenceService;
 
   public PortfolioService(
       PortfolioRepository portfolioRepository,
       PositionRepository positionRepository,
       MarketService marketService,
-      MongoTemplate mongoTemplate) {
+      SequenceService sequenceService) {
     this.portfolioRepository = portfolioRepository;
     this.positionRepository = positionRepository;
     this.marketService = marketService;
-    this.mongoTemplate = mongoTemplate;
+    this.sequenceService = sequenceService;
   }
 
   public int getNextID() {
-    Query query = new Query();
-    query.with(Sort.by(Sort.Direction.DESC, "portfolioID"));
-    query.limit(1);
-
-    Portfolio lastPortfolio = mongoTemplate.findOne(query, Portfolio.class);
-    if (lastPortfolio == null) {
-      return 1;
-    } else {
-      return lastPortfolio.getPortfolioID() + 1;
-    }
+    return sequenceService.next(SequenceService.PORTFOLIO_ID);
   }
 
   public int createPortfolio(PortfolioRequest portfolio) {

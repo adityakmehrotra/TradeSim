@@ -9,9 +9,6 @@ import com.adityamehrotra.tradesim.repository.PositionRepository;
 import com.adityamehrotra.tradesim.repository.SessionRepository;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +22,7 @@ public class SessionService {
   private final PositionRepository positionRepository;
   private final PortfolioService portfolioService;
   private final MarketService marketService;
-  private final MongoTemplate mongoTemplate;
+  private final SequenceService sequenceService;
 
   public SessionService(
       SessionRepository sessionRepository,
@@ -33,13 +30,13 @@ public class SessionService {
       PositionRepository positionRepository,
       PortfolioService portfolioService,
       MarketService marketService,
-      MongoTemplate mongoTemplate) {
+      SequenceService sequenceService) {
     this.sessionRepository = sessionRepository;
     this.portfolioRepository = portfolioRepository;
     this.positionRepository = positionRepository;
     this.portfolioService = portfolioService;
     this.marketService = marketService;
-    this.mongoTemplate = mongoTemplate;
+    this.sequenceService = sequenceService;
   }
 
   /**
@@ -93,11 +90,6 @@ public class SessionService {
   }
 
   private int nextAccountID() {
-    Query query = new Query();
-    query.with(Sort.by(Sort.Direction.DESC, "accountID"));
-    query.limit(1);
-
-    Session last = mongoTemplate.findOne(query, Session.class);
-    return last == null ? 1 : last.getAccountID() + 1;
+    return sequenceService.next(SequenceService.ACCOUNT_ID);
   }
 }
