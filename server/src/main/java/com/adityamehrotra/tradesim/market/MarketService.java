@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -353,7 +352,7 @@ public class MarketService {
     }
   }
 
-  @Scheduled(fixedDelay = 1000)
+  /** One step of the simulated market. Called on a schedule by {@link MarketScheduler}. */
   public void tick() {
     synchronized (lock) {
       for (Instrument instrument : Instruments.ALL) {
@@ -377,7 +376,7 @@ public class MarketService {
     }
   }
 
-  @Scheduled(fixedDelay = 5000)
+  /** Closes the open candle on every symbol. Called on a schedule by {@link MarketScheduler}. */
   public void closeCandle() {
     synchronized (lock) {
       for (MarketState state : states.values()) {
