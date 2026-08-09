@@ -6,7 +6,14 @@ import CandleChart from '../components/trading/CandleChart';
 import OrderBookLadder from '../components/trading/OrderBookLadder';
 import TradeTape from '../components/trading/TradeTape';
 import OrderTicket from '../components/trading/OrderTicket';
-import { priceFromCents, signedUsd, signedPercent, shares, usd } from '../lib/format';
+import {
+  priceFromCents,
+  signedUsd,
+  signedPercent,
+  shares,
+  usdFromCents,
+  signedUsdFromCents,
+} from '../lib/format';
 import './TradingScreen.css';
 
 function TradingScreen() {
@@ -163,12 +170,12 @@ function PositionsPanel({ positions }) {
                 <td>{position.symbol}</td>
                 <td>{shares(position.quantity)}</td>
                 <td>{priceFromCents(position.lastCents)}</td>
-                <td>{usd(position.marketValue)}</td>
-                <td className={position.unrealizedPnl >= 0 ? 'up' : 'down'}>
-                  {signedUsd(position.unrealizedPnl)}
+                <td>{usdFromCents(position.marketValueCents)}</td>
+                <td className={position.unrealizedPnlCents >= 0 ? 'up' : 'down'}>
+                  {signedUsdFromCents(position.unrealizedPnlCents)}
                 </td>
-                <td className={position.realizedPnl >= 0 ? 'up' : 'down'}>
-                  {signedUsd(position.realizedPnl)}
+                <td className={position.realizedPnlCents >= 0 ? 'up' : 'down'}>
+                  {signedUsdFromCents(position.realizedPnlCents)}
                 </td>
               </tr>
             ))

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class SessionService {
   public static final String COOKIE_NAME = "tradesim_session";
 
-  static final double STARTER_CASH = 100000.0;
+  static final long STARTER_CASH_CENTS = 10_000_000;
 
   private final SessionRepository sessionRepository;
   private final PortfolioRepository portfolioRepository;
@@ -86,7 +86,11 @@ public class SessionService {
   private void seedStarterPortfolio(int accountID) {
     portfolioService.createPortfolio(
         new PortfolioRequest(
-            accountID, "Starter Portfolio", "Virtual starting funds", STARTER_CASH, STARTER_CASH));
+            accountID,
+            "Starter Portfolio",
+            "Virtual starting funds",
+            STARTER_CASH_CENTS,
+            STARTER_CASH_CENTS));
   }
 
   private int nextAccountID() {

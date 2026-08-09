@@ -23,8 +23,12 @@ public class Position {
   private String symbol;
   private long quantity;
   private long reservedQuantity;
-  private double realizedPnl;
   private List<Lot> lots = new ArrayList<>();
+
+  private Long realizedPnlCents;
+
+  /** Kept in step with the cents beside it for the compatibility window. See {@link Portfolio}. */
+  private Double realizedPnl;
 
   public Position(Integer portfolioID, String symbol) {
     this.id = portfolioID + ":" + symbol;
@@ -32,8 +36,23 @@ public class Position {
     this.symbol = symbol;
     this.quantity = 0;
     this.reservedQuantity = 0;
-    this.realizedPnl = 0.0;
+    setRealizedPnlCents(0);
     this.lots = new ArrayList<>();
+  }
+
+  public long getRealizedPnlCents() {
+    return realizedPnlCents != null
+        ? realizedPnlCents
+        : Math.round((realizedPnl == null ? 0 : realizedPnl) * 100);
+  }
+
+  public void setRealizedPnlCents(long cents) {
+    this.realizedPnlCents = cents;
+    this.realizedPnl = cents / 100.0;
+  }
+
+  public boolean needsCentsBackfill() {
+    return realizedPnlCents == null;
   }
 
   public long availableQuantity() {

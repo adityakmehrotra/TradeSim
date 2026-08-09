@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import CreatePortfolioModal from '../components/portfolio/CreatePortfolioModal';
 import api from '../services/api';
+import { usdFromCents } from '../lib/format';
 import './PortfolioList.css';
 
 function PortfolioList() {
@@ -23,8 +24,8 @@ function PortfolioList() {
         accountID: accountId,
         name: formData.portfolioName,
         description: 'Paper trading portfolio',
-        cash: formData.initialBalance,
-        initialBalance: formData.initialBalance,
+        cashCents: Math.round(formData.initialBalance * 100),
+        initialBalanceCents: Math.round(formData.initialBalance * 100),
       });
 
       await refresh();
@@ -96,8 +97,8 @@ function PortfolioList() {
       ) : (
         <div className="portfolio-grid">
           {portfolios.map((portfolio) => {
-            const cash = portfolio.cash || 0;
-            const initialBalance = portfolio.initialBalance || 0;
+            const cashCents = portfolio.cashCents || 0;
+            const initialBalanceCents = portfolio.initialBalanceCents || 0;
 
             return (
               <Link
@@ -113,14 +114,14 @@ function PortfolioList() {
                 <div className="portfolio-card-body">
                   <div className="portfolio-cash">
                     <span className="label">Cash</span>
-                    <span className="value">${cash.toFixed(2)}</span>
+                    <span className="value">{usdFromCents(cashCents)}</span>
                   </div>
 
                   {/* Cash alone is not a return: buying shares moves cash into positions. Total
                       equity needs the position values, which this list does not load yet. */}
                   <div className="portfolio-return">
                     <span className="label">Started With</span>
-                    <span className="value">${initialBalance.toFixed(2)}</span>
+                    <span className="value">{usdFromCents(initialBalanceCents)}</span>
                   </div>
                 </div>
 
