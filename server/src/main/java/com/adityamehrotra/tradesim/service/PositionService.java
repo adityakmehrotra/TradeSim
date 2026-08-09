@@ -10,9 +10,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
- * Applies fills to a portfolio's cash and FIFO positions. Cash is held in dollars, prices arrive in
- * cents, and quantities are whole shares. Buy orders reserve cash and sell orders reserve shares
- * when they are placed, so a resting order cannot be spent twice.
+ * Applies fills to a portfolio's cash and FIFO positions. Every amount is whole cents and every
+ * quantity is whole shares, so the arithmetic is exact and balances cannot drift. Buy orders
+ * reserve cash and sell orders reserve shares when they are placed, so a resting order cannot be
+ * spent twice.
  */
 @Service
 public class PositionService {
@@ -29,9 +30,9 @@ public class PositionService {
     return positionRepository.findByPortfolioID(portfolioId);
   }
 
-  public double availableCash(int portfolioId) {
+  public long availableCashCents(int portfolioId) {
     Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
-    return portfolio == null ? 0.0 : portfolio.availableCash();
+    return portfolio == null ? 0L : portfolio.availableCashCents();
   }
 
   /**
@@ -40,8 +41,8 @@ public class PositionService {
    */
   public void clearAllReservations() {
     for (Portfolio portfolio : portfolioRepository.findAll()) {
-      if (portfolio.reservedCashOrZero() != 0.0) {
-        portfolio.setReservedCash(0.0);
+      if (portfolio.getReservedCashCents() != 0) {
+        portfolio.setReservedCashCents(0);
         portfolioRepository.save(portfolio);
       }
     }
@@ -53,16 +54,16 @@ public class PositionService {
     }
   }
 
-  private static double dollars(long priceCents, long quantity) {
-    return (priceCents * quantity) / 100.0;
+  private static long amountCents(long priceCents, long quantity) {
+    return Math.multiplyExact(priceCents, quantity);
   }
 
   public boolean reserveCash(int portfolioId, long cents) {
     Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
-    if (portfolio == null || portfolio.availableCash() < cents / 100.0) {
+    if (portfolio == null || portfolio.availableCashCents() < cents) {
       return false;
     }
-    portfolio.setReservedCash(portfolio.reservedCashOrZero() + cents / 100.0);
+    portfolio.setReservedCashCents(portfolio.getReservedCashCents() + cents);
     portfolioRepository.save(portfolio);
     return true;
   }
@@ -72,7 +73,7 @@ public class PositionService {
     if (portfolio == null) {
       return;
     }
-    portfolio.setReservedCash(Math.max(0.0, portfolio.reservedCashOrZero() - cents / 100.0));
+    portfolio.setReservedCashCents(Math.max(0, portfolio.getReservedCashCents() - cents));
     portfolioRepository.save(portfolio);
   }
 
@@ -100,9 +101,10 @@ public class PositionService {
     Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
     Position position = getOrCreate(portfolioId, symbol);
 
-    portfolio.setCash(portfolio.getCash() - dollars(priceCents, quantity));
-    portfolio.setReservedCash(
-        Math.max(0.0, portfolio.reservedCashOrZero() - dollars(reservedPerShareCents, quantity)));
+    portfolio.setCashCents(portfolio.getCashCents() - amountCents(priceCents, quantity));
+    portfolio.setReservedCashCents(
+        Math.max(
+            0, portfolio.getReservedCashCents() - amountCents(reservedPerShareCents, quantity)));
     position.getLots().add(new Lot(quantity, priceCents));
     position.setQuantity(position.getQuantity() + quantity);
 
@@ -114,33 +116,33 @@ public class PositionService {
     Portfolio portfolio = portfolioRepository.findByPortfolioID(portfolioId);
     Position position = getOrCreate(portfolioId, symbol);
 
-    double proceeds = dollars(priceCents, quantity);
-    double costBasis = consumeLots(position, quantity);
+    long proceedsCents = amountCents(priceCents, quantity);
+    long costBasisCents = consumeLots(position, quantity);
 
-    portfolio.setCash(portfolio.getCash() + proceeds);
+    portfolio.setCashCents(portfolio.getCashCents() + proceedsCents);
     position.setQuantity(position.getQuantity() - quantity);
     position.setReservedQuantity(Math.max(0, position.getReservedQuantity() - quantity));
-    position.setRealizedPnl(position.getRealizedPnl() + (proceeds - costBasis));
+    position.setRealizedPnlCents(position.getRealizedPnlCents() + (proceedsCents - costBasisCents));
 
     portfolioRepository.save(portfolio);
     positionRepository.save(position);
   }
 
-  private double consumeLots(Position position, long quantity) {
-    double costBasis = 0.0;
+  private long consumeLots(Position position, long quantity) {
+    long costBasisCents = 0;
     long remaining = quantity;
     Iterator<Lot> lots = position.getLots().iterator();
     while (remaining > 0 && lots.hasNext()) {
       Lot lot = lots.next();
       long taken = Math.min(remaining, lot.getQuantity());
-      costBasis += dollars(lot.getPriceCents(), taken);
+      costBasisCents += amountCents(lot.getPriceCents(), taken);
       lot.setQuantity(lot.getQuantity() - taken);
       remaining -= taken;
       if (lot.getQuantity() == 0) {
         lots.remove();
       }
     }
-    return costBasis;
+    return costBasisCents;
   }
 
   private Position getOrCreate(int portfolioId, String symbol) {

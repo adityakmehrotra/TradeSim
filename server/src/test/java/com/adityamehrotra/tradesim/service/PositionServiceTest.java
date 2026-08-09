@@ -13,6 +13,7 @@ import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import com.adityamehrotra.tradesim.repository.PositionRepository;
+import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,25 +27,25 @@ class PositionServiceTest {
   @Mock private PositionRepository positionRepository;
   @InjectMocks private PositionService service;
 
-  private Portfolio portfolio(double cash, double reserved) {
+  private Portfolio portfolio(long cashCents, long reservedCents) {
     Portfolio portfolio = new Portfolio();
-    portfolio.setCash(cash);
-    portfolio.setReservedCash(reserved);
+    portfolio.setCashCents(cashCents);
+    portfolio.setReservedCashCents(reservedCents);
     return portfolio;
   }
 
   @Test
   void reservesCashWhenBuyingPowerCovers() {
-    Portfolio portfolio = portfolio(1000.0, 0.0);
+    Portfolio portfolio = portfolio(100_000, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
 
     assertTrue(service.reserveCash(1, 50000));
-    assertEquals(500.0, portfolio.getReservedCash());
+    assertEquals(50_000, portfolio.getReservedCashCents());
   }
 
   @Test
   void refusesToReserveMoreCashThanAvailable() {
-    Portfolio portfolio = portfolio(100.0, 0.0);
+    Portfolio portfolio = portfolio(10_000, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
 
     assertFalse(service.reserveCash(1, 50000));
@@ -53,14 +54,14 @@ class PositionServiceTest {
 
   @Test
   void buyFillSpendsCashReleasesReserveAndAddsLot() {
-    Portfolio portfolio = portfolio(1000.0, 500.0);
+    Portfolio portfolio = portfolio(100_000, 50_000);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
     when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(null);
 
     service.applyBuyFill(1, "NOVA", 10, 5000, 5000);
 
-    assertEquals(500.0, portfolio.getCash());
-    assertEquals(0.0, portfolio.getReservedCash());
+    assertEquals(50_000, portfolio.getCashCents());
+    assertEquals(0, portfolio.getReservedCashCents());
 
     ArgumentCaptor<Position> saved = ArgumentCaptor.forClass(Position.class);
     verify(positionRepository).save(saved.capture());
@@ -75,18 +76,77 @@ class PositionServiceTest {
     position.setReservedQuantity(15);
     position.getLots().add(new Lot(10, 1000));
     position.getLots().add(new Lot(10, 2000));
-    Portfolio portfolio = portfolio(0.0, 0.0);
+    Portfolio portfolio = portfolio(0, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
     when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(position);
 
     service.applySellFill(1, "NOVA", 15, 2500);
 
-    assertEquals(375.0, portfolio.getCash());
+    assertEquals(37_500, portfolio.getCashCents());
     assertEquals(5, position.getQuantity());
     assertEquals(0, position.getReservedQuantity());
-    assertEquals(175.0, position.getRealizedPnl(), 1e-9);
+    assertEquals(17_500, position.getRealizedPnlCents());
     assertEquals(1, position.getLots().size());
     assertEquals(5, position.getLots().get(0).getQuantity());
+  }
+
+  /**
+   * The reason money moved to integers. Prices like 3.33 cannot be held exactly as dollars, so a
+   * long run of fills used to leave the balance off by fractions of a cent. Every amount here is
+   * awkward on purpose, and the balance still has to match to the cent.
+   */
+  @Test
+  void aLongRunOfFillsDoesNotDrift() {
+    Portfolio portfolio = portfolio(100_000_000, 0);
+    Position position = new Position(1, "NOVA");
+    when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
+    when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(position);
+
+    Random random = new Random(11);
+    long expectedCents = 100_000_000;
+    long held = 0;
+
+    for (int i = 0; i < 500; i++) {
+      long priceCents = 1 + random.nextInt(9999);
+      long quantity = 1 + random.nextInt(20);
+      if (held < quantity || random.nextBoolean()) {
+        service.applyBuyFill(1, "NOVA", quantity, priceCents, 0);
+        expectedCents -= priceCents * quantity;
+        held += quantity;
+      } else {
+        service.applySellFill(1, "NOVA", quantity, priceCents);
+        expectedCents += priceCents * quantity;
+        held -= quantity;
+      }
+    }
+
+    assertEquals(expectedCents, portfolio.getCashCents());
+    assertEquals(held, position.getQuantity());
+  }
+
+  /** The dollar field is what a rolled back version would read, so it cannot fall behind. */
+  @Test
+  void everyChangeKeepsTheDollarFieldInStep() {
+    Portfolio portfolio = portfolio(100_000, 0);
+    when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
+    when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(null);
+
+    service.applyBuyFill(1, "NOVA", 3, 3_333, 0);
+
+    assertEquals(90_001, portfolio.getCashCents());
+    assertEquals(900.01, portfolio.getCash());
+  }
+
+  @Test
+  void releasingAReservationReturnsExactlyWhatWasHeld() {
+    Portfolio portfolio = portfolio(100_000, 0);
+    when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
+
+    assertTrue(service.reserveCash(1, 33_333));
+    service.releaseCash(1, 33_333);
+
+    assertEquals(0, portfolio.getReservedCashCents());
+    assertEquals(100_000, portfolio.availableCashCents());
   }
 
   @Test

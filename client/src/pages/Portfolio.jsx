@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../services/api';
-import { priceFromCents, usd, signedUsd, signedPercent, shares } from '../lib/format';
+import {
+  priceFromCents,
+  usdFromCents,
+  signedUsdFromCents,
+  signedPercent,
+  shares,
+} from '../lib/format';
 import './Portfolio.css';
 
 function Portfolio() {
@@ -52,12 +58,15 @@ function Portfolio() {
     );
   }
 
-  const cash = portfolio.cash || 0;
-  const positionsValue = positions.reduce((total, position) => total + position.marketValue, 0);
-  const totalValue = cash + positionsValue;
-  const gainLoss = totalValue - (portfolio.initialBalance || 0);
-  const gainLossPercent = portfolio.initialBalance
-    ? (gainLoss / portfolio.initialBalance) * 100
+  const cashCents = portfolio.cashCents || 0;
+  const positionsValueCents = positions.reduce(
+    (total, position) => total + position.marketValueCents,
+    0
+  );
+  const totalValueCents = cashCents + positionsValueCents;
+  const gainLossCents = totalValueCents - (portfolio.initialBalanceCents || 0);
+  const gainLossPercent = portfolio.initialBalanceCents
+    ? (gainLossCents / portfolio.initialBalanceCents) * 100
     : 0;
 
   return (
@@ -74,22 +83,24 @@ function Portfolio() {
       <div className="portfolio-summary-grid">
         <div className="summary-card">
           <div className="summary-card-title">Total Value</div>
-          <div className="summary-card-value">{usd(totalValue)}</div>
-          <div className={`summary-card-change ${gainLoss >= 0 ? 'positive' : 'negative'}`}>
-            {signedUsd(gainLoss)} ({signedPercent(gainLossPercent)})
+          <div className="summary-card-value">{usdFromCents(totalValueCents)}</div>
+          <div className={`summary-card-change ${gainLossCents >= 0 ? 'positive' : 'negative'}`}>
+            {signedUsdFromCents(gainLossCents)} ({signedPercent(gainLossPercent)})
           </div>
         </div>
         <div className="summary-card">
           <div className="summary-card-title">Cash</div>
-          <div className="summary-card-value">{usd(cash)}</div>
+          <div className="summary-card-value">{usdFromCents(cashCents)}</div>
         </div>
         <div className="summary-card">
           <div className="summary-card-title">Invested</div>
-          <div className="summary-card-value">{usd(positionsValue)}</div>
+          <div className="summary-card-value">{usdFromCents(positionsValueCents)}</div>
         </div>
         <div className="summary-card">
           <div className="summary-card-title">Initial Balance</div>
-          <div className="summary-card-value">{usd(portfolio.initialBalance || 0)}</div>
+          <div className="summary-card-value">
+            {usdFromCents(portfolio.initialBalanceCents || 0)}
+          </div>
         </div>
       </div>
 
@@ -120,12 +131,12 @@ function Portfolio() {
                   <td className="symbol-cell">{position.symbol}</td>
                   <td>{shares(position.quantity)}</td>
                   <td>${priceFromCents(position.lastCents)}</td>
-                  <td>{usd(position.marketValue)}</td>
-                  <td className={position.unrealizedPnl >= 0 ? 'positive' : 'negative'}>
-                    {signedUsd(position.unrealizedPnl)}
+                  <td>{usdFromCents(position.marketValueCents)}</td>
+                  <td className={position.unrealizedPnlCents >= 0 ? 'positive' : 'negative'}>
+                    {signedUsdFromCents(position.unrealizedPnlCents)}
                   </td>
-                  <td className={position.realizedPnl >= 0 ? 'positive' : 'negative'}>
-                    {signedUsd(position.realizedPnl)}
+                  <td className={position.realizedPnlCents >= 0 ? 'positive' : 'negative'}>
+                    {signedUsdFromCents(position.realizedPnlCents)}
                   </td>
                   <td>
                     <Link to={`/stock/${position.symbol}`} className="btn btn-primary">

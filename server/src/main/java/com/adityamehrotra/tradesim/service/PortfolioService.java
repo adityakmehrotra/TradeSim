@@ -13,8 +13,8 @@ public class PortfolioService {
   static final int MAX_NAME_LENGTH = 60;
   static final int MAX_DESCRIPTION_LENGTH = 200;
   static final int MAX_PORTFOLIOS_PER_ACCOUNT = 10;
-  static final double MIN_INITIAL_BALANCE = 1000.0;
-  static final double MAX_INITIAL_BALANCE = 1000000.0;
+  static final long MIN_INITIAL_BALANCE_CENTS = 100_000;
+  static final long MAX_INITIAL_BALANCE_CENTS = 100_000_000;
 
   private final PortfolioRepository portfolioRepository;
   private final PositionRepository positionRepository;
@@ -44,17 +44,18 @@ public class PortfolioService {
     String name = requireName(portfolio.getName());
     String description = requireDescription(portfolio.getDescription());
 
-    if (portfolio.getInitialBalance() == null
-        || portfolio.getInitialBalance() < MIN_INITIAL_BALANCE
-        || portfolio.getInitialBalance() > MAX_INITIAL_BALANCE) {
+    long initialBalanceCents = portfolio.initialBalanceCents();
+    if (initialBalanceCents < MIN_INITIAL_BALANCE_CENTS
+        || initialBalanceCents > MAX_INITIAL_BALANCE_CENTS) {
       throw new IllegalArgumentException(
           "Initial balance must be between "
-              + (long) MIN_INITIAL_BALANCE
+              + MIN_INITIAL_BALANCE_CENTS / 100
               + " and "
-              + (long) MAX_INITIAL_BALANCE);
+              + MAX_INITIAL_BALANCE_CENTS / 100);
     }
 
-    if (portfolio.getCash() == null || portfolio.getCash() < 0) {
+    long cashCents = portfolio.cashCents();
+    if (cashCents < 0) {
       throw new IllegalArgumentException("Cash amount cannot be empty or less than 0");
     }
 
@@ -72,9 +73,8 @@ public class PortfolioService {
             portfolio.getAccountID(),
             name,
             description,
-            portfolio.getCash(),
-            portfolio.getInitialBalance(),
-            0.0);
+            cashCents,
+            initialBalanceCents);
 
     portfolioRepository.save(newPortfolio);
 
