@@ -13,7 +13,7 @@ import org.springframework.http.HttpMethod;
 /** TestSession to fill to settled position, over real HTTP against a real database. */
 class TradeFlowIntegrationTest extends IntegrationTestBase {
   private static final String SYMBOL = Instruments.ALL.get(0).symbol();
-  private static final double STARTER_CASH = 100000.0;
+  private static final long STARTER_CASH_CENTS = 10_000_000;
 
   @Test
   void seedsAStarterPortfolioForANewSession() {
@@ -22,8 +22,8 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
     assertTrue(session.accountId() > 0);
     Map<String, Object> portfolio =
         getMap(session, "/tradesim/api/portfolio/get?portfolioID=" + session.firstPortfolioId());
-    assertEquals(STARTER_CASH, (double) portfolio.get("cash"));
-    assertEquals(STARTER_CASH, (double) portfolio.get("initialBalance"));
+    assertEquals(STARTER_CASH_CENTS, ((Number) portfolio.get("cashCents")).longValue());
+    assertEquals(STARTER_CASH_CENTS, ((Number) portfolio.get("initialBalanceCents")).longValue());
   }
 
   @Test
@@ -45,8 +45,10 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
 
     Map<String, Object> portfolio =
         getMap(session, "/tradesim/api/portfolio/get?portfolioID=" + portfolioId);
-    double cash = (double) portfolio.get("cash");
-    assertTrue(cash < STARTER_CASH, "buying should spend cash, cash was " + cash);
+    long cashCents = ((Number) portfolio.get("cashCents")).longValue();
+    long costCents = ((Number) positions.get(0).get("costBasisCents")).longValue();
+    // Cash and cost are exact integers, so what left the balance must equal what the shares cost.
+    assertEquals(STARTER_CASH_CENTS - costCents, cashCents);
   }
 
   @Test
@@ -86,7 +88,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
     List<Map<String, Object>> positions =
         getList(session, "/tradesim/api/order/positions?portfolioID=" + portfolioId);
     assertEquals(5, ((Number) positions.get(0).get("quantity")).intValue());
-    assertNotNull(positions.get(0).get("realizedPnl"));
+    assertNotNull(positions.get(0).get("realizedPnlCents"));
   }
 
   @Test
@@ -104,7 +106,7 @@ class TradeFlowIntegrationTest extends IntegrationTestBase {
     Map<String, Object> body = getMap(session, "/tradesim/api/session");
     List<Map<String, Object>> portfolios = (List<Map<String, Object>>) body.get("portfolios");
     assertEquals(1, portfolios.size());
-    assertEquals(STARTER_CASH, (double) portfolios.get(0).get("cash"));
+    assertEquals(STARTER_CASH_CENTS, ((Number) portfolios.get(0).get("cashCents")).longValue());
 
     int freshId = (int) portfolios.get(0).get("portfolioID");
     assertTrue(

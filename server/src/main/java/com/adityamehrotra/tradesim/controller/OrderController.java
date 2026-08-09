@@ -83,17 +83,17 @@ public class OrderController {
       for (Lot lot : position.getLots()) {
         costCents += lot.getPriceCents() * lot.getQuantity();
       }
-      double marketValue = (last * position.getQuantity()) / 100.0;
-      double costBasis = costCents / 100.0;
+      long marketValueCents = Math.multiplyExact(last, position.getQuantity());
 
       Map<String, Object> view = new java.util.HashMap<>();
       view.put("symbol", position.getSymbol());
       view.put("quantity", position.getQuantity());
+      view.put("available", position.availableQuantity());
       view.put("lastCents", last);
-      view.put("marketValue", marketValue);
-      view.put("costBasis", costBasis);
-      view.put("unrealizedPnl", marketValue - costBasis);
-      view.put("realizedPnl", position.getRealizedPnl());
+      view.put("marketValueCents", marketValueCents);
+      view.put("costBasisCents", costCents);
+      view.put("unrealizedPnlCents", marketValueCents - costCents);
+      view.put("realizedPnlCents", position.getRealizedPnlCents());
       views.add(view);
     }
     return ResponseEntity.ok(views);

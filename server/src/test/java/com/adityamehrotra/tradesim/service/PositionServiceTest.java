@@ -26,25 +26,25 @@ class PositionServiceTest {
   @Mock private PositionRepository positionRepository;
   @InjectMocks private PositionService service;
 
-  private Portfolio portfolio(double cash, double reserved) {
+  private Portfolio portfolio(long cashCents, long reservedCents) {
     Portfolio portfolio = new Portfolio();
-    portfolio.setCash(cash);
-    portfolio.setReservedCash(reserved);
+    portfolio.setCashCents(cashCents);
+    portfolio.setReservedCashCents(reservedCents);
     return portfolio;
   }
 
   @Test
   void reservesCashWhenBuyingPowerCovers() {
-    Portfolio portfolio = portfolio(1000.0, 0.0);
+    Portfolio portfolio = portfolio(100_000, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
 
     assertTrue(service.reserveCash(1, 50000));
-    assertEquals(500.0, portfolio.getReservedCash());
+    assertEquals(50_000, portfolio.getReservedCashCents());
   }
 
   @Test
   void refusesToReserveMoreCashThanAvailable() {
-    Portfolio portfolio = portfolio(100.0, 0.0);
+    Portfolio portfolio = portfolio(10_000, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
 
     assertFalse(service.reserveCash(1, 50000));
@@ -53,14 +53,14 @@ class PositionServiceTest {
 
   @Test
   void buyFillSpendsCashReleasesReserveAndAddsLot() {
-    Portfolio portfolio = portfolio(1000.0, 500.0);
+    Portfolio portfolio = portfolio(100_000, 50_000);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
     when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(null);
 
     service.applyBuyFill(1, "NOVA", 10, 5000, 5000);
 
-    assertEquals(500.0, portfolio.getCash());
-    assertEquals(0.0, portfolio.getReservedCash());
+    assertEquals(50_000, portfolio.getCashCents());
+    assertEquals(0, portfolio.getReservedCashCents());
 
     ArgumentCaptor<Position> saved = ArgumentCaptor.forClass(Position.class);
     verify(positionRepository).save(saved.capture());
@@ -75,16 +75,16 @@ class PositionServiceTest {
     position.setReservedQuantity(15);
     position.getLots().add(new Lot(10, 1000));
     position.getLots().add(new Lot(10, 2000));
-    Portfolio portfolio = portfolio(0.0, 0.0);
+    Portfolio portfolio = portfolio(0, 0);
     when(portfolioRepository.findByPortfolioID(1)).thenReturn(portfolio);
     when(positionRepository.findByPortfolioIDAndSymbol(1, "NOVA")).thenReturn(position);
 
     service.applySellFill(1, "NOVA", 15, 2500);
 
-    assertEquals(375.0, portfolio.getCash());
+    assertEquals(37_500, portfolio.getCashCents());
     assertEquals(5, position.getQuantity());
     assertEquals(0, position.getReservedQuantity());
-    assertEquals(175.0, position.getRealizedPnl(), 1e-9);
+    assertEquals(17_500, position.getRealizedPnlCents());
     assertEquals(1, position.getLots().size());
     assertEquals(5, position.getLots().get(0).getQuantity());
   }

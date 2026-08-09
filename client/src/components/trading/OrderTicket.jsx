@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { priceFromCents, usd } from '../../lib/format';
+import { priceFromCents, usdFromCents } from '../../lib/format';
 import api from '../../services/api';
 
 function OrderTicket({ symbol, lastCents, portfolio, onPlaced }) {
@@ -26,8 +26,8 @@ function OrderTicket({ symbol, lastCents, portfolio, onPlaced }) {
   const quantityNumber = parseInt(quantity, 10) || 0;
   const limitCents = type === 'LIMIT' ? Math.round(parseFloat(limit || '0') * 100) : null;
   const referenceCents = type === 'LIMIT' ? limitCents || 0 : lastCents || 0;
-  const estimate = (quantityNumber * referenceCents) / 100;
-  const buyingPower = (portfolio.cash || 0) - (portfolio.reservedCash || 0);
+  const estimateCents = quantityNumber * referenceCents;
+  const buyingPowerCents = (portfolio.cashCents || 0) - (portfolio.reservedCashCents || 0);
 
   const submit = async () => {
     setError(null);
@@ -109,11 +109,11 @@ function OrderTicket({ symbol, lastCents, portfolio, onPlaced }) {
 
         <div className="ticket-row">
           <span>{type === 'LIMIT' ? 'Order value' : 'Estimated cost'}</span>
-          <span className="val">{usd(estimate)}</span>
+          <span className="val">{usdFromCents(estimateCents)}</span>
         </div>
         <div className="ticket-row">
           <span>Buying power</span>
-          <span className="val">{usd(buyingPower)}</span>
+          <span className="val">{usdFromCents(buyingPowerCents)}</span>
         </div>
 
         <button

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../context/SessionContext';
+import { usdFromCents } from '../../lib/format';
 import './Account.css';
 
 function Account() {
@@ -33,7 +34,7 @@ function Account() {
     );
   }
 
-  const totalCash = portfolios.reduce((sum, portfolio) => sum + (portfolio.cash || 0), 0);
+  const totalCashCents = portfolios.reduce((sum, portfolio) => sum + (portfolio.cashCents || 0), 0);
 
   return (
     <div className="account-container">
@@ -60,7 +61,7 @@ function Account() {
             </div>
             <div className="detail-item">
               <div className="detail-label">Total Cash</div>
-              <div className="detail-value">${totalCash.toFixed(2)}</div>
+              <div className="detail-value">{usdFromCents(totalCashCents)}</div>
             </div>
           </div>
         </div>
@@ -86,7 +87,9 @@ function Account() {
                 <div key={portfolio.portfolioID} className="portfolio-item">
                   <div className="portfolio-info">
                     <h3>{portfolio.name}</h3>
-                    <div className="portfolio-balance">${(portfolio.cash || 0).toFixed(2)}</div>
+                    <div className="portfolio-balance">
+                      {usdFromCents(portfolio.cashCents || 0)}
+                    </div>
                   </div>
                   <Link to={`/portfolio/${portfolio.portfolioID}`} className="btn-text">
                     View Details →

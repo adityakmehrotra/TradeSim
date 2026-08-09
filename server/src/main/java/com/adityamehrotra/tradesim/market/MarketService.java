@@ -210,7 +210,7 @@ public class MarketService {
             throw new IllegalArgumentException("Not enough cash for this order");
           }
         } else {
-          long budget = Math.round(availableCashDollars(portfolioId) * 100);
+          long budget = positionService.availableCashCents(portfolioId);
           long[] affordable = walkAsks(book, budget, quantity);
           orderQuantity = affordable[0];
           if (orderQuantity <= 0) {
@@ -439,10 +439,6 @@ public class MarketService {
       }
     }
     return new long[] {quantity, cost};
-  }
-
-  private double availableCashDollars(int portfolioId) {
-    return positionService.availableCash(portfolioId);
   }
 
   private Instrument instrument(String symbol) {
