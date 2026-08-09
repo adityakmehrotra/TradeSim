@@ -18,6 +18,8 @@ Nothing external feeds the market. Bot market makers quote several levels on eac
 
 Placing a buy reserves cash and placing a sell reserves shares, so a resting order cannot be spent twice. When an order fills, the fill settles against the portfolio: a buy adds a FIFO lot and debits cash, a sell consumes lots oldest first and credits cash. Realized profit comes from the FIFO cost basis of the shares sold, and unrealized profit is marked against the last trade price. A market buy walks the book to size the order to what the account can actually afford, so cash never goes negative.
 
+Balances are stored as whole cents, not dollars. A dollar amount held as a floating point number cannot represent every cent exactly, so a long run of fills leaves the balance off by fractions of a cent and the books stop adding up. Cash, reserved cash, cost basis, and realized profit are all integers end to end, and the tests check that a few hundred fills at awkward prices leave the balance exact. Amounts are divided by a hundred only when they are displayed.
+
 ## Getting started
 
 You need [Docker](https://www.docker.com/). From the repository root:
