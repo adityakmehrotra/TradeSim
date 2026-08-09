@@ -21,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 /** The ownership guard sits in the service, so nothing mutates a portfolio the caller lacks. */
 @ExtendWith(MockitoExtension.class)
@@ -33,11 +32,11 @@ class PortfolioServiceTest {
   @Mock private PortfolioRepository portfolioRepository;
   @Mock private PositionRepository positionRepository;
   @Mock private MarketService marketService;
-  @Mock private MongoTemplate mongoTemplate;
+  @Mock private SequenceService sequenceService;
 
   private PortfolioService service() {
     return new PortfolioService(
-        portfolioRepository, positionRepository, marketService, mongoTemplate);
+        portfolioRepository, positionRepository, marketService, sequenceService);
   }
 
   @Test
