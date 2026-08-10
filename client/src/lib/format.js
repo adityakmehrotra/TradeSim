@@ -16,6 +16,18 @@ export function signedUsd(amount) {
   return sign + usd(amount);
 }
 
+// Amounts come from the server as whole cents. Dividing only at the point of display keeps the
+// arithmetic on the exact integers for as long as possible.
+export function usdFromCents(cents) {
+  if (cents == null) return '-';
+  return usd(cents / 100);
+}
+
+export function signedUsdFromCents(cents) {
+  if (cents == null) return '-';
+  return signedUsd(cents / 100);
+}
+
 export function signedPercent(value) {
   if (value == null || !isFinite(value)) return '-';
   const sign = value >= 0 ? '+' : '';

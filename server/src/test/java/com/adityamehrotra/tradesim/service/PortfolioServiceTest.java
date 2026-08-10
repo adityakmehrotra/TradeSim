@@ -100,7 +100,7 @@ class PortfolioServiceTest {
     IllegalArgumentException e =
         assertThrows(
             IllegalArgumentException.class,
-            () -> service().createPortfolio(request(1000.0, "Name", "Description")));
+            () -> service().createPortfolio(request(100_000, "Name", "Description")));
     assertEquals("An account can hold at most 10 portfolios", e.getMessage());
     verify(portfolioRepository, never()).save(any());
   }
@@ -109,10 +109,10 @@ class PortfolioServiceTest {
   void refusesAnInitialBalanceOutsideTheAllowedRange() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> service().createPortfolio(request(1.0, "Name", "Description")));
+        () -> service().createPortfolio(request(100, "Name", "Description")));
     assertThrows(
         IllegalArgumentException.class,
-        () -> service().createPortfolio(request(50_000_000.0, "Name", "Description")));
+        () -> service().createPortfolio(request(5_000_000_000L, "Name", "Description")));
     verify(portfolioRepository, never()).save(any());
   }
 
@@ -120,14 +120,14 @@ class PortfolioServiceTest {
   void refusesNamesAndDescriptionsThatAreTooLong() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> service().createPortfolio(request(1000.0, "n".repeat(61), "Description")));
+        () -> service().createPortfolio(request(100_000, "n".repeat(61), "Description")));
     assertThrows(
         IllegalArgumentException.class,
-        () -> service().createPortfolio(request(1000.0, "Name", "d".repeat(201))));
+        () -> service().createPortfolio(request(100_000, "Name", "d".repeat(201))));
     verify(portfolioRepository, never()).save(any());
   }
 
-  private PortfolioRequest request(double initialBalance, String name, String description) {
-    return new PortfolioRequest(OWNER, name, description, initialBalance, initialBalance);
+  private PortfolioRequest request(long balanceCents, String name, String description) {
+    return new PortfolioRequest(OWNER, name, description, balanceCents, balanceCents);
   }
 }
