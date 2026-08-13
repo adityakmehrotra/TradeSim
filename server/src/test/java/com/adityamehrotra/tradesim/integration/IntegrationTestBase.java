@@ -27,7 +27,13 @@ import org.testcontainers.containers.MongoDBContainer;
  * tolerant of a price that keeps drifting.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = "tradesim.market.autotick=false")
+@TestPropertySource(
+    properties = {
+      "tradesim.market.autotick=false",
+      // One test JVM keeps several application contexts alive at once, and each would take the
+      // lease off the last. InstanceLeaseIntegrationTest drives the lease itself instead.
+      "tradesim.instance.lease-enabled=false"
+    })
 abstract class IntegrationTestBase {
   /**
    * One container for every integration class. Tying its lifecycle to a single class would stop it

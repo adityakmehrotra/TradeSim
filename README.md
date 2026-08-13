@@ -59,6 +59,8 @@ This is a simulator, and it makes some deliberate simplifications.
 
 Prices are synthetic. They come from the bots and a random walk, not from any real market. Each order book lives in memory in a single process, so restarting the backend rebuilds the books from scratch; cash and positions persist in MongoDB, but resting orders do not survive a restart. Trading is long only, with no shorting, margin, or fees, and every order fills against the simulated liquidity rather than real counterparties. Sessions are tied to a browser cookie, so clearing cookies starts a new account.
 
+Only one backend instance can run at a time. Since the books are in memory, a second instance would match orders against a book the first cannot see. It would also run the startup sweep, which releases every reservation in the database on the assumption that no order book survived the restart, and that would free the cash and shares behind the first instance's live orders. Instances take a lease in MongoDB at startup, and one that finds the lease held refuses to start. Until that sweep and the required migrations finish, the backend reports itself not ready at `/actuator/health/readiness` and refuses new orders.
+
 ## Built with
 
 React and Vite on the frontend, Spring Boot on the backend, and MongoDB for storage.
