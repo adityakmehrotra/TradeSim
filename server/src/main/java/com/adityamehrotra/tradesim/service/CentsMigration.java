@@ -4,7 +4,6 @@ import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.repository.PortfolioRepository;
 import com.adityamehrotra.tradesim.repository.PositionRepository;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,6 +21,10 @@ import org.springframework.stereotype.Service;
  * reporting.
  *
  * <p>Rewriting an already migrated document is a no-op, so running this repeatedly is safe.
+ *
+ * <p>{@link com.adityamehrotra.tradesim.startup.StartupReconciliation} decides when this runs and
+ * retries it, so a database that is unreachable for a moment at boot does not leave the application
+ * serving requests against documents it has not repaired.
  */
 @Service
 public class CentsMigration {
@@ -42,7 +45,6 @@ public class CentsMigration {
     this.mongoTemplate = mongoTemplate;
   }
 
-  @PostConstruct
   public void migrate() {
     long portfolios = migratePortfolios();
     long positions = migratePositions();

@@ -9,6 +9,7 @@ import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.PositionService;
+import com.adityamehrotra.tradesim.startup.StartupReconciliation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +29,27 @@ public class OrderController {
   private final MarketService marketService;
   private final PositionService positionService;
   private final PortfolioService portfolioService;
+  private final StartupReconciliation reconciliation;
 
   public OrderController(
       MarketService marketService,
       PositionService positionService,
-      PortfolioService portfolioService) {
+      PortfolioService portfolioService,
+      StartupReconciliation reconciliation) {
     this.marketService = marketService;
     this.positionService = positionService;
     this.portfolioService = portfolioService;
+    this.reconciliation = reconciliation;
   }
 
+  /**
+   * Placing is the one path that has to wait for the startup sweep. Until it runs, reserved cash
+   * from the previous run is still counted against the account, so an order would be refused or
+   * sized against a balance that is not real. Nothing can be resting to cancel before then.
+   */
   @PostMapping
   public ResponseEntity<?> place(Session session, @RequestBody OrderRequest request) {
+    reconciliation.requireComplete();
     try {
       portfolioService.requireOwned(request.getPortfolioID(), session.getAccountID());
       Side side = Side.valueOf(request.getSide().toUpperCase());

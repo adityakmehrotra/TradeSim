@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,8 @@ import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.PositionService;
 import com.adityamehrotra.tradesim.service.SessionService;
+import com.adityamehrotra.tradesim.startup.StartupIncompleteException;
+import com.adityamehrotra.tradesim.startup.StartupReconciliation;
 import com.adityamehrotra.tradesim.web.SessionArgumentResolver;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
@@ -45,6 +48,7 @@ class OrderControllerTest {
   @MockBean private PositionService positionService;
   @MockBean private PortfolioService portfolioService;
   @MockBean private SessionService sessionService;
+  @MockBean private StartupReconciliation reconciliation;
 
   @BeforeEach
   void resolveSession() {
@@ -91,6 +95,23 @@ class OrderControllerTest {
 
     verify(marketService)
         .placeOrder(anyInt(), anyInt(), anyString(), any(), any(), any(), anyLong());
+  }
+
+  @Test
+  void refusesToPlaceAnOrderUntilStartupReconciliationFinishes() throws Exception {
+    doThrow(new StartupIncompleteException("still reconciling"))
+        .when(reconciliation)
+        .requireComplete();
+
+    mockMvc
+        .perform(
+            post("/tradesim/api/order")
+                .cookie(cookie())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(ORDER_BODY))
+        .andExpect(status().isServiceUnavailable());
+
+    verify(portfolioService, never()).requireOwned(anyInt(), anyInt());
   }
 
   @Test
