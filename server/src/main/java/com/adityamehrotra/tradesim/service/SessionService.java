@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 public class SessionService {
   public static final String COOKIE_NAME = "tradesim_session";
 
+  static final long TOUCH_INTERVAL_MS = 3_600_000;
+
   static final long STARTER_CASH_CENTS = 10_000_000;
 
   private final SessionRepository sessionRepository;
@@ -44,7 +46,28 @@ public class SessionService {
    * session endpoint creates sessions, because only it can hand the new cookie back.
    */
   public Session find(String token) {
-    return token == null ? null : sessionRepository.findById(token).orElse(null);
+    if (token == null) {
+      return null;
+    }
+    Session session = sessionRepository.findById(token).orElse(null);
+    if (session != null) {
+      touch(session);
+    }
+    return session;
+  }
+
+  /**
+   * Records that the session is still in use, but only once an hour. Writing on every request would
+   * turn each poll into a database write, and the cleanup window is measured in days, so an hour of
+   * staleness costs nothing.
+   */
+  private void touch(Session session) {
+    long now = System.currentTimeMillis();
+    if (now - session.lastActiveOr(0L) < TOUCH_INTERVAL_MS) {
+      return;
+    }
+    session.setLastActive(now);
+    sessionRepository.save(session);
   }
 
   /**
@@ -58,7 +81,8 @@ public class SessionService {
       }
     }
 
-    Session session = new Session(UUID.randomUUID().toString(), nextAccountID());
+    Session session =
+        new Session(UUID.randomUUID().toString(), nextAccountID(), System.currentTimeMillis());
     sessionRepository.save(session);
     seedStarterPortfolio(session.getAccountID());
     return session;
