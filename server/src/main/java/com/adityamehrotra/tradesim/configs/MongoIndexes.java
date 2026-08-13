@@ -1,5 +1,7 @@
 package com.adityamehrotra.tradesim.configs;
 
+import com.adityamehrotra.tradesim.model.Portfolio;
+import com.adityamehrotra.tradesim.model.Position;
 import com.adityamehrotra.tradesim.model.Session;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -32,6 +34,20 @@ public class MongoIndexes {
       mongoTemplate
           .indexOps(Session.class)
           .ensureIndex(new Index().on("accountID", Sort.Direction.ASC).unique());
+
+      // The cleanup sweep scans for stale sessions, and every authenticated request looks a
+      // portfolio up by owner. Both would otherwise be collection scans as the demo fills up.
+      // No expireAfter here on purpose: Mongo dropping a session would strand its portfolios,
+      // positions, and resting orders, so expiry goes through the application cascade instead.
+      mongoTemplate
+          .indexOps(Session.class)
+          .ensureIndex(new Index().on("lastActive", Sort.Direction.ASC));
+      mongoTemplate
+          .indexOps(Portfolio.class)
+          .ensureIndex(new Index().on("accountID", Sort.Direction.ASC));
+      mongoTemplate
+          .indexOps(Position.class)
+          .ensureIndex(new Index().on("portfolioID", Sort.Direction.ASC));
     } catch (DataAccessException e) {
       // Existing duplicates are the only realistic cause. Say so loudly and carry on, because the
       // counter is what prevents new ones and the application is still usable without the index.
