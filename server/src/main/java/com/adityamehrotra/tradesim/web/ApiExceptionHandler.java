@@ -2,6 +2,7 @@ package com.adityamehrotra.tradesim.web;
 
 import com.adityamehrotra.tradesim.exception.PortfolioNotFoundException;
 import com.adityamehrotra.tradesim.exception.SessionRequiredException;
+import com.adityamehrotra.tradesim.startup.StartupIncompleteException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,11 @@ public class ApiExceptionHandler {
   @ExceptionHandler(PortfolioNotFoundException.class)
   public ResponseEntity<Map<String, String>> portfolioNotFound(PortfolioNotFoundException e) {
     return body(HttpStatus.NOT_FOUND, e.getMessage());
+  }
+
+  @ExceptionHandler(StartupIncompleteException.class)
+  public ResponseEntity<Map<String, String>> startupIncomplete(StartupIncompleteException e) {
+    return body(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

@@ -17,9 +17,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,8 +27,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MarketService {
-  private static final Logger log = LoggerFactory.getLogger(MarketService.class);
-
   private static final long BOT_OWNER = -1;
   private static final int DEPTH = 12;
   private static final int MAX_RECENT_TRADES = 50;
@@ -56,12 +51,6 @@ public class MarketService {
 
   @PostConstruct
   void seed() {
-    try {
-      positionService.clearAllReservations();
-    } catch (DataAccessException e) {
-      log.warn("Could not sweep stale reservations at startup: {}", e.getMessage());
-    }
-
     synchronized (lock) {
       for (Instrument instrument : Instruments.ALL) {
         OrderBook book = new OrderBook(instrument.symbol());

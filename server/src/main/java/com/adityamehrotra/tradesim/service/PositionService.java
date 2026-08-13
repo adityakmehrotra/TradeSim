@@ -35,25 +35,6 @@ public class PositionService {
     return portfolio == null ? 0L : portfolio.availableCashCents();
   }
 
-  /**
-   * Order books live in memory and rebuild empty on startup, so any reservation persisted from a
-   * previous run no longer has an order behind it. Called once at boot.
-   */
-  public void clearAllReservations() {
-    for (Portfolio portfolio : portfolioRepository.findAll()) {
-      if (portfolio.getReservedCashCents() != 0) {
-        portfolio.setReservedCashCents(0);
-        portfolioRepository.save(portfolio);
-      }
-    }
-    for (Position position : positionRepository.findAll()) {
-      if (position.getReservedQuantity() != 0) {
-        position.setReservedQuantity(0);
-        positionRepository.save(position);
-      }
-    }
-  }
-
   private static long amountCents(long priceCents, long quantity) {
     return Math.multiplyExact(priceCents, quantity);
   }
