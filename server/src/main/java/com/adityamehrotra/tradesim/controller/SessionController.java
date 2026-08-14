@@ -27,14 +27,20 @@ public class SessionController {
   private final SessionService sessionService;
   private final RateLimiter rateLimiter;
   private final int newSessionsPerHour;
+  private final boolean cookieSecure;
+  private final String cookieSameSite;
 
   public SessionController(
       SessionService sessionService,
       RateLimiter rateLimiter,
-      @Value("${tradesim.limits.new-sessions-per-hour:30}") int newSessionsPerHour) {
+      @Value("${tradesim.limits.new-sessions-per-hour:30}") int newSessionsPerHour,
+      @Value("${tradesim.cookie.secure:false}") boolean cookieSecure,
+      @Value("${tradesim.cookie.same-site:Lax}") String cookieSameSite) {
     this.sessionService = sessionService;
     this.rateLimiter = rateLimiter;
     this.newSessionsPerHour = newSessionsPerHour;
+    this.cookieSecure = cookieSecure;
+    this.cookieSameSite = cookieSameSite;
   }
 
   @GetMapping
@@ -75,11 +81,15 @@ public class SessionController {
     if (session.getSessionId().equals(token)) {
       return;
     }
+    // Lax is enough while the app and the api sit on subdomains of one registrable domain. If the
+    // api is ever served from a different domain, this has to become None, which browsers only
+    // accept together with Secure.
     ResponseCookie cookie =
         ResponseCookie.from(COOKIE_NAME, session.getSessionId())
             .httpOnly(true)
+            .secure(cookieSecure)
             .path("/")
-            .sameSite("Lax")
+            .sameSite(cookieSameSite)
             .maxAge(Duration.ofDays(30))
             .build();
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
