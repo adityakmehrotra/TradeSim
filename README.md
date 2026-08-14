@@ -53,6 +53,30 @@ npm install
 npm run dev
 ```
 
+## Deploying
+
+The frontend is a static build on Vercel. The backend and its database run on Railway, reached at its own subdomain so the session cookie stays on one registrable domain and does not have to be a cross site cookie.
+
+The backend service builds from `server/Dockerfile`. `server/railway.json` points the health check at the readiness probe, so a new deployment only takes traffic once the startup sweep and any required migration have finished. Keep it at one replica: the order books live in memory, and a second instance refuses to start rather than trade against a book it cannot see.
+
+Set these on the backend service:
+
+| Variable | Value |
+| --- | --- |
+| `MONGODB_URI` | the connection string of the database service |
+| `CLIENT_ORIGIN` | `https://tradesim.adityamehrotra.com`, plus any other exact origin, comma separated |
+| `COOKIE_SECURE` | `true` |
+| `COOKIE_SAME_SITE` | `Lax` |
+| `TRADESIM_INSTANCE_LEASE_WAIT_MS` | `45000` |
+
+The lease wait matters. Deploying starts the replacement before stopping what is running, so for a moment both exist. The new instance waits for the old lease to expire instead of refusing to start, which is what lets a deployment go through without ever running two markets at once.
+
+`PORT` is set by the host and the application reads it. Forwarded headers are trusted because nothing can reach the container except the platform edge, and the rate limits key on the caller's address, which would otherwise be the proxy for everyone.
+
+On Vercel, set `VITE_API_BASE_URL` to the backend origin. The frontend sends its session cookie with every request, so the backend only answers origins named in `CLIENT_ORIGIN`.
+
+To roll back, redeploy the previous deployment from the Railway dashboard. Balances are written as both cents and dollars during the current compatibility window, so an older build reads current balances rather than stale ones.
+
 ## Limitations
 
 This is a simulator, and it makes some deliberate simplifications.
