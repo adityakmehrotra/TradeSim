@@ -18,6 +18,7 @@ import com.adityamehrotra.tradesim.model.Portfolio;
 import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.SessionService;
+import com.adityamehrotra.tradesim.web.RateLimiter;
 import com.adityamehrotra.tradesim.web.SessionArgumentResolver;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 /** Every portfolio route needs a session, and only ever reaches that session's own portfolios. */
 @WebMvcTest(PortfolioController.class)
-@Import(SessionArgumentResolver.class)
+@Import({SessionArgumentResolver.class, RateLimiter.class})
 class PortfolioControllerTest {
   private static final int ACCOUNT_ID = 1;
   private static final int FOREIGN = 7;

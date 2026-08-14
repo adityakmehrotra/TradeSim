@@ -21,6 +21,7 @@ import com.adityamehrotra.tradesim.service.PositionService;
 import com.adityamehrotra.tradesim.service.SessionService;
 import com.adityamehrotra.tradesim.startup.StartupIncompleteException;
 import com.adityamehrotra.tradesim.startup.StartupReconciliation;
+import com.adityamehrotra.tradesim.web.RateLimiter;
 import com.adityamehrotra.tradesim.web.SessionArgumentResolver;
 import jakarta.servlet.http.Cookie;
 import java.util.List;
@@ -35,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** Covers the ownership checks that keep one session out of another session's portfolio. */
 @WebMvcTest(OrderController.class)
-@Import(SessionArgumentResolver.class)
+@Import({SessionArgumentResolver.class, RateLimiter.class})
 class OrderControllerTest {
   private static final int ACCOUNT_ID = 1;
   private static final int FOREIGN_PORTFOLIO = 7;

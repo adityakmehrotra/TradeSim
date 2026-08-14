@@ -3,6 +3,7 @@ package com.adityamehrotra.tradesim.controller;
 import com.adityamehrotra.tradesim.dto.OrderRequest;
 import com.adityamehrotra.tradesim.engine.OrderType;
 import com.adityamehrotra.tradesim.engine.Side;
+import com.adityamehrotra.tradesim.exception.RateLimitedException;
 import com.adityamehrotra.tradesim.market.MarketService;
 import com.adityamehrotra.tradesim.model.Lot;
 import com.adityamehrotra.tradesim.model.Position;
@@ -10,9 +11,11 @@ import com.adityamehrotra.tradesim.model.Session;
 import com.adityamehrotra.tradesim.service.PortfolioService;
 import com.adityamehrotra.tradesim.service.PositionService;
 import com.adityamehrotra.tradesim.startup.StartupReconciliation;
+import com.adityamehrotra.tradesim.web.RateLimiter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,16 +33,22 @@ public class OrderController {
   private final PositionService positionService;
   private final PortfolioService portfolioService;
   private final StartupReconciliation reconciliation;
+  private final RateLimiter rateLimiter;
+  private final int ordersPerMinute;
 
   public OrderController(
       MarketService marketService,
       PositionService positionService,
       PortfolioService portfolioService,
-      StartupReconciliation reconciliation) {
+      StartupReconciliation reconciliation,
+      RateLimiter rateLimiter,
+      @Value("${tradesim.limits.orders-per-minute:120}") int ordersPerMinute) {
     this.marketService = marketService;
     this.positionService = positionService;
     this.portfolioService = portfolioService;
     this.reconciliation = reconciliation;
+    this.rateLimiter = rateLimiter;
+    this.ordersPerMinute = ordersPerMinute;
   }
 
   /**
@@ -50,6 +59,9 @@ public class OrderController {
   @PostMapping
   public ResponseEntity<?> place(Session session, @RequestBody OrderRequest request) {
     reconciliation.requireComplete();
+    if (!rateLimiter.allow("order:" + session.getAccountID(), ordersPerMinute, 60_000L)) {
+      throw new RateLimitedException("Too many orders. Slow down and try again shortly.");
+    }
     try {
       portfolioService.requireOwned(request.getPortfolioID(), session.getAccountID());
       Side side = Side.valueOf(request.getSide().toUpperCase());
