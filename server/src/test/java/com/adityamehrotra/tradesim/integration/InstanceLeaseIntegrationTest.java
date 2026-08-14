@@ -17,7 +17,11 @@ class InstanceLeaseIntegrationTest extends IntegrationTestBase {
   @Autowired private MongoTemplate mongoTemplate;
 
   private InstanceLease lease(long holdMillis) {
-    return new InstanceLease(mongoTemplate, true, holdMillis);
+    return lease(holdMillis, 0);
+  }
+
+  private InstanceLease lease(long holdMillis, long waitMillis) {
+    return new InstanceLease(mongoTemplate, true, holdMillis, waitMillis);
   }
 
   @Test
@@ -37,6 +41,29 @@ class InstanceLeaseIntegrationTest extends IntegrationTestBase {
     replacement.acquire();
 
     assertTrue(replacement.isHeld());
+  }
+
+  /**
+   * Deploying normally starts the replacement before stopping what is running. Without a wait the
+   * new instance would refuse to start and the deployment would never go through.
+   */
+  @Test
+  void waitsForAShortLeaseToExpireInsteadOfRefusing() {
+    lease(300).acquire();
+
+    InstanceLease replacement = lease(HELD_FOR_A_MINUTE, 10_000);
+    replacement.acquire();
+
+    assertTrue(replacement.isHeld());
+  }
+
+  @Test
+  void givesUpOnceTheWaitIsSpent() {
+    lease(HELD_FOR_A_MINUTE).acquire();
+
+    InstanceLease second = lease(HELD_FOR_A_MINUTE, 500);
+
+    assertThrows(IllegalStateException.class, second::acquire);
   }
 
   @Test
