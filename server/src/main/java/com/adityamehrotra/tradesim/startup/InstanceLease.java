@@ -33,6 +33,7 @@ public class InstanceLease {
   private final MongoTemplate mongoTemplate;
   private final boolean enabled;
   private final long holdMillis;
+  private final long waitMillis;
   private final String owner = UUID.randomUUID().toString();
 
   private volatile boolean held;
@@ -40,12 +41,20 @@ public class InstanceLease {
   public InstanceLease(
       MongoTemplate mongoTemplate,
       @Value("${tradesim.instance.lease-enabled:true}") boolean enabled,
-      @Value("${tradesim.instance.lease-hold-ms:30000}") long holdMillis) {
+      @Value("${tradesim.instance.lease-hold-ms:30000}") long holdMillis,
+      @Value("${tradesim.instance.lease-wait-ms:0}") long waitMillis) {
     this.mongoTemplate = mongoTemplate;
     this.enabled = enabled;
     this.holdMillis = holdMillis;
+    this.waitMillis = waitMillis;
   }
 
+  /**
+   * A host that starts the replacement before stopping the old instance, which is the normal way to
+   * deploy, would otherwise never hand over: the new process would find the lease held and give up
+   * immediately. Waiting for it to expire lets the deployment through while still keeping two
+   * instances from running the same market at once.
+   */
   @PostConstruct
   public void acquire() {
     if (!enabled) {
@@ -53,6 +62,25 @@ public class InstanceLease {
       held = true;
       return;
     }
+    long giveUpAt = System.currentTimeMillis() + waitMillis;
+    while (true) {
+      if (tryAcquire()) {
+        held = true;
+        return;
+      }
+      if (System.currentTimeMillis() >= giveUpAt) {
+        log.error(
+            "Another TradeSim instance holds the market lease. Order books live in memory in one "
+                + "process, so this instance will not start. Stop the other one or wait for its "
+                + "lease to expire.");
+        throw new IllegalStateException("The market lease is held by another instance");
+      }
+      log.info("Waiting for the market lease held by another instance to expire");
+      sleep();
+    }
+  }
+
+  private boolean tryAcquire() {
     long now = System.currentTimeMillis();
     try {
       mongoTemplate.upsert(
@@ -63,14 +91,19 @@ public class InstanceLease {
                       Criteria.where("expiresAt").lte(now), Criteria.where("owner").is(owner))),
           new Update().set("owner", owner).set("expiresAt", now + holdMillis),
           COLLECTION);
+      return true;
     } catch (DuplicateKeyException e) {
-      log.error(
-          "Another TradeSim instance holds the market lease. Order books live in memory in one "
-              + "process, so this instance will not start. Stop the other one or wait for its "
-              + "lease to expire.");
-      throw new IllegalStateException("The market lease is held by another instance");
+      return false;
     }
-    held = true;
+  }
+
+  private void sleep() {
+    try {
+      Thread.sleep(Math.min(2000, Math.max(250, holdMillis / 10)));
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while waiting for the market lease", e);
+    }
   }
 
   public boolean isHeld() {
