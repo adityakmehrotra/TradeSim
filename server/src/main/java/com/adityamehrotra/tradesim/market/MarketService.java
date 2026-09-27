@@ -77,7 +77,7 @@ public class MarketService {
       long low = open;
       for (int step = 0; step < CANDLE_SECONDS; step++) {
         double shockBps =
-            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBps();
+            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBpsPerSecond();
         price = Math.max(1, Math.round(price * (1 + shockBps / 10000.0)));
         high = Math.max(high, price);
         low = Math.min(low, price);
@@ -349,7 +349,7 @@ public class MarketService {
         MarketState state = states.get(instrument.symbol());
 
         double shockBps =
-            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBps();
+            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBpsPerSecond();
         state.reference = Math.max(1, Math.round(state.reference * (1 + shockBps / 10000.0)));
 
         requote(instrument, book, state);
