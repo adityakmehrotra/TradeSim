@@ -3,6 +3,8 @@ package com.adityamehrotra.tradesim.web;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.LongSupplier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,14 +21,22 @@ import org.springframework.stereotype.Component;
 public class RateLimiter {
   private final Map<String, Window> windows = new ConcurrentHashMap<>();
   private final int maxKeys;
+  private final LongSupplier clock;
 
+  @Autowired
   public RateLimiter(@Value("${tradesim.limits.max-tracked-keys:50000}") int maxKeys) {
+    this(maxKeys, System::currentTimeMillis);
+  }
+
+  /** Lets a test move time by hand instead of sleeping and hoping the clock ticked. */
+  RateLimiter(int maxKeys, LongSupplier clock) {
     this.maxKeys = maxKeys;
+    this.clock = clock;
   }
 
   /** True when the caller may proceed. */
   public boolean allow(String key, int limit, long windowMillis) {
-    long now = System.currentTimeMillis();
+    long now = clock.getAsLong();
 
     if (windows.size() >= maxKeys) {
       evictExpired(now);
