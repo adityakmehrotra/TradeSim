@@ -31,6 +31,9 @@
 		<developerConnection>scm:git:ssh://github.com/adityakmehrotra/TradeSim.git</developerConnection>
 		<url>https://github.com/adityakmehrotra/TradeSim</url>
 	</scm>
+	<properties>
+		<jmh.version>1.37</jmh.version>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -73,6 +76,18 @@
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-core</artifactId>
+			<version>${jmh.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-generator-annprocess</artifactId>
+			<version>${jmh.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -117,4 +132,30 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<!-- Runs the JMH benchmarks: ./mvnw -Pbench -DskipTests test-compile exec:exec -->
+		<profile>
+			<id>bench</id>
+			<properties>
+				<bench.args>OrderBookBenchmark -rf json -rff target/jmh.json</bench.args>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.5.0</version>
+						<configuration>
+							<!-- A separate java process, not exec:java, because JMH forks its
+							     measurement JVM from java.class.path and an in-process run has
+							     only Maven's own classpath there. -->
+							<executable>${java.home}/bin/java</executable>
+							<classpathScope>test</classpathScope>
+							<commandlineArgs>-classpath %classpath org.openjdk.jmh.Main ${bench.args}</commandlineArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
