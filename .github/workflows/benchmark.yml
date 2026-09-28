@@ -1,0 +1,26 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+
+jobs:
+  order-book:
+    name: Order book
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Run the benchmark
+        run: ./mvnw -B -Pbench -DskipTests test-compile exec:exec
+      - name: Upload the results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmh
+          path: server/target/jmh.json
