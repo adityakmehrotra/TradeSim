@@ -20,6 +20,28 @@ Placing a buy reserves cash and placing a sell reserves shares, so a resting ord
 
 Balances are stored as whole cents, not dollars. A dollar amount held as a floating point number cannot represent every cent exactly, so a long run of fills leaves the balance off by fractions of a cent and the books stop adding up. Cash, reserved cash, cost basis, and realized profit are all integers end to end, and the tests check that a few hundred fills at awkward prices leave the balance exact. Amounts are divided by a hundred only when they are displayed.
 
+### Performance
+
+The engine is plain Java with integer arithmetic and no framework or I/O behind it, so a JMH benchmark can time single book operations in nanoseconds without mocking anything. The benchmark seeds a book with a given number of price levels per side and four orders per level. It then times four scenarios: rest an order and cancel it, sweep the best ask level and quote it again, cancel and replace a resting order, and a mixed stream that is seventy percent rests, twenty percent crosses and ten percent cancels.
+
+Average nanoseconds per operation:
+
+| Scenario | 10 levels | 100 levels | 1000 levels |
+| --- | ---: | ---: | ---: |
+| restThenCancel | 34 | 39 | 57 |
+| crossOneLevel | 229 | 229 | 255 |
+| cancelAndReplace | 43 | 69 | 132 |
+| mixed | 42 | 45 | 55 |
+
+Measured on an Apple M1 Pro with Oracle JDK 17.0.4.1, one fork, five warmup and five measurement iterations of one second each. Regenerate with:
+
+```sh
+cd server
+./mvnw -Pbench -DskipTests test-compile exec:exec
+```
+
+JMH prints the table and writes the raw results to `server/target/jmh.json`. The Benchmark workflow on GitHub runs the same command on demand and uploads that file.
+
 ## Getting started
 
 You need [Docker](https://www.docker.com/). From the repository root:
