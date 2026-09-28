@@ -34,7 +34,7 @@ There are no accounts. The first visit creates an anonymous session, stored in a
 
 ### Running the pieces directly
 
-If you would rather run the backend and frontend without Docker, you need Java 17, Node 20, and a MongoDB instance.
+If you would rather run the backend and frontend without Docker, you need Java 17, Node 22, and a MongoDB instance.
 
 Start MongoDB, for example with `docker run -p 27017:27017 mongo:7`, then run the backend:
 
@@ -55,15 +55,17 @@ npm run dev
 
 ## Deploying
 
-The frontend is a static build on Vercel. The backend and its database run on Railway, reached at its own subdomain so the session cookie stays on one registrable domain and does not have to be a cross site cookie.
+The frontend is a static build on Vercel at `https://tradesim.adityamehrotra.com`. The backend runs on Railway at `https://api.tradesim.adityamehrotra.com`. Both are under one registrable domain, so the session cookie is same site and does not have to be a cross site cookie. The database is a MongoDB Atlas cluster.
 
-The backend service builds from `server/Dockerfile`. `server/railway.json` points the health check at the readiness probe, so a new deployment only takes traffic once the startup sweep and any required migration have finished. Keep it at one replica: the order books live in memory, and a second instance refuses to start rather than trade against a book it cannot see.
+The backend service builds from `server/Dockerfile`, with `server` as the service root because that is where `railway.json` lives. That file points the health check at the readiness probe, so a new deployment only takes traffic once the startup sweep and any required migration have finished. Keep it at one replica: the order books live in memory, and a second instance refuses to start rather than trade against a book it cannot see.
+
+Add `api.tradesim.adityamehrotra.com` as a custom domain on the service and create the CNAME and TXT records Railway shows for it. Railway does not publish a fixed egress address, so Atlas has to accept connections from anywhere and the database user needs a strong password of its own.
 
 Set these on the backend service:
 
 | Variable | Value |
 | --- | --- |
-| `MONGODB_URI` | the connection string of the database service |
+| `MONGODB_URI` | the Atlas connection string, starting `mongodb+srv://`. The application names its own database. |
 | `CLIENT_ORIGIN` | `https://tradesim.adityamehrotra.com`, plus any other exact origin, comma separated |
 | `COOKIE_SECURE` | `true` |
 | `COOKIE_SAME_SITE` | `Lax` |
@@ -73,7 +75,7 @@ The lease wait matters. Deploying starts the replacement before stopping what is
 
 `PORT` is set by the host and the application reads it. Forwarded headers are trusted because nothing can reach the container except the platform edge, and the rate limits key on the caller's address, which would otherwise be the proxy for everyone.
 
-On Vercel, set `VITE_API_BASE_URL` to the backend origin. The frontend sends its session cookie with every request, so the backend only answers origins named in `CLIENT_ORIGIN`.
+On Vercel, set `VITE_API_BASE_URL` to `https://api.tradesim.adityamehrotra.com` for production. Vite reads it at build time, so a change takes effect on the next deployment rather than the running one. Preview deployments live on `vercel.app` origins, which are cross site to the API and cannot hold the session cookie, so only production is wired up. The frontend sends its session cookie with every request, and the backend only answers origins named in `CLIENT_ORIGIN`. `client/vercel.json` rewrites every path to `index.html`, so a page can be refreshed or linked to directly.
 
 To roll back, redeploy the previous deployment from the Railway dashboard. Balances are written as both cents and dollars during the current compatibility window, so an older build reads current balances rather than stale ones.
 

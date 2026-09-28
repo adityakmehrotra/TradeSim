@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
@@ -39,14 +40,18 @@ class RateLimiterTest {
   }
 
   @Test
-  void startsAFreshWindowOnceTheOldOneHasPassed() throws Exception {
-    RateLimiter limiter = new RateLimiter(1000);
+  void startsAFreshWindowOnceTheOldOneHasPassed() {
+    AtomicLong now = new AtomicLong(1_000);
+    RateLimiter limiter = new RateLimiter(1000, now::get);
 
-    assertTrue(limiter.allow("caller", 1, 1));
-    assertFalse(limiter.allow("caller", 1, 1));
-    Thread.sleep(5);
+    assertTrue(limiter.allow("caller", 1, 60_000));
+    assertFalse(limiter.allow("caller", 1, 60_000));
 
-    assertTrue(limiter.allow("caller", 1, 1), "a new window should hand back the allowance");
+    now.addAndGet(59_999);
+    assertFalse(limiter.allow("caller", 1, 60_000), "the window has not passed yet");
+
+    now.incrementAndGet();
+    assertTrue(limiter.allow("caller", 1, 60_000), "a new window should hand back the allowance");
   }
 
   /** Unbounded growth here would turn the limiter into the thing it is meant to prevent. */

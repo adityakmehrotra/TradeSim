@@ -36,6 +36,13 @@ public class MarketService {
   private static final int MM_LEVELS = 5;
   private static final long MAX_ORDER_QUANTITY = 1_000_000;
   private static final long MAX_LIMIT_PRICE_CENTS = 100_000_000;
+  // A random walk with nothing pulling on it wanders without bound, and a multiplicative one also
+  // decays, so a process left running for days ends up at prices that mean nothing. Each tick moves
+  // the reference a small fraction of the way back toward the seed price, which bounds how far it
+  // can stray while leaving room to trend for an hour or so.
+  private static final double REVERSION_PER_TICK = 1.0 / 3600;
+  // The market maker quotes MM_LEVELS steps under the reference, and a bid at zero is not an order.
+  private static final long MIN_REFERENCE_CENTS = MM_LEVELS + 1;
 
   private final PositionService positionService;
   private final Map<String, OrderBook> books = new LinkedHashMap<>();
@@ -77,8 +84,8 @@ public class MarketService {
       long low = open;
       for (int step = 0; step < CANDLE_SECONDS; step++) {
         double shockBps =
-            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBps();
-        price = Math.max(1, Math.round(price * (1 + shockBps / 10000.0)));
+            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBpsPerSecond();
+        price = Math.max(MIN_REFERENCE_CENTS, Math.round(price * (1 + shockBps / 10000.0)));
         high = Math.max(high, price);
         low = Math.min(low, price);
       }
@@ -349,8 +356,11 @@ public class MarketService {
         MarketState state = states.get(instrument.symbol());
 
         double shockBps =
-            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBps();
-        state.reference = Math.max(1, Math.round(state.reference * (1 + shockBps / 10000.0)));
+            random.nextGaussian() * instrument.volatilityBps() + instrument.driftBpsPerSecond();
+        double pull = (instrument.referencePriceCents() - state.reference) * REVERSION_PER_TICK;
+        state.reference =
+            Math.max(
+                MIN_REFERENCE_CENTS, Math.round(state.reference * (1 + shockBps / 10000.0) + pull));
 
         requote(instrument, book, state);
 
